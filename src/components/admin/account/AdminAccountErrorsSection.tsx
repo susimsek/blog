@@ -66,6 +66,11 @@ type AdminAccountErrorsSectionProps = {
   onDeleteErrorMessageSubmit: () => void | Promise<void>;
 };
 
+const ERROR_LOCALE_NAMES = {
+  en: LOCALES.en.name,
+  tr: LOCALES.tr.name,
+};
+
 export default function AdminAccountErrorsSection({
   t,
   formatSessionDate,
@@ -215,21 +220,27 @@ export default function AdminAccountErrorsSection({
 
         <div className="card shadow-sm d-block">
           <div className="card-body p-3 w-100">
-            {isErrorMessagesLoading ? (
+            {isErrorMessagesLoading && (
               <div className="admin-account-sessions-loading">
                 <AdminLoadingState
                   className="admin-loading-stack"
                   ariaLabel={t('adminAccount.errorsCatalog.loading', { ns: 'admin-account' })}
                 />
               </div>
-            ) : totalErrorMessages === 0 ? (
-              <p className="small text-muted mb-0">{t('adminAccount.errorsCatalog.empty', { ns: 'admin-account' })}</p>
-            ) : (
+            )}
+            {!isErrorMessagesLoading && totalErrorMessages === 0 && (
+              <p className="small theme-text-muted mb-0">
+                {t('adminAccount.errorsCatalog.empty', { ns: 'admin-account' })}
+              </p>
+            )}
+            {!isErrorMessagesLoading && totalErrorMessages > 0 && (
               <div className="d-grid gap-2">
                 {errorMessages.map(item => {
                   const itemKey = getErrorMessageKey(item);
                   const isDeletingCurrentItem = isErrorDeleteSubmitting && deletingErrorMessageKey === itemKey;
                   const localeCode = item.locale.toLowerCase();
+                  const localeName =
+                    ERROR_LOCALE_NAMES[localeCode as keyof typeof ERROR_LOCALE_NAMES] ?? item.locale.toUpperCase();
 
                   return (
                     <div key={itemKey} className="border rounded-3 p-3">
@@ -242,7 +253,7 @@ export default function AdminAccountErrorsSection({
                       >
                         <div className="fw-bold fs-5 text-break">{item.code}</div>
                         <div className="mt-2 d-flex align-items-center flex-wrap gap-2">
-                          <span className="d-inline-flex align-items-center gap-2 text-muted">
+                          <span className="d-inline-flex align-items-center gap-2 theme-text-muted">
                             {localeCode === 'en' || localeCode === 'tr' ? (
                               <FlagIcon
                                 className="flex-shrink-0"
@@ -252,20 +263,14 @@ export default function AdminAccountErrorsSection({
                                 height={18}
                               />
                             ) : (
-                              <FontAwesomeIcon icon="globe" className="text-muted" />
+                              <FontAwesomeIcon icon="globe" className="theme-text-muted" />
                             )}
-                            <span>
-                              {localeCode === 'en'
-                                ? LOCALES.en.name
-                                : localeCode === 'tr'
-                                  ? LOCALES.tr.name
-                                  : item.locale.toUpperCase()}
-                            </span>
+                            <span>{localeName}</span>
                           </span>
                         </div>
-                        <div className="small mt-2 text-break text-muted">{item.message}</div>
+                        <div className="small mt-2 text-break theme-text-muted">{item.message}</div>
                         {item.updatedAt ? (
-                          <div className="small mt-2 text-muted d-flex align-items-center flex-wrap">
+                          <div className="small mt-2 theme-text-muted d-flex align-items-center flex-wrap">
                             <FontAwesomeIcon icon="calendar-alt" className="me-2" />
                             {t('adminAccount.errorsCatalog.list.updatedAt', {
                               ns: 'admin-account',
@@ -354,9 +359,9 @@ export default function AdminAccountErrorsSection({
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {errorCrudTab === 'create' ? (
+          {errorCrudTab === 'create' && (
             <>
-              <p className="small text-muted mb-3">
+              <p className="small theme-text-muted mb-3">
                 {t('adminAccount.errorsCatalog.create.copy', { ns: 'admin-account' })}
               </p>
               <div className="row g-2 mb-3">
@@ -398,7 +403,7 @@ export default function AdminAccountErrorsSection({
                       maxLength={120}
                     />
                     {normalizedErrorCreateCode !== '' && !isErrorCreateCodeValid ? (
-                      <Form.Text className="text-danger">
+                      <Form.Text className="theme-text-danger">
                         {t('adminAccount.errorsCatalog.create.codeValidation', { ns: 'admin-account' })}
                       </Form.Text>
                     ) : null}
@@ -417,26 +422,27 @@ export default function AdminAccountErrorsSection({
                   }}
                   maxLength={500}
                 />
-                <Form.Text className="text-muted">
+                <Form.Text className="theme-text-muted">
                   {t('adminAccount.errorsCatalog.create.messageHint', { ns: 'admin-account', count: 500 })}
                 </Form.Text>
               </Form.Group>
             </>
-          ) : selectedErrorMessage ? (
+          )}
+          {errorCrudTab === 'update' && selectedErrorMessage && (
             <>
-              <p className="small text-muted mb-3">
+              <p className="small theme-text-muted mb-3">
                 {t('adminAccount.errorsCatalog.update.copy', { ns: 'admin-account' })}
               </p>
               <dl className="row mb-3 small">
-                <dt className="col-4 text-uppercase text-muted">
+                <dt className="col-4 text-uppercase theme-text-muted">
                   {t('adminAccount.errorsCatalog.update.labels.code', { ns: 'admin-account' })}
                 </dt>
                 <dd className="col-8 mb-2">{selectedErrorMessage.code}</dd>
-                <dt className="col-4 text-uppercase text-muted">
+                <dt className="col-4 text-uppercase theme-text-muted">
                   {t('adminAccount.errorsCatalog.update.labels.scope', { ns: 'admin-account' })}
                 </dt>
                 <dd className="col-8 mb-2">{selectedErrorMessage.scope}</dd>
-                <dt className="col-4 text-uppercase text-muted">
+                <dt className="col-4 text-uppercase theme-text-muted">
                   {t('adminAccount.errorsCatalog.update.labels.locale', { ns: 'admin-account' })}
                 </dt>
                 <dd className="col-8 mb-2">{selectedErrorMessage.locale}</dd>
@@ -453,13 +459,14 @@ export default function AdminAccountErrorsSection({
                   }}
                   maxLength={500}
                 />
-                <Form.Text className="text-muted">
+                <Form.Text className="theme-text-muted">
                   {t('adminAccount.errorsCatalog.update.messageHint', { ns: 'admin-account', count: 500 })}
                 </Form.Text>
               </Form.Group>
             </>
-          ) : (
-            <p className="small text-muted mb-0">
+          )}
+          {errorCrudTab === 'update' && !selectedErrorMessage && (
+            <p className="small theme-text-muted mb-0">
               {t('adminAccount.errorsCatalog.update.empty', { ns: 'admin-account' })}
             </p>
           )}
@@ -487,8 +494,8 @@ export default function AdminAccountErrorsSection({
                 void onUpdateErrorMessageSubmit();
               }}
             >
-              {errorCrudTab === 'create' ? (
-                isErrorCreateSubmitting ? (
+              {errorCrudTab === 'create' &&
+                (isErrorCreateSubmitting ? (
                   <span className="d-inline-flex align-items-center gap-2">
                     <Spinner
                       as="span"
@@ -504,24 +511,25 @@ export default function AdminAccountErrorsSection({
                     <FontAwesomeIcon icon="plus" className="me-2" />
                     {t('adminAccount.errorsCatalog.actions.create', { ns: 'admin-account' })}
                   </>
-                )
-              ) : isErrorUpdateSubmitting ? (
-                <span className="d-inline-flex align-items-center gap-2">
-                  <Spinner
-                    as="span"
-                    animation="border"
-                    size="sm"
-                    className="me-2 flex-shrink-0 admin-action-spinner"
-                    aria-hidden="true"
-                  />
-                  <span>{t('adminAccount.errorsCatalog.actions.updating', { ns: 'admin-account' })}</span>
-                </span>
-              ) : (
-                <>
-                  <FontAwesomeIcon icon="save" className="me-2" />
-                  {t('adminAccount.errorsCatalog.actions.update', { ns: 'admin-account' })}
-                </>
-              )}
+                ))}
+              {errorCrudTab === 'update' &&
+                (isErrorUpdateSubmitting ? (
+                  <span className="d-inline-flex align-items-center gap-2">
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      className="me-2 flex-shrink-0 admin-action-spinner"
+                      aria-hidden="true"
+                    />
+                    <span>{t('adminAccount.errorsCatalog.actions.updating', { ns: 'admin-account' })}</span>
+                  </span>
+                ) : (
+                  <>
+                    <FontAwesomeIcon icon="save" className="me-2" />
+                    {t('adminAccount.errorsCatalog.actions.update', { ns: 'admin-account' })}
+                  </>
+                ))}
             </Button>
           </div>
         </Modal.Footer>
@@ -537,7 +545,7 @@ export default function AdminAccountErrorsSection({
           <Modal.Title>{t('adminAccount.errorsCatalog.actions.delete', { ns: 'admin-account' })}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p className="small text-muted mb-3">
+          <p className="small theme-text-muted mb-3">
             {t('adminAccount.errorsCatalog.actions.confirmDelete', {
               ns: 'admin-account',
               code: pendingErrorMessageDelete?.code ?? '',
@@ -545,15 +553,15 @@ export default function AdminAccountErrorsSection({
             })}
           </p>
           <dl className="row mb-0 small">
-            <dt className="col-4 text-uppercase text-muted">
+            <dt className="col-4 text-uppercase theme-text-muted">
               {t('adminAccount.errorsCatalog.update.labels.code', { ns: 'admin-account' })}
             </dt>
             <dd className="col-8 mb-2">{pendingErrorMessageDelete?.code ?? '-'}</dd>
-            <dt className="col-4 text-uppercase text-muted">
+            <dt className="col-4 text-uppercase theme-text-muted">
               {t('adminAccount.errorsCatalog.update.labels.scope', { ns: 'admin-account' })}
             </dt>
             <dd className="col-8 mb-2">{pendingErrorMessageDelete?.scope ?? '-'}</dd>
-            <dt className="col-4 text-uppercase text-muted">
+            <dt className="col-4 text-uppercase theme-text-muted">
               {t('adminAccount.errorsCatalog.update.labels.locale', { ns: 'admin-account' })}
             </dt>
             <dd className="col-8 mb-0">{pendingErrorMessageDelete?.locale ?? '-'}</dd>

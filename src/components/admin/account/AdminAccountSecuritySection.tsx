@@ -103,7 +103,7 @@ const renderConnectedAccountAction = ({
 }: ConnectedAccountActionProps) => {
   if (isLoading) {
     return (
-      <div className="small text-muted d-inline-flex align-items-center">
+      <div className="small theme-text-muted d-inline-flex align-items-center">
         <Spinner
           as="span"
           animation="border"
@@ -241,14 +241,14 @@ export default function AdminAccountSecuritySection({
         <ListGroup.Item className="px-4 py-4">
           <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
             <div className="d-flex align-items-start gap-3">
-              <span className="fs-4 text-body-secondary">
+              <span className="fs-4 theme-text-body-secondary">
                 <FontAwesomeIcon icon="envelope" />
               </span>
               <div>
                 <div className="fw-semibold mb-1">{t('adminAccount.account.email.title', { ns: 'admin-account' })}</div>
-                <div className="text-body-secondary">{adminUser.pendingEmail ?? adminUser.email}</div>
+                <div className="theme-text-muted">{adminUser.pendingEmail ?? adminUser.email}</div>
                 {adminUser.pendingEmail ? (
-                  <div className="small text-body-secondary mt-1">
+                  <div className="small theme-text-muted mt-1">
                     {t('adminAccount.account.email.pending.copy', {
                       ns: 'admin-account',
                       email: adminUser.pendingEmail,
@@ -268,14 +268,14 @@ export default function AdminAccountSecuritySection({
         <ListGroup.Item className="px-4 py-4">
           <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
             <div className="d-flex align-items-start gap-3">
-              <span className="fs-4 text-body-secondary">
+              <span className="fs-4 theme-text-body-secondary">
                 <FontAwesomeIcon icon="lock" />
               </span>
               <div>
                 <div className="fw-semibold mb-1">
                   {t('adminCommon.actions.changePassword', { ns: 'admin-common' })}
                 </div>
-                <div className="text-body-secondary">
+                <div className="theme-text-muted">
                   {t('adminAccount.connectedAccounts.password.copy', { ns: 'admin-account' })}
                 </div>
               </div>
@@ -429,7 +429,7 @@ export default function AdminAccountSecuritySection({
         <ListGroup.Item className="px-4 py-4">
           <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
             <div className="d-flex align-items-start gap-3">
-              <span className="fs-4 text-body-secondary">
+              <span className="fs-4 theme-text-body-secondary">
                 <FontAwesomeIcon icon={['fab', 'google']} />
               </span>
               <div>
@@ -441,7 +441,7 @@ export default function AdminAccountSecuritySection({
                     </Badge>
                   ) : null}
                 </div>
-                <div className="text-body-secondary">
+                <div className="theme-text-muted">
                   {adminUser.googleLinked
                     ? t('adminAccount.connectedAccounts.google.connectedCopy', {
                         ns: 'admin-account',
@@ -450,7 +450,7 @@ export default function AdminAccountSecuritySection({
                     : t('adminAccount.connectedAccounts.google.disconnectedCopy', { ns: 'admin-account' })}
                 </div>
                 {adminUser.googleLinkedAt ? (
-                  <div className="small text-body-secondary mt-1 d-inline-flex align-items-center gap-2">
+                  <div className="small theme-text-body-secondary mt-1 d-inline-flex align-items-center gap-2">
                     <FontAwesomeIcon icon="calendar-alt" />
                     {t('adminAccount.connectedAccounts.google.linkedAt', {
                       ns: 'admin-account',
@@ -459,12 +459,12 @@ export default function AdminAccountSecuritySection({
                   </div>
                 ) : null}
                 {adminUser.googleLinked && googleAuthStatus.loginAvailable ? (
-                  <div className="small text-body-secondary mt-1">
+                  <div className="small theme-text-muted mt-1">
                     {t('adminAccount.connectedAccounts.google.loginEnabled', { ns: 'admin-account' })}
                   </div>
                 ) : null}
                 {!isGoogleAuthStatusLoading && !googleAuthStatus.enabled ? (
-                  <div className="small text-body-secondary mt-1">
+                  <div className="small theme-text-muted mt-1">
                     {t('adminAccount.connectedAccounts.google.unavailableBadge', { ns: 'admin-account' })}
                   </div>
                 ) : null}
@@ -495,7 +495,7 @@ export default function AdminAccountSecuritySection({
         <ListGroup.Item className="px-4 py-4">
           <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
             <div className="d-flex align-items-start gap-3">
-              <span className="fs-4 text-body-secondary">
+              <span className="fs-4 theme-text-body-secondary">
                 <FontAwesomeIcon icon={['fab', 'github']} />
               </span>
               <div>
@@ -507,7 +507,7 @@ export default function AdminAccountSecuritySection({
                     </Badge>
                   ) : null}
                 </div>
-                <div className="text-body-secondary">
+                <div className="theme-text-muted">
                   {adminUser.githubLinked
                     ? t('adminAccount.connectedAccounts.github.connectedCopy', {
                         ns: 'admin-account',
@@ -516,7 +516,7 @@ export default function AdminAccountSecuritySection({
                     : t('adminAccount.connectedAccounts.github.disconnectedCopy', { ns: 'admin-account' })}
                 </div>
                 {adminUser.githubLinkedAt ? (
-                  <div className="small text-body-secondary mt-1 d-inline-flex align-items-center gap-2">
+                  <div className="small theme-text-body-secondary mt-1 d-inline-flex align-items-center gap-2">
                     <FontAwesomeIcon icon="calendar-alt" />
                     {t('adminAccount.connectedAccounts.github.linkedAt', {
                       ns: 'admin-account',
@@ -525,12 +525,12 @@ export default function AdminAccountSecuritySection({
                   </div>
                 ) : null}
                 {adminUser.githubLinked && githubAuthStatus.loginAvailable ? (
-                  <div className="small text-body-secondary mt-1">
+                  <div className="small theme-text-muted mt-1">
                     {t('adminAccount.connectedAccounts.github.loginEnabled', { ns: 'admin-account' })}
                   </div>
                 ) : null}
                 {!isGithubAuthStatusLoading && !githubAuthStatus.enabled ? (
-                  <div className="small text-body-secondary mt-1">
+                  <div className="small theme-text-muted mt-1">
                     {t('adminAccount.connectedAccounts.github.unavailableBadge', { ns: 'admin-account' })}
                   </div>
                 ) : null}

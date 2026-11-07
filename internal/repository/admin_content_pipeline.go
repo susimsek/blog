@@ -129,7 +129,7 @@ func buildAdminContentPostGroupPipeline(filter domain.AdminContentPostFilter) mo
 			{Key: "id", Value: 1},
 			{Key: "source", Value: 1},
 		}}},
-		bson.D{{Key: "$project", Value: bson.M{
+		bson.D{{Key: mongoStageProject, Value: bson.M{
 			"_id":      0,
 			"id":       1,
 			"source":   1,
@@ -171,23 +171,23 @@ func buildAdminContentTopicGroupPipeline(filter domain.AdminContentTaxonomyFilte
 			"_id": "$id",
 			"id":  bson.M{"$first": "$id"},
 			"variants": bson.M{"$push": bson.M{
-				"locale":    "$locale",
+				"locale":    mongoFieldLocale,
 				"id":        "$id",
 				"name":      "$name",
 				"color":     "$color",
 				"link":      "$link",
-				"updatedAt": "$updatedAt",
+				"updatedAt": mongoFieldUpdatedAt,
 			}},
 			"enName": bson.M{"$max": bson.M{
 				"$cond": bson.A{
-					bson.M{"$eq": bson.A{"$locale", adminContentLocaleEN}},
+					bson.M{"$eq": bson.A{mongoFieldLocale, adminContentLocaleEN}},
 					"$name",
 					"",
 				},
 			}},
 			"trName": bson.M{"$max": bson.M{
 				"$cond": bson.A{
-					bson.M{"$eq": bson.A{"$locale", adminContentLocaleTR}},
+					bson.M{"$eq": bson.A{mongoFieldLocale, adminContentLocaleTR}},
 					"$name",
 					"",
 				},
@@ -198,7 +198,7 @@ func buildAdminContentTopicGroupPipeline(filter domain.AdminContentTaxonomyFilte
 			{Key: "sortName", Value: 1},
 			{Key: "id", Value: 1},
 		}}},
-		bson.D{{Key: "$project", Value: bson.M{
+		bson.D{{Key: mongoStageProject, Value: bson.M{
 			"_id":      0,
 			"id":       1,
 			"variants": 1,
@@ -240,24 +240,24 @@ func buildAdminContentCategoryGroupPipeline(filter domain.AdminContentTaxonomyFi
 			"_id": "$id",
 			"id":  bson.M{"$first": "$id"},
 			"variants": bson.M{"$push": bson.M{
-				"locale":    "$locale",
+				"locale":    mongoFieldLocale,
 				"id":        "$id",
 				"name":      "$name",
 				"color":     "$color",
 				"icon":      "$icon",
 				"link":      "$link",
-				"updatedAt": "$updatedAt",
+				"updatedAt": mongoFieldUpdatedAt,
 			}},
 			"enName": bson.M{"$max": bson.M{
 				"$cond": bson.A{
-					bson.M{"$eq": bson.A{"$locale", adminContentLocaleEN}},
+					bson.M{"$eq": bson.A{mongoFieldLocale, adminContentLocaleEN}},
 					"$name",
 					"",
 				},
 			}},
 			"trName": bson.M{"$max": bson.M{
 				"$cond": bson.A{
-					bson.M{"$eq": bson.A{"$locale", adminContentLocaleTR}},
+					bson.M{"$eq": bson.A{mongoFieldLocale, adminContentLocaleTR}},
 					"$name",
 					"",
 				},
@@ -268,7 +268,7 @@ func buildAdminContentCategoryGroupPipeline(filter domain.AdminContentTaxonomyFi
 			{Key: "sortName", Value: 1},
 			{Key: "id", Value: 1},
 		}}},
-		bson.D{{Key: "$project", Value: bson.M{
+		bson.D{{Key: mongoStageProject, Value: bson.M{
 			"_id":      0,
 			"id":       1,
 			"variants": 1,

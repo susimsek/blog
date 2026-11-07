@@ -8,6 +8,7 @@ type ThumbnailProps = {
   height?: number;
   className?: string;
   priority?: boolean;
+  noBottomMargin?: boolean;
 };
 
 export default function Thumbnail({
@@ -17,9 +18,10 @@ export default function Thumbnail({
   height = 630,
   className = '',
   priority = false,
+  noBottomMargin = false,
 }: Readonly<ThumbnailProps>) {
   return (
-    <div className={`image-wrapper text-center mb-4 ${className}`}>
+    <div className={`image-wrapper text-center ${noBottomMargin ? '' : 'mb-4'} ${className}`}>
       <Image
         src={src}
         alt={alt}

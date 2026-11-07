@@ -44,7 +44,6 @@ export default function SourceDropdown({ value, onChange }: Readonly<SourceDropd
     <DropdownButton
       id="source-dropdown"
       variant="brown"
-      className="mb-2"
       align="start"
       flip={false}
       title={

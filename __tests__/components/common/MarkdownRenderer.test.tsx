@@ -148,7 +148,9 @@ describe('MarkdownRenderer Component', () => {
     );
 
     expect(screen.getByText('no-href').tagName.toLowerCase()).toBe('span');
+    expect(screen.getByText('no-href')).toHaveClass('theme-text-primary');
     expect(screen.getByText('hash').closest('a')).toHaveAttribute('href', '#section');
+    expect(screen.getByText('hash').closest('a')).toHaveClass('theme-text-primary');
     expect(screen.getByText('mail').closest('a')).toHaveAttribute('href', 'mailto:test@example.com');
     expect(screen.getByText('tel').closest('a')).toHaveAttribute('href', 'tel:+905551112233');
 

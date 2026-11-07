@@ -166,11 +166,12 @@ export default function useAdminErrorsSection({
         const preferredSelectedKey = options?.preferredSelectedKey?.trim() ?? '';
         const currentSelectedKey = preferredSelectedKey || selectedErrorMessageKeyRef.current;
         const hasCurrentSelection = items.some(item => toAdminErrorMessageKey(item) === currentSelectedKey);
-        const nextSelectedKey = hasCurrentSelection
-          ? currentSelectedKey
-          : items[0]
-            ? toAdminErrorMessageKey(items[0])
-            : '';
+        let nextSelectedKey = '';
+        if (hasCurrentSelection) {
+          nextSelectedKey = currentSelectedKey;
+        } else if (items[0]) {
+          nextSelectedKey = toAdminErrorMessageKey(items[0]);
+        }
         setSelectedErrorMessageKey(nextSelectedKey);
         selectedErrorMessageKeyRef.current = nextSelectedKey;
 

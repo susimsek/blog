@@ -29,7 +29,7 @@ export default function VisualMemoryPage({ contentByLocale }: Readonly<VisualMem
     >
       <section className="visual-memory-page-section stack stack-24">
         <header className="visual-memory-page-hero">
-          <h1 className="page-header-title fw-bold mb-2">{t('games.visualMemory.title')}</h1>
+          <h1 className="page-header-title fw-bold">{t('games.visualMemory.title')}</h1>
           <div className="visual-memory-page-kicker-wrap">
             <Badge bg="danger" className="badge-red visual-memory-page-kicker">
               {t('games.visualMemory.badge')}
@@ -43,7 +43,8 @@ export default function VisualMemoryPage({ contentByLocale }: Readonly<VisualMem
           alt={t('games.visualMemory.meta.title')}
           width={1200}
           height={630}
-          className="visual-memory-page-preview mb-0"
+          className="visual-memory-page-preview"
+          noBottomMargin
           priority
         />
 

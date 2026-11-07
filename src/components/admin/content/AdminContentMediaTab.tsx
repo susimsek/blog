@@ -207,7 +207,9 @@ export default function AdminContentMediaTab({
             </div>
           </div>
 
-          <p className="small text-muted mb-0 mt-3">{t('adminAccount.content.media.copy', { ns: 'admin-account' })}</p>
+          <p className="small theme-text-muted mb-0 mt-3">
+            {t('adminAccount.content.media.copy', { ns: 'admin-account' })}
+          </p>
 
           <div className="d-flex justify-content-end mt-3">
             <PostDensityToggle value={resolvedMediaDensityMode} onChange={onMediaDensityModeChange} />
@@ -256,7 +258,7 @@ export default function AdminContentMediaTab({
               />
             </div>
           ) : mediaLibraryTotal === 0 ? (
-            <p className="small text-muted mb-0">
+            <p className="small theme-text-muted mb-0">
               {t('adminAccount.content.modals.post.media.empty', { ns: 'admin-account' })}
             </p>
           ) : (
@@ -318,7 +320,7 @@ export default function AdminContentMediaTab({
                       {metadataItems.length > 0 ? (
                         <div className="post-summary-meta admin-media-library-meta-grid mb-2">
                           {metadataItems.map(metaItem => (
-                            <span key={metaItem.key} className="text-muted d-flex align-items-center">
+                            <span key={metaItem.key} className="theme-text-muted d-flex align-items-center">
                               <FontAwesomeIcon icon={metaItem.icon} className="me-2" />
                               {metaItem.label}
                             </span>
@@ -342,7 +344,7 @@ export default function AdminContentMediaTab({
                             />
                           ) : (
                             <div
-                              className="w-100 d-flex align-items-center justify-content-center text-muted bg-body-tertiary"
+                              className="w-100 d-flex align-items-center justify-content-center theme-text-muted bg-body-tertiary"
                               style={{ aspectRatio: '16 / 9' }}
                             >
                               <FontAwesomeIcon icon="camera" size="2x" />
@@ -351,7 +353,7 @@ export default function AdminContentMediaTab({
                         </div>
                       </div>
 
-                      <p className="post-summary-text small text-muted mb-3 text-break">{item.value}</p>
+                      <p className="post-summary-text small theme-text-muted mb-3 text-break">{item.value}</p>
 
                       <div className="post-summary-cta d-flex flex-wrap gap-2">
                         <Button

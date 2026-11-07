@@ -30,7 +30,6 @@ export default function CategoryDropdown({ value, onChange }: Readonly<CategoryD
     <DropdownButton
       id="category-dropdown"
       variant={variant}
-      className="mb-2"
       align="start"
       flip={false}
       title={

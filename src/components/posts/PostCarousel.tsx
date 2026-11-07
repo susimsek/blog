@@ -49,10 +49,10 @@ export default function PostCarousel({ posts, interval = 5000 }: Readonly<PostCa
                 />
               </div>
             </Link>
-            <Carousel.Caption className="text-center bg-opacity-75 p-3 rounded">
+            <Carousel.Caption className="text-center bg-opacity-75 rounded">
               <div className="post-carousel-title-row mb-3">
                 <h3 className="fw-bold mb-0">
-                  <Link href={`/posts/${post.id}`} className="link-light">
+                  <Link href={`/posts/${post.id}`} className="post-carousel-title-link">
                     {post.title}
                   </Link>
                 </h3>

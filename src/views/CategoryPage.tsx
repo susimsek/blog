@@ -81,7 +81,9 @@ export default function CategoryPage({ contentByLocale }: Readonly<CategoryPageP
         </nav>
         <header className="page-header page-header-after-breadcrumb">
           <h1 className="page-header-title fw-bold">{categoryTitle}</h1>
-          <p className="page-header-subtitle text-muted fs-4">{t('category.subtitle', { category: category.name })}</p>
+          <p className="page-header-subtitle theme-text-muted fs-4">
+            {t('category.subtitle', { category: category.name })}
+          </p>
         </header>
         <PostList
           posts={posts}

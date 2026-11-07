@@ -127,7 +127,7 @@ export default function PostComments({
                 </div>
                 <div>
                   <h3 className="h5 mb-2">{t('post.comments.emptyTitle')}</h3>
-                  <p className="mb-0 text-muted">{t('post.comments.empty')}</p>
+                  <p className="mb-0 theme-text-muted">{t('post.comments.empty')}</p>
                 </div>
               </Card.Body>
             </Card>
@@ -250,13 +250,13 @@ export default function PostComments({
           <Card.Body className="post-comments-composer-body">
             <div className="post-comments-section-heading">
               <h3 className="h5 mb-1">{t('post.comments.composerTitle')}</h3>
-              <p className="mb-0 text-muted">{t('post.comments.composerCopy')}</p>
+              <p className="mb-0 theme-text-muted">{t('post.comments.composerCopy')}</p>
             </div>
 
             <div className="post-comments-auth">
               <div className="post-comments-auth-copy">
                 <span className="post-comments-auth-kicker">{t('post.comments.auth.title')}</span>
-                <p className="mb-0 text-muted">{t('post.comments.auth.copy')}</p>
+                <p className="mb-0 theme-text-muted">{t('post.comments.auth.copy')}</p>
               </div>
               {isAuthLoading ? (
                 <div className="post-comments-auth-loading">
@@ -333,7 +333,7 @@ export default function PostComments({
                       <span className="post-comments-authenticated-title">
                         {t('post.comments.auth.signedInAs', { name: composerViewer.name })}
                       </span>
-                      <small className="text-muted">
+                      <small className="theme-text-muted">
                         {t('post.comments.auth.providerHint', {
                           provider: resolveProviderLabel(composerViewer.provider ?? composerAccessMethod),
                           email: composerViewer.email,

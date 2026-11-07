@@ -211,9 +211,9 @@ func decodeAdminAvatarDataURL(value string) (*decodedAdminAvatarPayload, error) 
 	contentType := ""
 	switch mediaHeader {
 	case "data:image/png;base64":
-		contentType = adminAvatarContentTypePNG
+		contentType = adminImageContentTypePNG
 	case "data:image/jpeg;base64", "data:image/jpg;base64":
-		contentType = adminAvatarContentTypeJPEG
+		contentType = adminImageContentTypeJPEG
 	case "data:image/webp;base64":
 		contentType = adminAvatarContentTypeWEBP
 	default:
@@ -261,7 +261,7 @@ func buildAdminAvatarVariant(
 
 	destinationBounds := image.Rect(0, 0, requestedSize, requestedSize)
 	destinationImage := image.NewRGBA(destinationBounds)
-	if targetContentType == adminAvatarContentTypeJPEG {
+	if targetContentType == adminImageContentTypeJPEG {
 		xdraw.Draw(destinationImage, destinationBounds, image.NewUniform(color.White), image.Point{}, xdraw.Src)
 	}
 	xdraw.CatmullRom.Scale(destinationImage, destinationBounds, sourceImage, sourceImage.Bounds(), xdraw.Over, nil)
@@ -288,7 +288,7 @@ func encodeAdminAvatarImage(
 	contentType string,
 ) error {
 	switch contentType {
-	case adminAvatarContentTypePNG:
+	case adminImageContentTypePNG:
 		encoder := png.Encoder{CompressionLevel: png.DefaultCompression}
 		return encoder.Encode(buffer, destinationImage)
 	case adminAvatarContentTypeWEBP:
@@ -369,12 +369,12 @@ func normalizeAdminAvatarSize(size int) int {
 
 func normalizeAdminAvatarContentType(contentType string) string {
 	switch strings.TrimSpace(strings.ToLower(contentType)) {
-	case adminAvatarContentTypePNG:
-		return adminAvatarContentTypePNG
+	case adminImageContentTypePNG:
+		return adminImageContentTypePNG
 	case adminAvatarContentTypeWEBP:
 		return adminAvatarContentTypeWEBP
 	default:
-		return adminAvatarContentTypeJPEG
+		return adminImageContentTypeJPEG
 	}
 }
 

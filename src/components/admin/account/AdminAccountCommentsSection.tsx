@@ -403,13 +403,13 @@ export default function AdminAccountCommentsSection({
                                     : t('adminAccount.comments.list.rootLabel', { ns: 'admin-account' })}
                                 </span>
                               </div>
-                              <div className="small text-muted d-flex align-items-center gap-2 flex-wrap">
+                              <div className="small theme-text-muted d-flex align-items-center gap-2 flex-wrap">
                                 <span className="d-inline-flex align-items-center gap-2">
-                                  <FontAwesomeIcon icon="envelope" className="text-muted" />
+                                  <FontAwesomeIcon icon="envelope" className="theme-text-muted" />
                                   <span>{item.authorEmail}</span>
                                 </span>
                                 <span className="d-inline-flex align-items-center gap-2">
-                                  <FontAwesomeIcon icon="calendar-alt" className="text-muted" />
+                                  <FontAwesomeIcon icon="calendar-alt" className="theme-text-muted" />
                                   <span>
                                     {t('adminAccount.comments.list.submittedAt', {
                                       ns: 'admin-account',
@@ -419,7 +419,7 @@ export default function AdminAccountCommentsSection({
                                 </span>
                                 {item.updatedAt && item.updatedAt !== item.createdAt ? (
                                   <span className="d-inline-flex align-items-center gap-2">
-                                    <FontAwesomeIcon icon="clock" className="text-muted" />
+                                    <FontAwesomeIcon icon="clock" className="theme-text-muted" />
                                     <span>
                                       {t('adminAccount.comments.list.updatedAt', {
                                         ns: 'admin-account',
@@ -441,8 +441,8 @@ export default function AdminAccountCommentsSection({
                           </Link>
                         </div>
 
-                        <div className="small text-muted mt-3 d-inline-flex align-items-center gap-2 flex-wrap">
-                          <FontAwesomeIcon icon="book" className="text-muted" />
+                        <div className="small theme-text-muted mt-3 d-inline-flex align-items-center gap-2 flex-wrap">
+                          <FontAwesomeIcon icon="book" className="theme-text-muted" />
                           <span>
                             {t('adminAccount.comments.list.post', {
                               ns: 'admin-account',
@@ -616,7 +616,7 @@ export default function AdminAccountCommentsSection({
           <Modal.Title>{t('adminAccount.comments.bulk.deleteConfirmTitle', { ns: 'admin-account' })}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p className="small text-muted mb-0">
+          <p className="small theme-text-muted mb-0">
             {t('adminAccount.comments.bulk.deleteConfirmCopy', {
               ns: 'admin-account',
               count: pendingBulkCommentDeleteCount,
@@ -661,22 +661,22 @@ export default function AdminAccountCommentsSection({
           <Modal.Title>{t('adminAccount.comments.deleteConfirm.title', { ns: 'admin-account' })}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p className="small text-muted mb-3">
+          <p className="small theme-text-muted mb-3">
             {t('adminAccount.comments.deleteConfirm.copy', {
               ns: 'admin-account',
               author: pendingCommentDelete?.authorName ?? '',
             })}
           </p>
           <dl className="row mb-0 small">
-            <dt className="col-4 text-uppercase text-muted">
+            <dt className="col-4 text-uppercase theme-text-muted">
               {t('adminAccount.comments.deleteConfirm.labels.author', { ns: 'admin-account' })}
             </dt>
             <dd className="col-8 mb-2">{pendingCommentDelete?.authorName ?? '-'}</dd>
-            <dt className="col-4 text-uppercase text-muted">
+            <dt className="col-4 text-uppercase theme-text-muted">
               {t('adminAccount.comments.deleteConfirm.labels.email', { ns: 'admin-account' })}
             </dt>
             <dd className="col-8 mb-2 text-break">{pendingCommentDelete?.authorEmail ?? '-'}</dd>
-            <dt className="col-4 text-uppercase text-muted">
+            <dt className="col-4 text-uppercase theme-text-muted">
               {t('adminAccount.comments.deleteConfirm.labels.post', { ns: 'admin-account' })}
             </dt>
             <dd className="col-8 mb-0 text-break">

@@ -19,7 +19,7 @@ export default function PostLikeCount({ likes, isLoading = false }: Readonly<Pos
 
   if (isLoading && likes === null) {
     return (
-      <span className="text-muted d-inline-flex align-items-center post-summary-like-meta">
+      <span className="theme-text-muted d-inline-flex align-items-center post-summary-like-meta">
         <output className="spinner-border spinner-border-sm" aria-label={t('post.like.loading')} />
       </span>
     );
@@ -33,7 +33,7 @@ export default function PostLikeCount({ likes, isLoading = false }: Readonly<Pos
 
   return (
     <span
-      className="text-muted d-inline-flex align-items-center post-summary-like-meta"
+      className="theme-text-muted d-inline-flex align-items-center post-summary-like-meta"
       aria-label={`${formattedLikes} ${t('post.like.sidebarLabel')}`}
     >
       <FontAwesomeIcon icon={faHeart} className="post-summary-like-icon" />

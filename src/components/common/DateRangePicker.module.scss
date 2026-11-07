@@ -17,11 +17,11 @@
 }
 
 :global(.react-datepicker) {
-  background-color: var(--main-bg) !important;
-  color: var(--text-color) !important;
-  border: 1px solid var(--border-color) !important;
-  border-radius: 8px !important;
-  box-shadow: var(--box-shadow-primary) !important;
+  background-color: var(--main-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--box-shadow-primary);
   transition:
     background-color var(--transition-speed) ease,
     color var(--transition-speed) ease,
@@ -30,9 +30,9 @@
 }
 
 :global(.react-datepicker__header) {
-  background-color: var(--navbar-bg) !important;
-  border-bottom: 1px solid var(--border-color) !important;
-  color: var(--text-color) !important;
+  background-color: var(--navbar-bg);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color);
   transition:
     background-color var(--transition-speed) ease,
     color var(--transition-speed) ease,
@@ -41,47 +41,47 @@
 
 :global(.react-datepicker__day),
 :global(.react-datepicker__day-name) {
-  color: var(--text-color) !important;
+  color: var(--text-color);
   transition: color var(--transition-speed) ease;
 }
 
 :global(.react-datepicker__day--selected) {
-  background-color: var(--primary-bg) !important;
-  color: var(--primary-color) !important;
+  background-color: var(--primary-bg);
+  color: var(--primary-color);
   transition:
     background-color var(--transition-speed) ease,
     color var(--transition-speed) ease;
 }
 
 :global(.react-datepicker__day--keyboard-selected) {
-  background-color: var(--primary-hover) !important;
-  color: var(--primary-color) !important;
+  background-color: var(--primary-hover);
+  color: var(--primary-color);
   transition:
     background-color var(--transition-speed) ease,
     color var(--transition-speed) ease;
 }
 
 :global(.react-datepicker__day:hover) {
-  background-color: var(--dropdown-hover-bg) !important;
-  color: var(--dropdown-hover-color) !important;
+  background-color: var(--dropdown-hover-bg);
+  color: var(--dropdown-hover-color);
   transition:
     background-color var(--transition-speed) ease,
     color var(--transition-speed) ease;
 }
 
 :global(.react-datepicker__day--outside-month) {
-  color: var(--muted-text-color) !important;
+  color: var(--muted-text-color);
   transition: color var(--transition-speed) ease;
 }
 
 :global(.react-datepicker__current-month) {
-  color: var(--text-color) !important;
+  color: var(--text-color);
   transition: color var(--transition-speed) ease;
 }
 
 :global(.react-datepicker__close-icon::after) {
-  background-color: var(--input-bg-color) !important;
-  color: var(--text-color) !important;
+  background-color: var(--input-bg-color);
+  color: var(--text-color);
   transition:
     background-color var(--transition-speed) ease,
     color var(--transition-speed) ease;
@@ -94,9 +94,9 @@
     ul.react-datepicker__time-list
     li
 ) {
-  background-color: var(--main-bg) !important;
-  color: var(--text-color) !important;
-  border: 1px solid var(--border-color) !important;
+  background-color: var(--main-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
   transition:
     background-color var(--transition-speed) ease,
     color var(--transition-speed) ease,
@@ -110,15 +110,15 @@
     ul.react-datepicker__time-list
     li:hover
 ) {
-  background-color: var(--dropdown-hover-bg) !important;
-  color: var(--dropdown-hover-color) !important;
+  background-color: var(--dropdown-hover-bg);
+  color: var(--dropdown-hover-color);
   transition:
     background-color var(--transition-speed) ease,
     color var(--transition-speed) ease;
 }
 
 :global(.react-datepicker__day--muted) {
-  color: var(--muted-text-color) !important;
+  color: var(--muted-text-color);
   pointer-events: none;
   opacity: 0.5;
 }

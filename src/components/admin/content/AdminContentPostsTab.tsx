@@ -260,7 +260,9 @@ export default function AdminContentPostsTab({
               />
             </div>
           ) : total === 0 ? (
-            <p className="small text-muted mb-0">{t('adminAccount.content.empty.posts', { ns: 'admin-account' })}</p>
+            <p className="small theme-text-muted mb-0">
+              {t('adminAccount.content.empty.posts', { ns: 'admin-account' })}
+            </p>
           ) : (
             <div className={`post-list-results post-list-results--${resolvedPostDensityMode}`}>
               {posts.map(group => {
@@ -326,7 +328,7 @@ export default function AdminContentPostsTab({
                             item.title
                           )}
                         </h4>
-                        <div className="d-flex flex-wrap align-items-center gap-3 text-muted">
+                        <div className="d-flex flex-wrap align-items-center gap-3 theme-text-muted">
                           <Badge bg={resolvePostLifecycleBadgeVariant(item.status)}>
                             {t(`adminAccount.content.modals.post.lifecycle.statuses.${item.status.toLowerCase()}`, {
                               ns: 'admin-account',
@@ -343,9 +345,9 @@ export default function AdminContentPostsTab({
                         </div>
                       </div>
 
-                      <div className="post-summary-meta-stack admin-content-post-meta-stack mb-2">
+                      <div className="post-summary-meta-stack admin-content-post-meta-stack">
                         <div className="post-summary-meta admin-content-post-meta-row gap-3 mb-0">
-                          <span className="text-muted d-inline-flex align-items-center admin-content-post-meta-item">
+                          <span className="theme-text-muted d-inline-flex align-items-center admin-content-post-meta-item">
                             <FontAwesomeIcon icon="calendar-alt" className="me-2" />
                             {formatDate(item.publishedDate)}
                           </span>
@@ -353,7 +355,7 @@ export default function AdminContentPostsTab({
 
                         {item.updatedDate ? (
                           <div className="post-summary-meta admin-content-post-meta-row mb-0">
-                            <span className="text-muted d-inline-flex align-items-center admin-content-post-meta-item">
+                            <span className="theme-text-muted d-inline-flex align-items-center admin-content-post-meta-item">
                               <FontAwesomeIcon icon="calendar-alt" className="me-2" />
                               {t('adminAccount.content.list.updatedAt', {
                                 ns: 'admin-account',
@@ -365,7 +367,7 @@ export default function AdminContentPostsTab({
 
                         {item.status === 'SCHEDULED' && item.scheduledAt ? (
                           <div className="post-summary-meta admin-content-post-meta-row mb-0">
-                            <span className="text-muted d-inline-flex align-items-center admin-content-post-meta-item">
+                            <span className="theme-text-muted d-inline-flex align-items-center admin-content-post-meta-item">
                               <FontAwesomeIcon icon="clock" className="me-2" />
                               {t('adminAccount.content.modals.post.lifecycle.scheduledFor', {
                                 ns: 'admin-account',
@@ -376,7 +378,7 @@ export default function AdminContentPostsTab({
                         ) : null}
 
                         <div className="post-summary-meta admin-content-post-meta-row mb-0">
-                          <span className="text-muted d-inline-flex align-items-center lh-1">
+                          <span className="theme-text-muted d-inline-flex align-items-center lh-1">
                             <FontAwesomeIcon icon="clock" className="me-2" />
                             <span>{formatReadingTime(item.readingTimeMin, t, 1)}</span>
                           </span>
@@ -441,14 +443,14 @@ export default function AdminContentPostsTab({
                               unoptimized
                             />
                           ) : (
-                            <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted bg-body-tertiary">
+                            <div className="w-100 h-100 d-flex align-items-center justify-content-center theme-text-muted bg-body-tertiary">
                               <FontAwesomeIcon icon="camera" />
                             </div>
                           )}
                         </div>
                       </div>
                       {resolvedSummary ? (
-                        <p className="post-summary-text small text-muted mb-2">{resolvedSummary}</p>
+                        <p className="post-summary-text small theme-text-muted mb-2">{resolvedSummary}</p>
                       ) : null}
 
                       <div className="post-summary-cta d-flex flex-wrap gap-2">

@@ -38,20 +38,24 @@ export default function useAdminAccountPasswordSecurity({
 
   const securityCurrentPasswordError =
     currentPassword === '' ? t('adminAccount.validation.currentPasswordRequired', { ns: 'admin-account' }) : '';
-  const securityNewPasswordError =
-    newPassword === ''
-      ? t('adminAccount.validation.newPasswordRequired', { ns: 'admin-account' })
-      : newPassword.length < MIN_PASSWORD_LENGTH
-        ? t('adminAccount.validation.newPasswordMin', { ns: 'admin-account', count: MIN_PASSWORD_LENGTH })
-        : currentPassword !== '' && currentPassword === newPassword
-          ? t('adminAccount.validation.newPasswordDifferent', { ns: 'admin-account' })
-          : '';
-  const securityConfirmPasswordError =
-    confirmPassword === ''
-      ? t('adminAccount.validation.confirmPasswordRequired', { ns: 'admin-account' })
-      : confirmPassword !== newPassword
-        ? t('adminAccount.validation.confirmPasswordMismatch', { ns: 'admin-account' })
-        : '';
+  let securityNewPasswordError = '';
+  if (newPassword === '') {
+    securityNewPasswordError = t('adminAccount.validation.newPasswordRequired', { ns: 'admin-account' });
+  } else if (newPassword.length < MIN_PASSWORD_LENGTH) {
+    securityNewPasswordError = t('adminAccount.validation.newPasswordMin', {
+      ns: 'admin-account',
+      count: MIN_PASSWORD_LENGTH,
+    });
+  } else if (currentPassword !== '' && currentPassword === newPassword) {
+    securityNewPasswordError = t('adminAccount.validation.newPasswordDifferent', { ns: 'admin-account' });
+  }
+
+  let securityConfirmPasswordError = '';
+  if (confirmPassword === '') {
+    securityConfirmPasswordError = t('adminAccount.validation.confirmPasswordRequired', { ns: 'admin-account' });
+  } else if (confirmPassword !== newPassword) {
+    securityConfirmPasswordError = t('adminAccount.validation.confirmPasswordMismatch', { ns: 'admin-account' });
+  }
   const passwordStrength = getAdminPasswordStrength(newPassword);
   const showCurrentPasswordError =
     (hasSecuritySubmitted || securityTouchedFields.currentPassword) && securityCurrentPasswordError !== '';

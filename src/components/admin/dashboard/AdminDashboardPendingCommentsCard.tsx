@@ -51,7 +51,7 @@ export default function AdminDashboardPendingCommentsCard({
         </div>
 
         {isCommentsLoading ? (
-          <div className="d-flex align-items-center gap-2 text-muted">
+          <div className="d-flex align-items-center gap-2 theme-text-muted">
             <FontAwesomeIcon icon="spinner" spin />
             <span>{t('adminDashboard.comments.loading', { ns: 'admin-dashboard' })}</span>
           </div>

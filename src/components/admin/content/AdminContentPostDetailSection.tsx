@@ -287,7 +287,7 @@ export default function AdminContentPostDetailSection({
               {editingPost?.title ?? t('adminAccount.content.modals.post.title', { ns: 'admin-account' })}
             </h4>
             {editingPost ? (
-              <div className="small text-muted">
+              <div className="small theme-text-muted">
                 <div className="mb-1">
                   <Badge bg={resolvePostLifecycleBadgeVariant(editingPost.status)}>
                     {t(`adminAccount.content.modals.post.lifecycle.statuses.${editingPost.status.toLowerCase()}`, {
@@ -344,7 +344,7 @@ export default function AdminContentPostDetailSection({
         ) : null}
 
         {isPostContentLoading ? (
-          <div className="d-flex align-items-center gap-2 text-muted small py-2">
+          <div className="d-flex align-items-center gap-2 theme-text-muted small py-2">
             <Spinner animation="border" size="sm" />
             <span>{t('adminAccount.content.loading.postContent', { ns: 'admin-account' })}</span>
           </div>
@@ -520,7 +520,7 @@ export default function AdminContentPostDetailSection({
             </div>
           </>
         ) : (
-          <p className="small text-muted mb-0">
+          <p className="small theme-text-muted mb-0">
             {t('adminAccount.content.modals.post.empty', { ns: 'admin-account' })}
           </p>
         )}

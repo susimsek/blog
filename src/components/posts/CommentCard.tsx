@@ -47,7 +47,7 @@ export default function CommentCard({ comment, locale, replyButton, metaBadge }:
                 <h4 className="h6 mb-1">{comment.authorName}</h4>
                 {metaBadge}
               </div>
-              <small className="text-muted">
+              <small className="theme-text-muted">
                 {t('post.comments.postedAt', { date: formatCommentDate(comment.createdAt, locale) })}
               </small>
             </div>

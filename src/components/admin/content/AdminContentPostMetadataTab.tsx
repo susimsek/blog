@@ -151,7 +151,7 @@ export default function AdminContentPostMetadataTab({
     <div className="admin-content-post-tab-pane pt-3">
       <div className="mb-4">
         <h5 className="mb-1">{t('adminAccount.content.modals.post.analytics.title', { ns: 'admin-account' })}</h5>
-        <p className="small text-muted mb-0">
+        <p className="small theme-text-muted mb-0">
           {t('adminAccount.content.modals.post.analytics.copy', { ns: 'admin-account' })}
         </p>
       </div>
@@ -191,7 +191,7 @@ export default function AdminContentPostMetadataTab({
         <div className="mb-4">
           <div className="mb-3">
             <h5 className="mb-1">{t('adminAccount.content.modals.post.seo.title', { ns: 'admin-account' })}</h5>
-            <p className="small text-muted mb-0">
+            <p className="small theme-text-muted mb-0">
               {t('adminAccount.content.modals.post.seo.copy', { ns: 'admin-account' })}
             </p>
           </div>
@@ -234,7 +234,7 @@ export default function AdminContentPostMetadataTab({
                         className="object-fit-cover"
                       />
                     ) : (
-                      <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted bg-body-tertiary">
+                      <div className="w-100 h-100 d-flex align-items-center justify-content-center theme-text-muted bg-body-tertiary">
                         <FontAwesomeIcon icon="camera" />
                       </div>
                     )}
@@ -262,7 +262,7 @@ export default function AdminContentPostMetadataTab({
                         className="object-fit-cover"
                       />
                     ) : (
-                      <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted bg-body-tertiary">
+                      <div className="w-100 h-100 d-flex align-items-center justify-content-center theme-text-muted bg-body-tertiary">
                         <FontAwesomeIcon icon="camera" />
                       </div>
                     )}
@@ -270,7 +270,7 @@ export default function AdminContentPostMetadataTab({
                   <div className="p-3 p-lg-4">
                     <div className="admin-content-seo-card-title">{postEditorSeoPreview.title}</div>
                     <div className="admin-content-seo-card-description mb-3">{postEditorSeoPreview.description}</div>
-                    <div className="small text-muted admin-content-seo-card-meta">
+                    <div className="small theme-text-muted admin-content-seo-card-meta">
                       <span>
                         {t('adminAccount.content.modals.post.seo.canonicalLabel', { ns: 'admin-account' })}:{' '}
                         {postEditorSeoPreview.canonicalURL}
@@ -359,7 +359,7 @@ export default function AdminContentPostMetadataTab({
                 ns: 'admin-account',
               })}
             />
-            <Form.Text className="text-muted">
+            <Form.Text className="theme-text-muted">
               {t('adminAccount.content.modals.post.metadataFields.updatedDateHint', { ns: 'admin-account' })}
             </Form.Text>
           </Form.Group>
@@ -386,7 +386,7 @@ export default function AdminContentPostMetadataTab({
                 {t('adminAccount.content.modals.post.lifecycle.statuses.published', { ns: 'admin-account' })}
               </option>
             </Form.Select>
-            <Form.Text className="text-muted">
+            <Form.Text className="theme-text-muted">
               {t('adminAccount.content.modals.post.lifecycle.statusHint', { ns: 'admin-account' })}
             </Form.Text>
           </Form.Group>
@@ -404,7 +404,7 @@ export default function AdminContentPostMetadataTab({
               }
               disabled={postEditorStatus !== 'SCHEDULED'}
             />
-            <Form.Text className="text-muted">
+            <Form.Text className="theme-text-muted">
               {postEditorStatus === 'SCHEDULED'
                 ? t('adminAccount.content.modals.post.lifecycle.scheduledAtHint', { ns: 'admin-account' })
                 : t('adminAccount.content.modals.post.lifecycle.scheduledAtDisabledHint', { ns: 'admin-account' })}
@@ -419,14 +419,14 @@ export default function AdminContentPostMetadataTab({
             ns: 'admin-account',
           })}
         </Badge>
-        <span className="small text-muted">
+        <span className="small theme-text-muted">
           {t('adminAccount.content.modals.post.lifecycle.revisionSummary', {
             ns: 'admin-account',
             count: editingPost.revisionCount,
           })}
         </span>
         {editingPost.latestRevisionAt ? (
-          <span className="small text-muted">
+          <span className="small theme-text-muted">
             {t('adminAccount.content.modals.post.lifecycle.latestRevisionAt', {
               ns: 'admin-account',
               value: formatDateTime(editingPost.latestRevisionAt),
@@ -434,7 +434,7 @@ export default function AdminContentPostMetadataTab({
           </span>
         ) : null}
         {postEditorStatus === 'SCHEDULED' && postEditorScheduledAt ? (
-          <span className="small text-muted">
+          <span className="small theme-text-muted">
             {t('adminAccount.content.modals.post.lifecycle.scheduledFor', {
               ns: 'admin-account',
               value: formatDateTime(postEditorScheduledAt),
@@ -465,7 +465,7 @@ export default function AdminContentPostMetadataTab({
                     className="object-fit-cover"
                   />
                 ) : (
-                  <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+                  <div className="w-100 h-100 d-flex align-items-center justify-content-center theme-text-muted">
                     <FontAwesomeIcon icon="camera" size="2x" />
                   </div>
                 )}
@@ -492,7 +492,7 @@ export default function AdminContentPostMetadataTab({
                   {t('adminAccount.content.modals.post.media.clear', { ns: 'admin-account' })}
                 </Button>
               </div>
-              <div className="small text-muted">
+              <div className="small theme-text-muted">
                 {selectedMediaLibraryItem ? (
                   <>
                     {selectedMediaLibraryItem.name}
@@ -557,7 +557,7 @@ export default function AdminContentPostMetadataTab({
             </div>
             <div className="admin-content-topic-picker overflow-auto" style={{ maxHeight: '18rem' }}>
               {postEditorTopicOptions.length === 0 ? (
-                <div className="list-group-item admin-content-topic-picker-empty small text-muted p-3">
+                <div className="list-group-item admin-content-topic-picker-empty small theme-text-muted p-3">
                   {t('adminAccount.content.modals.post.topicsEmpty', { ns: 'admin-account' })}
                 </div>
               ) : (
@@ -584,7 +584,7 @@ export default function AdminContentPostMetadataTab({
           <div className="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
             <div>
               <h5 className="mb-1">{t('adminAccount.content.modals.post.revisions.title', { ns: 'admin-account' })}</h5>
-              <p className="small text-muted mb-0">
+              <p className="small theme-text-muted mb-0">
                 {t('adminAccount.content.modals.post.revisions.copy', { ns: 'admin-account' })}
               </p>
             </div>
@@ -597,12 +597,12 @@ export default function AdminContentPostMetadataTab({
           ) : null}
 
           {isPostRevisionsLoading ? (
-            <div className="d-flex align-items-center gap-2 text-muted small py-2">
+            <div className="d-flex align-items-center gap-2 theme-text-muted small py-2">
               <Spinner animation="border" size="sm" />
               <span>{t('adminAccount.content.modals.post.revisions.loading', { ns: 'admin-account' })}</span>
             </div>
           ) : postRevisions.length === 0 ? (
-            <p className="small text-muted mb-0">
+            <p className="small theme-text-muted mb-0">
               {t('adminAccount.content.modals.post.revisions.empty', { ns: 'admin-account' })}
             </p>
           ) : (
@@ -624,15 +624,15 @@ export default function AdminContentPostMetadataTab({
                           })}
                         </Badge>
                       </div>
-                      <div className="small text-muted">
+                      <div className="small theme-text-muted">
                         {t('adminAccount.content.modals.post.revisions.createdAt', {
                           ns: 'admin-account',
                           value: formatDateTime(revision.createdAt),
                         })}
                       </div>
                       <div className="fw-semibold">{revision.title}</div>
-                      {revision.summary ? <div className="small text-muted">{revision.summary}</div> : null}
-                      <div className="d-flex flex-wrap gap-3 small text-muted">
+                      {revision.summary ? <div className="small theme-text-muted">{revision.summary}</div> : null}
+                      <div className="d-flex flex-wrap gap-3 small theme-text-muted">
                         <span>
                           {t('adminAccount.content.modals.post.revisions.publishedDate', {
                             ns: 'admin-account',

@@ -74,12 +74,12 @@ export default function RelatedPosts({ posts }: Readonly<RelatedPostsProps>) {
                     <div className="related-post-title-main flex-grow-1">
                       <h3 className="h6 fw-bold mb-0 related-post-title">{post.title}</h3>
                     </div>
-                    <FontAwesomeIcon icon="chevron-right" className="text-muted mt-1 flex-shrink-0" />
+                    <FontAwesomeIcon icon="chevron-right" className="theme-text-muted mt-1 flex-shrink-0" />
                   </div>
 
-                  <p className="text-muted small mb-2 related-post-summary">{post.summary}</p>
+                  <p className="theme-text-muted small mb-2 related-post-summary">{post.summary}</p>
 
-                  <div className="text-muted small d-flex align-items-center gap-3 mb-2 flex-wrap">
+                  <div className="theme-text-muted small d-flex align-items-center gap-3 mb-2 flex-wrap">
                     <span className="d-flex align-items-center">
                       <FontAwesomeIcon icon="calendar-alt" className="me-2" />
                       <DateDisplay date={post.publishedDate} />

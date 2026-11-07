@@ -24,7 +24,6 @@ export default function ReadingTimeDropdown({ value, onChange }: Readonly<Readin
     <DropdownButton
       id="reading-time-dropdown"
       variant="blue"
-      className="mb-2"
       align="start"
       flip={false}
       title={

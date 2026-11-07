@@ -67,13 +67,17 @@ export default function AdminAccountAvatarCropModal({
         <Modal.Title>{t('adminAccount.profile.avatar.crop.title', { ns: 'admin-account' })}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <p className="small text-body-secondary mb-3">
+        <p className="small theme-text-muted mb-3">
           {t('adminAccount.profile.avatar.crop.copy', { ns: 'admin-account' })}
         </p>
         <div
-          className={`admin-avatar-crop-stage crop-container position-relative mx-auto overflow-hidden${
-            isDragging ? ' is-dragging' : isResizing ? ' is-resizing' : ''
-          }`}
+          className={[
+            'admin-avatar-crop-stage crop-container position-relative mx-auto overflow-hidden',
+            isDragging && 'is-dragging',
+            !isDragging && isResizing && 'is-resizing',
+          ]
+            .filter(Boolean)
+            .join(' ')}
           ref={stageRef}
           style={stageStyle}
           onPointerDown={onPointerDown}

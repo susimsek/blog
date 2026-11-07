@@ -30,7 +30,7 @@ export default function AdminContentPostDeleteModal({
         <Modal.Title>{t('adminAccount.content.modals.deletePost.title', { ns: 'admin-account' })}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <p className="small text-muted mb-0">
+        <p className="small theme-text-muted mb-0">
           {t('adminAccount.content.modals.deletePost.copy', {
             ns: 'admin-account',
             id: pendingPostDelete?.id ?? '',

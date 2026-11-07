@@ -24,7 +24,7 @@ export default function GlobalError({ error, reset }: Readonly<GlobalErrorPagePr
       <body>
         <main className="container py-5">
           <h1 className="h3 fw-bold mb-3">Application error</h1>
-          <p className="text-muted mb-4">A global error occurred. Please retry the operation.</p>
+          <p className="theme-text-muted mb-4">A global error occurred. Please retry the operation.</p>
           <Button variant="primary" onClick={() => reset()}>
             Try again
           </Button>

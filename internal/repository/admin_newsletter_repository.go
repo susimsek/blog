@@ -256,14 +256,14 @@ func (*adminNewsletterMongoRepository) ListCampaigns(
 		query["$or"] = bson.A{
 			bson.M{
 				"title": bson.M{
-					"$regex":   escapedQuery,
-					"$options": "i",
+					mongoRegexOperator:   escapedQuery,
+					mongoOptionsOperator: "i",
 				},
 			},
 			bson.M{
 				"itemKey": bson.M{
-					"$regex":   escapedQuery,
-					"$options": "i",
+					mongoRegexOperator:   escapedQuery,
+					mongoOptionsOperator: "i",
 				},
 			},
 		}

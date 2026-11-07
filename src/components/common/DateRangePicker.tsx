@@ -352,7 +352,7 @@ export default function DateRangePicker({
                   dayClassName={dayClassName}
                 />
               </div>
-              {formErrors.startDate && <Form.Text className="text-danger mt-2">{formErrors.startDate}</Form.Text>}
+              {formErrors.startDate && <Form.Text className="theme-text-danger mt-2">{formErrors.startDate}</Form.Text>}
             </div>
             <div className="d-flex flex-column mb-4">
               <Form.Label className="mb-2">{t('common.datePicker.endDateLabel')}</Form.Label>
@@ -371,7 +371,7 @@ export default function DateRangePicker({
                   dayClassName={dayClassName}
                 />
               </div>
-              {formErrors.endDate && <Form.Text className="text-danger mt-2">{formErrors.endDate}</Form.Text>}
+              {formErrors.endDate && <Form.Text className="theme-text-danger mt-2">{formErrors.endDate}</Form.Text>}
             </div>
             <div className="d-flex align-items-center">
               <Button variant="success" type="submit" size="sm" className={styles.datePickerButton}>

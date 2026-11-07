@@ -123,7 +123,7 @@ export default function AdminContentPostContentTab({
                   unoptimized
                 />
               ) : (
-                <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted bg-body-tertiary">
+                <div className="w-100 h-100 d-flex align-items-center justify-content-center theme-text-muted bg-body-tertiary">
                   <FontAwesomeIcon icon="camera" />
                 </div>
               )}
@@ -219,7 +219,7 @@ export default function AdminContentPostContentTab({
                 </article>
               ) : (
                 <div className="border rounded-3 p-3 bg-body-tertiary d-flex align-items-center h-100">
-                  <p className="small text-muted mb-0">
+                  <p className="small theme-text-muted mb-0">
                     {t('adminAccount.content.modals.post.previewEmpty', { ns: 'admin-account' })}
                   </p>
                 </div>
@@ -239,7 +239,7 @@ export default function AdminContentPostContentTab({
               </article>
             ) : (
               <div className="p-1 d-flex align-items-center">
-                <p className="small text-muted mb-0">
+                <p className="small theme-text-muted mb-0">
                   {t('adminAccount.content.modals.post.previewEmpty', { ns: 'admin-account' })}
                 </p>
               </div>

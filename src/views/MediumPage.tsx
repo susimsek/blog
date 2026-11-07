@@ -33,7 +33,7 @@ export default function MediumPage({ contentByLocale }: Readonly<MediumPageProps
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }} />
       <header className="page-header">
         <h1 className="page-header-title fw-bold">{t('medium.header.title')}</h1>
-        <p className="page-header-subtitle text-muted fs-4">{t('medium.header.subtitle')}</p>
+        <p className="page-header-subtitle theme-text-muted fs-4">{t('medium.header.subtitle')}</p>
       </header>
       <PostList posts={mediumPosts} topics={topics} />
     </Layout>

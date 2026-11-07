@@ -31,6 +31,10 @@ const (
 	adminMediaLibraryMaxSize     = 48
 	maxAdminMediaAssetBytes      = 5 * 1024 * 1024
 	maxAdminMediaAssetNameLength = 180
+	adminMediaAssetIDRequired    = "media asset id is required"
+	adminMediaAssetNotFound      = "media asset not found"
+	adminMediaAssetLoadFailed    = "failed to load admin media asset"
+	adminMediaAssetURLPrefix     = "/api/media/"
 )
 
 var adminMediaAssetRepository repository.AdminMediaAssetRepository = repository.NewAdminMediaAssetRepository()
@@ -109,7 +113,7 @@ func UploadAdminMediaAsset(
 
 	existing, err := adminMediaAssetRepository.FindMediaAssetByDigest(ctx, digest)
 	if err != nil {
-		return nil, toAdminMediaLibraryError(err, "failed to load admin media asset")
+		return nil, toAdminMediaLibraryError(err, adminMediaAssetLoadFailed)
 	}
 	if existing != nil {
 		item := mapAdminMediaLibraryItemFromAsset(*existing)
@@ -151,15 +155,15 @@ func ReplaceAdminMediaAsset(
 
 	resolvedID := strings.TrimSpace(id)
 	if resolvedID == "" {
-		return nil, apperrors.BadRequest("media asset id is required")
+		return nil, apperrors.BadRequest(adminMediaAssetIDRequired)
 	}
 
 	existing, err := adminMediaAssetRepository.FindMediaAssetByID(ctx, resolvedID)
 	if err != nil {
-		return nil, toAdminMediaLibraryError(err, "failed to load admin media asset")
+		return nil, toAdminMediaLibraryError(err, adminMediaAssetLoadFailed)
 	}
 	if existing == nil {
-		return nil, apperrors.New("NOT_FOUND", "media asset not found", 404, nil)
+		return nil, apperrors.New("NOT_FOUND", adminMediaAssetNotFound, 404, nil)
 	}
 
 	payload, err := decodeAdminMediaDataURL(strings.TrimSpace(input.DataURL))
@@ -189,7 +193,7 @@ func ReplaceAdminMediaAsset(
 		return nil, toAdminMediaLibraryError(err, "failed to replace admin media asset")
 	}
 
-	usageCount, err := adminMediaAssetRepository.CountMediaAssetUsage(ctx, "/api/media/"+resolvedID)
+	usageCount, err := adminMediaAssetRepository.CountMediaAssetUsage(ctx, adminMediaAssetURLPrefix+resolvedID)
 	if err != nil {
 		return nil, toAdminMediaLibraryError(err, "failed to load media asset usage")
 	}
@@ -206,18 +210,18 @@ func DeleteAdminMediaAsset(ctx context.Context, adminUser *domain.AdminUser, id 
 
 	resolvedID := strings.TrimSpace(id)
 	if resolvedID == "" {
-		return apperrors.BadRequest("media asset id is required")
+		return apperrors.BadRequest(adminMediaAssetIDRequired)
 	}
 
 	record, err := adminMediaAssetRepository.FindMediaAssetByID(ctx, resolvedID)
 	if err != nil {
-		return toAdminMediaLibraryError(err, "failed to load admin media asset")
+		return toAdminMediaLibraryError(err, adminMediaAssetLoadFailed)
 	}
 	if record == nil {
-		return apperrors.New("NOT_FOUND", "media asset not found", 404, nil)
+		return apperrors.New("NOT_FOUND", adminMediaAssetNotFound, 404, nil)
 	}
 
-	usageCount, err := adminMediaAssetRepository.CountMediaAssetUsage(ctx, "/api/media/"+resolvedID)
+	usageCount, err := adminMediaAssetRepository.CountMediaAssetUsage(ctx, adminMediaAssetURLPrefix+resolvedID)
 	if err != nil {
 		return toAdminMediaLibraryError(err, "failed to load media asset usage")
 	}
@@ -230,7 +234,7 @@ func DeleteAdminMediaAsset(ctx context.Context, adminUser *domain.AdminUser, id 
 		return toAdminMediaLibraryError(err, "failed to delete admin media asset")
 	}
 	if !deleted {
-		return apperrors.New("NOT_FOUND", "media asset not found", 404, nil)
+		return apperrors.New("NOT_FOUND", adminMediaAssetNotFound, 404, nil)
 	}
 
 	return nil
@@ -239,15 +243,15 @@ func DeleteAdminMediaAsset(ctx context.Context, adminUser *domain.AdminUser, id 
 func ResolveAdminMediaAsset(ctx context.Context, id string) (*AdminMediaAsset, error) {
 	resolvedID := strings.TrimSpace(id)
 	if resolvedID == "" {
-		return nil, apperrors.BadRequest("media asset id is required")
+		return nil, apperrors.BadRequest(adminMediaAssetIDRequired)
 	}
 
 	record, err := adminMediaAssetRepository.FindMediaAssetByID(ctx, resolvedID)
 	if err != nil {
-		return nil, toAdminMediaLibraryError(err, "failed to load admin media asset")
+		return nil, toAdminMediaLibraryError(err, adminMediaAssetLoadFailed)
 	}
 	if record == nil || len(record.Data) == 0 || strings.TrimSpace(record.ContentType) == "" {
-		return nil, apperrors.New("NOT_FOUND", "media asset not found", 404, nil)
+		return nil, apperrors.New("NOT_FOUND", adminMediaAssetNotFound, 404, nil)
 	}
 
 	return &AdminMediaAsset{
@@ -279,9 +283,9 @@ func decodeAdminMediaDataURL(value string) (*decodedAdminMediaPayload, error) {
 	contentType := ""
 	switch header {
 	case "data:image/png;base64":
-		contentType = "image/png"
+		contentType = adminImageContentTypePNG
 	case "data:image/jpeg;base64", "data:image/jpg;base64":
-		contentType = "image/jpeg"
+		contentType = adminImageContentTypeJPEG
 	case "data:image/webp;base64":
 		contentType = "image/webp"
 	default:
@@ -443,7 +447,7 @@ func resolveAdminMediaPublicFilePath(
 	}
 
 	cleanPath := path.Clean("/" + strings.TrimPrefix(resolvedPath, "/"))
-	if cleanPath == "/" || strings.HasPrefix(cleanPath, "/api/media/") {
+	if cleanPath == "/" || strings.HasPrefix(cleanPath, adminMediaAssetURLPrefix) {
 		return "", false
 	}
 
@@ -482,9 +486,9 @@ func isAdminMediaSameSiteURL(parsedURL *url.URL, siteURL string) bool {
 
 func defaultAdminMediaAssetName(contentType string) string {
 	switch strings.TrimSpace(strings.ToLower(contentType)) {
-	case "image/png":
+	case adminImageContentTypePNG:
 		return "media-image.png"
-	case "image/jpeg":
+	case adminImageContentTypeJPEG:
 		return "media-image.jpg"
 	case "image/webp":
 		return "media-image.webp"
@@ -499,7 +503,7 @@ func hashAdminMediaPayload(payload []byte) string {
 }
 
 func mapAdminMediaLibraryItemFromAsset(record domain.AdminMediaAssetRecord) domain.AdminMediaLibraryItem {
-	value := "/api/media/" + strings.TrimSpace(record.ID)
+	value := adminMediaAssetURLPrefix + strings.TrimSpace(record.ID)
 	return domain.AdminMediaLibraryItem{
 		ID:          strings.TrimSpace(record.ID),
 		Kind:        "UPLOADED",

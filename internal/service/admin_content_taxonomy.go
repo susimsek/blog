@@ -166,7 +166,7 @@ func CreateAdminContentTopic(
 
 	existing, err := adminContentRepository.FindTopicByLocaleAndID(ctx, record.Locale, record.ID)
 	if err != nil {
-		return nil, toAdminContentError(err, "failed to load content topic")
+		return nil, toAdminContentError(err, adminContentLoadTopicFailed)
 	}
 	if existing != nil {
 		return nil, apperrors.BadRequest("content topic already exists")
@@ -217,10 +217,10 @@ func UpdateAdminContentTopic(
 
 	existing, err := adminContentRepository.FindTopicByLocaleAndID(ctx, record.Locale, record.ID)
 	if err != nil {
-		return nil, toAdminContentError(err, "failed to load content topic")
+		return nil, toAdminContentError(err, adminContentLoadTopicFailed)
 	}
 	if existing == nil {
-		return nil, apperrors.BadRequest("content topic not found")
+		return nil, apperrors.BadRequest(adminContentTopicNotFound)
 	}
 
 	now := time.Now().UTC()
@@ -273,10 +273,10 @@ func DeleteAdminContentTopic(
 
 	existing, err := adminContentRepository.FindTopicByLocaleAndID(ctx, resolvedLocale, resolvedTopicID)
 	if err != nil {
-		return toAdminContentError(err, "failed to load content topic")
+		return toAdminContentError(err, adminContentLoadTopicFailed)
 	}
 	if existing == nil {
-		return apperrors.BadRequest("content topic not found")
+		return apperrors.BadRequest(adminContentTopicNotFound)
 	}
 
 	deleted, err := adminContentRepository.DeleteTopicByLocaleAndID(ctx, resolvedLocale, resolvedTopicID)
@@ -284,7 +284,7 @@ func DeleteAdminContentTopic(
 		return toAdminContentError(err, "failed to delete content topic")
 	}
 	if !deleted {
-		return apperrors.BadRequest("content topic not found")
+		return apperrors.BadRequest(adminContentTopicNotFound)
 	}
 
 	now := time.Now().UTC()
@@ -320,7 +320,7 @@ func CreateAdminContentCategory(
 
 	existing, err := adminContentRepository.FindCategoryByLocaleAndID(ctx, record.Locale, record.ID)
 	if err != nil {
-		return nil, toAdminContentError(err, "failed to load content category")
+		return nil, toAdminContentError(err, adminContentLoadCategoryFailed)
 	}
 	if existing != nil {
 		return nil, apperrors.BadRequest("content category already exists")
@@ -371,10 +371,10 @@ func UpdateAdminContentCategory(
 
 	existing, err := adminContentRepository.FindCategoryByLocaleAndID(ctx, record.Locale, record.ID)
 	if err != nil {
-		return nil, toAdminContentError(err, "failed to load content category")
+		return nil, toAdminContentError(err, adminContentLoadCategoryFailed)
 	}
 	if existing == nil {
-		return nil, apperrors.BadRequest("content category not found")
+		return nil, apperrors.BadRequest(adminContentCategoryNotFound)
 	}
 
 	now := time.Now().UTC()
@@ -427,10 +427,10 @@ func DeleteAdminContentCategory(
 
 	existing, err := adminContentRepository.FindCategoryByLocaleAndID(ctx, resolvedLocale, resolvedCategoryID)
 	if err != nil {
-		return toAdminContentError(err, "failed to load content category")
+		return toAdminContentError(err, adminContentLoadCategoryFailed)
 	}
 	if existing == nil {
-		return apperrors.BadRequest("content category not found")
+		return apperrors.BadRequest(adminContentCategoryNotFound)
 	}
 
 	deleted, err := adminContentRepository.DeleteCategoryByLocaleAndID(ctx, resolvedLocale, resolvedCategoryID)
@@ -438,7 +438,7 @@ func DeleteAdminContentCategory(
 		return toAdminContentError(err, "failed to delete content category")
 	}
 	if !deleted {
-		return apperrors.BadRequest("content category not found")
+		return apperrors.BadRequest(adminContentCategoryNotFound)
 	}
 
 	now := time.Now().UTC()

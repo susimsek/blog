@@ -29,7 +29,7 @@ export default function StroopTestPage({ contentByLocale }: Readonly<StroopTestP
     >
       <section className="stroop-page-section stack stack-24">
         <header className="stroop-page-hero">
-          <h1 className="page-header-title fw-bold mb-2">{t('games.stroop.title')}</h1>
+          <h1 className="page-header-title fw-bold">{t('games.stroop.title')}</h1>
           <div className="stroop-page-kicker-wrap">
             <Badge bg="danger" className="badge-red stroop-page-kicker">
               {t('games.stroop.badge')}
@@ -43,7 +43,8 @@ export default function StroopTestPage({ contentByLocale }: Readonly<StroopTestP
           alt={t('games.stroop.meta.title')}
           width={1200}
           height={630}
-          className="stroop-page-preview mb-0"
+          className="stroop-page-preview"
+          noBottomMargin
           priority
         />
 
