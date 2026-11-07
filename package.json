@@ -41,7 +41,8 @@
     "backend:dev": "go tool air -c .air.toml",
     "backend:start": "go run ./cmd/app",
     "backend:sync-content": "go run ./scripts/sync-newsletter-content/main.go",
-    "backend:sync-admin-error-messages": "go run ./scripts/sync-admin-error-messages/main.go"
+    "backend:sync-admin-error-messages": "go run ./scripts/sync-admin-error-messages/main.go",
+    "backend:migrate-asset-digests": "go run ./scripts/migrate-admin-asset-digests"
   },
   "dependencies": {
     "@apollo/client": "^4.3.7",
