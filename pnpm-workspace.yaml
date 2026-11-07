@@ -13,6 +13,7 @@ minimumReleaseAgeExclude:
   - i18next@26.7.2
   - react-i18next@17.1.13
   - sass@1.108.0
+  - playwright-core@1.65.0
 
 overrides:
   typescript-eslint: 8.72.1
