@@ -3,7 +3,7 @@ package service
 import (
 	"bytes"
 	"context"
-	"crypto/sha1"
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
@@ -494,7 +494,7 @@ func defaultAdminMediaAssetName(contentType string) string {
 }
 
 func hashAdminMediaPayload(payload []byte) string {
-	sum := sha1.Sum(payload)
+	sum := sha256.Sum256(payload)
 	return hex.EncodeToString(sum[:])
 }
 
