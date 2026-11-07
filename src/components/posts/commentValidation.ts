@@ -1,4 +1,5 @@
 import type { TFunction } from 'i18next';
+import { isValidEmail } from '@/lib/emailValidation';
 
 export type CommentFormState = {
   authorName: string;
@@ -22,8 +23,6 @@ export const INITIAL_TOUCHED_STATE: CommentFormTouchedState = {
   authorEmail: false,
   content: false,
 };
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 const COMMENT_ERROR_TRANSLATION_KEYS = {
   failed: 'post.comments.errors.failed',
@@ -64,7 +63,7 @@ export const validateCommentForm = (
 
     if (normalizedEmail.length === 0) {
       nextErrors.authorEmail = t('common.validation.required', { ns: 'common' });
-    } else if (normalizedEmail.length > 254 || !EMAIL_PATTERN.test(normalizedEmail)) {
+    } else if (normalizedEmail.length > 254 || !isValidEmail(normalizedEmail, 2)) {
       nextErrors.authorEmail = t('post.comments.errors.invalid-email');
     }
   }

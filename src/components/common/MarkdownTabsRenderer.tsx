@@ -15,16 +15,36 @@ interface MarkdownTabsRendererProps {
   createComponents?: (content: string) => Components;
 }
 
+const isAsciiLetterOrDigit = (character: string) => {
+  const code = character.codePointAt(0) ?? 0;
+  return (code >= 48 && code <= 57) || (code >= 65 && code <= 90) || (code >= 97 && code <= 122);
+};
+
+const parseTabTitle = (rawTitle: string) => {
+  const iconStart = rawTitle.lastIndexOf('[icon=');
+  const hasIcon = iconStart > 0 && rawTitle.endsWith(']') && rawTitle[iconStart - 1]?.trim() === '';
+  const title = hasIcon ? rawTitle.slice(0, iconStart).trimEnd() : rawTitle;
+  const iconName = hasIcon ? rawTitle.slice(iconStart + 6, -1) : undefined;
+  const isValidTitle = [...title].every(character => isAsciiLetterOrDigit(character) || character.trim() === '');
+  const isValidIcon =
+    iconName !== undefined &&
+    iconName.length > 0 &&
+    [...iconName].every(character => isAsciiLetterOrDigit(character) || character === '_' || character === '-');
+
+  if (!isValidTitle || (hasIcon && !isValidIcon)) {
+    return { title: '', iconName: undefined };
+  }
+
+  return { title: title.trim(), iconName: isValidIcon ? iconName : undefined };
+};
+
 const parseTabs = (content: string) => {
   return content
     .split('@tab')
     .slice(1)
     .map((tab, index) => {
       const [rawTitle, ...rest] = tab.trim().split('\n');
-      const titleRegEx = /^([a-zA-Z0-9\s]+?)(?:\s+\[icon=([a-zA-Z0-9_-]+)])?$/;
-      const titleMatch = titleRegEx.exec(rawTitle);
-      const title = titleMatch?.[1]?.trim() ?? '';
-      const iconName = titleMatch?.[2];
+      const { title, iconName } = parseTabTitle(rawTitle);
 
       return {
         key: `tab-${index}`,

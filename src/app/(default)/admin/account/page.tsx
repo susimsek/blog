@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: PageProps<'/admin/account'>):
   });
 }
 
-export default async function AdminAccountRoute({ params }: Readonly<PageProps<'/admin/account'>>) {
+export default function AdminAccountRoute() {
   const locale = defaultLocale;
   redirect(withAdminLocalePath(locale, ADMIN_ROUTES.settings.account));
 }

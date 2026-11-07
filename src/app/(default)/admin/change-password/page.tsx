@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: AdminChangePasswordPageProps)
   });
 }
 
-export default async function AdminChangePasswordRoute({ params }: Readonly<AdminChangePasswordPageProps>) {
+export default function AdminChangePasswordRoute() {
   const locale = defaultLocale;
   redirect(withAdminLocalePath(locale, ADMIN_ROUTES.settings.security));
 }

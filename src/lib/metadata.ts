@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { AUTHOR_NAME, AVATAR_LINK, LOCALES, SITE_URL, TWITTER_USERNAME } from '@/config/constants';
 import { defaultLocale, isSupportedLocale, locales } from '@/i18n/settings';
 import type { Locale } from '@/i18n/settings';
+import { stripLeadingSlashes, stripTrailingSlashes } from '@/lib/urlPath';
 
 type BuildPageMetadataOptions = {
   locale: string;
@@ -18,14 +19,14 @@ type BuildPageMetadataOptions = {
   twitter?: Metadata['twitter'];
 };
 
-const normalizedSiteUrl = SITE_URL.replaceAll(/\/+$/g, '');
-const basePathSegment = (process.env.NEXT_PUBLIC_BASE_PATH ?? '').replaceAll(/^\/+/g, '').replaceAll(/\/+$/g, '');
+const normalizedSiteUrl = stripTrailingSlashes(SITE_URL);
+const basePathSegment = stripTrailingSlashes(stripLeadingSlashes(process.env.NEXT_PUBLIC_BASE_PATH ?? ''));
 
 const joinPath = (...segments: ReadonlyArray<string>): string =>
   segments
     .map(segment => segment.trim())
     .filter(Boolean)
-    .map(segment => segment.replaceAll(/^\/+/g, '').replaceAll(/\/+$/g, ''))
+    .map(segment => stripTrailingSlashes(stripLeadingSlashes(segment)))
     .filter(Boolean)
     .join('/');
 
@@ -74,7 +75,7 @@ export const toAbsoluteSiteUrl = (urlOrPath: string): string => {
   try {
     return new URL(normalizedPath, normalizedSiteUrl).toString();
   } catch {
-    return `${normalizedSiteUrl}/${normalizedPath.replaceAll(/^\/+/g, '')}`;
+    return `${normalizedSiteUrl}/${stripLeadingSlashes(normalizedPath)}`;
   }
 };
 

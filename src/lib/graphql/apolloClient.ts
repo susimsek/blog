@@ -3,6 +3,7 @@ import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { ErrorLink } from '@apollo/client/link/error';
 import { CombinedGraphQLErrors, ServerError, ServerParseError } from '@apollo/client/errors';
 import { withBasePath } from '@/lib/basePath';
+import { stripTrailingSlashes } from '@/lib/urlPath';
 import { AppError, AppErrorCode, publishAppError, reportAppError, unknownAppError } from '@/lib/errors/appError';
 import { resolveDocumentLocale } from '@/i18n/clientLocale';
 
@@ -16,7 +17,8 @@ const DEFAULT_REQUEST_TIMEOUT_MS = 8000;
 const GRAPHQL_PATH = '/graphql';
 const DEFAULT_LOCAL_API_ORIGIN = 'http://localhost:8080';
 
-export const normalizeApiBaseUrl = (value: string | undefined) => value?.trim().replaceAll(/\/+$/g, '') ?? '';
+export const normalizeApiBaseUrl = (value: string | undefined) =>
+  value === undefined ? '' : stripTrailingSlashes(value.trim());
 export const isLocalHttpOrigin = (value: string) => /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(value);
 
 export const getGraphQLEndpoint = () => {

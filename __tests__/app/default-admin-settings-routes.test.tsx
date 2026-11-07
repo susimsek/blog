@@ -231,7 +231,7 @@ describe('default-locale admin settings routes', () => {
     for (const [route, generateRouteMetadata] of redirectRoutes) {
       const metadata = await generateRouteMetadata(args);
       expect(metadata).toMatchObject({ locale: 'en', robots: { index: false, follow: false } });
-      await expect(route(args)).rejects.toThrow('redirect:');
+      expect(() => route()).toThrow('redirect:');
     }
 
     expect(mockRedirect).toHaveBeenCalledTimes(4);

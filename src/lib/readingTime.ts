@@ -1,15 +1,12 @@
 import type { TFunction } from 'i18next';
+import { stripHtmlTags, stripMarkdownCode, stripMarkdownLinks } from '@/lib/markdownText';
 
 export const getWordsFromMarkdown = (markdown: string): string[] => {
-  const withoutCodeBlocks = markdown
-    .replaceAll(/```[\s\S]*?```/g, ' ')
-    .replaceAll(/~~~[\s\S]*?~~~/g, ' ')
-    .replaceAll(/`[^`]*`/g, ' ')
-    .replaceAll(/!\[([^\]]*)\]\([^)]+\)/g, '$1')
-    .replaceAll(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    .replaceAll(/<\/?[^>]+>/g, ' ');
+  const withoutCode = stripMarkdownCode(markdown);
+  const withoutLinks = stripMarkdownLinks(withoutCode);
+  const withoutMarkup = stripHtmlTags(withoutLinks, ' ');
 
-  const normalized = withoutCodeBlocks.replaceAll(/[^\p{L}\p{N}]+/gu, ' ');
+  const normalized = withoutMarkup.replaceAll(/[^\p{L}\p{N}]+/gu, ' ');
   const matches = normalized.match(/\p{L}[\p{L}\p{N}'’_-]*/gu);
   return matches ?? [];
 };

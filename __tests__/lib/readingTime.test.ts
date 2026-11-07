@@ -56,6 +56,12 @@ Inline \`code\` should be removed.
     it('returns empty array when markdown has no valid words', () => {
       expect(getWordsFromMarkdown('### --- ...')).toEqual([]);
     });
+
+    it('does not count text inside tilde fences or Markdown link destinations', () => {
+      const markdown = 'Visible words ~~~text\nignored code\n~~~ [label](https://hidden.example/path)';
+
+      expect(getWordsFromMarkdown(markdown)).toEqual(['Visible', 'words', 'label']);
+    });
   });
 
   describe('formatReadingTime', () => {

@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: AdminSettingsPasswordPageProp
   });
 }
 
-export default async function AdminSettingsPasswordRoute({ params }: Readonly<AdminSettingsPasswordPageProps>) {
+export default function AdminSettingsPasswordRoute() {
   const locale = defaultLocale;
   redirect(withAdminLocalePath(locale, ADMIN_ROUTES.settings.security));
 }

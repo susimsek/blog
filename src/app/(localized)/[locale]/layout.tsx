@@ -38,7 +38,7 @@ export const viewport: Viewport = {
 export const dynamic = 'error';
 export const dynamicParams = false;
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
   return locales.filter(locale => locale !== defaultLocale).map(locale => ({ locale }));
 }
 

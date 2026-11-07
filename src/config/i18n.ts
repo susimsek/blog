@@ -25,6 +25,8 @@ const buildInitOptions = (locale: string, resources: LocaleResources): InitOptio
 export const createI18nInstance = (locale: string, resources: LocaleResources): I18nInstance => {
   const i18n = createInstance();
   i18n.use(initReactI18next);
-  i18n.init(buildInitOptions(locale, resources));
+  void i18n.init(buildInitOptions(locale, resources)).catch(error => {
+    console.error('Failed to initialize i18next instance', error);
+  });
   return i18n;
 };
