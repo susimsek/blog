@@ -58,55 +58,57 @@ This repository is a multilingual blog platform with a static-exported Next.js f
 
 ### Frontend
 
-- `src/app`: App Router routes and layouts
-- `src/app/(default)`: default route group (includes `/admin`)
-- `src/app/(localized)/[locale]`: locale-prefixed pages
-- `src/app/(default)/admin`: admin panel route (`/admin`)
-- `src/views`: route-level page views
-- `src/components`: shared UI and game components
-- `src/lib`: frontend helpers, markdown/content utilities, metadata helpers
-- `src/i18n`: locale runtime and translation loading
-- `public/locales`: translation namespaces
+| Path | Purpose |
+| --- | --- |
+| `src/app` | App Router routes and layouts |
+| `src/app/(default)` | Default route group, including `/admin` |
+| `src/app/(localized)/[locale]` | Locale-prefixed pages |
+| `src/app/(default)/admin` | Admin panel route (`/admin`) |
+| `src/views` | Route-level page views |
+| `src/components` | Shared UI and game components |
+| `src/lib` | Frontend helpers, Markdown/content utilities, and metadata helpers |
+| `src/i18n` | Locale runtime and translation loading |
+| `public/locales` | Translation namespaces |
 
 ### Backend
 
-- `api/graphql/index.go`: GraphQL + GraphiQL HTTP handler
-- `api/admin-graphql/index.go`: admin GraphQL HTTP handler
-- `api/admin-avatar/index.go`: admin avatar endpoint
-- `api/github/*`, `api/google/*`: reader OAuth connect/callback handlers
-- `api/reader-auth/index.go`: reader session/logout endpoint
-- `api/newsletter-dispatch/index.go`: newsletter dispatch endpoint
-- `internal/config`: backend-only env/config resolution
-- `internal/domain`: domain entities and shared records
-- `internal/graphql`: schema, generated execution code, resolvers, mapping helpers
-- `internal/service`: business service orchestration
-- `internal/repository`: Mongo-backed repository implementations
-- `pkg/graphql`: GraphiQL page handler
-- `pkg/newsletter`: mail templates, unsubscribe token/status, dispatch helpers
-- `pkg/apperrors`: normalized backend error types
-- `pkg/httpapi`: JSON error response helpers
-- `pkg/httpauth`: cookie/JWT auth helpers for admin and reader flows
-- `pkg/adminmail`: admin email-change status page templates/helpers
-- `pkg/commentsub`: comment subscription helpers
-- `pkg/web`: HTTP handler layer (`admingraphql`, `readerauth`, OAuth handlers, newsletter dispatch)
-- `cmd/app/main.go`: local backend entrypoint
-
-Preferred backend layering:
-
-- `api/*`: transport and HTTP entrypoints
-- `internal/*`: private config, domain, service, repository, GraphQL internals
-- `pkg/*`: reusable shared packages and helpers
+| Path | Purpose |
+| --- | --- |
+| `api/graphql/index.go` | GraphQL and GraphiQL HTTP handler |
+| `api/admin-graphql/index.go` | Admin GraphQL HTTP handler |
+| `api/admin-avatar/index.go` | Admin avatar endpoint |
+| `api/github/*`, `api/google/*` | Reader OAuth connect/callback handlers |
+| `api/reader-auth/index.go` | Reader session and logout endpoint |
+| `api/newsletter-dispatch/index.go` | Newsletter dispatch endpoint |
+| `internal/config` | Backend-only environment and configuration resolution |
+| `internal/domain` | Domain entities and shared records |
+| `internal/graphql` | Schema, generated execution code, resolvers, and mapping helpers |
+| `internal/service` | Business service orchestration |
+| `internal/repository` | MongoDB-backed repository implementations |
+| `pkg/graphql` | GraphiQL page handler |
+| `pkg/newsletter` | Mail templates, unsubscribe tokens/status, and dispatch helpers |
+| `pkg/apperrors` | Normalized backend error types |
+| `pkg/httpapi` | JSON error response helpers |
+| `pkg/httpauth` | Cookie/JWT auth helpers for admin and reader flows |
+| `pkg/adminmail` | Admin email-change status page templates and helpers |
+| `pkg/commentsub` | Comment subscription helpers |
+| `pkg/web` | HTTP handler layer for admin/reader auth, OAuth, and newsletter dispatch |
+| `cmd/app/main.go` | Local backend entrypoint |
+| `api/*` | Transport and HTTP entrypoints |
+| `internal/*` | Private config, domain, service, repository, and GraphQL internals |
+| `pkg/*` | Reusable shared packages and helpers |
 
 Do not introduce new feature-first Go package trees.
 
 ### Content and Data
 
-- `content/posts/en/*.md`
-- `content/posts/tr/*.md`
-- `public/data/posts.<locale>.json`
-- `public/data/topics.<locale>.json`
-- `public/data/categories.<locale>.json`
-- `content/external/medium-feed.json`
+| Path | Purpose |
+| --- | --- |
+| `content/posts/en/*.md`, `content/posts/tr/*.md` | English and Turkish Markdown posts |
+| `public/data/posts.<locale>.json` | Generated post indexes by locale |
+| `public/data/topics.<locale>.json` | Generated topic indexes by locale |
+| `public/data/categories.<locale>.json` | Generated category indexes by locale |
+| `content/external/medium-feed.json` | External Medium feed data |
 
 ## Local Development
 
