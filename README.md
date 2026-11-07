@@ -1,6 +1,6 @@
 # Multilingual Blog Platform
 
-[![Live Site](https://img.shields.io/badge/Live-suaybsimsek.com-46E3B7?logo=vercel&logoColor=white)](https://suaybsimsek.com)
+[![Vercel Website](https://img.shields.io/badge/Vercel-Website-000000?logo=vercel&logoColor=white)](https://suaybsimsek.com)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE.md)
 [![CI](https://github.com/susimsek/blog/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/susimsek/blog/actions/workflows/ci.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=blog&metric=alert_status)](https://sonarcloud.io/summary/overall?id=blog&branch=main)
@@ -13,7 +13,7 @@
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![GraphQL](https://img.shields.io/badge/GraphQL-API-E10098?logo=graphql&logoColor=white)](https://graphql.org/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-Driver%20v2-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Database-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
 
 This repository is a multilingual blog platform with a static-exported Next.js frontend and a Go backend for GraphQL, GraphiQL, and newsletter flows.
 
