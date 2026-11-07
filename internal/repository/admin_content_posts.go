@@ -325,14 +325,15 @@ func (*adminContentMongoRepository) CreatePostRevision(
 
 func (*adminContentMongoRepository) UpdatePostMetadata(
 	ctx context.Context,
-	locale string,
-	postID string,
-	fields domain.AdminContentPostMetadataFields,
-	category *domain.AdminContentCategoryRecord,
-	topics []domain.AdminContentTopicRecord,
-	revisionStamp *domain.AdminContentPostRevisionStamp,
-	now time.Time,
+	update domain.AdminContentPostMetadataUpdate,
 ) (*domain.AdminContentPostRecord, error) {
+	locale := update.Locale
+	postID := update.PostID
+	fields := update.Fields
+	category := update.Category
+	topics := update.Topics
+	revisionStamp := update.RevisionStamp
+	now := update.Now
 	postsCollection, err := getPostContentCollection()
 	if err != nil {
 		return nil, fmt.Errorf(adminContentRepositoryUnavailableFormat, ErrAdminContentRepositoryUnavailable, err)

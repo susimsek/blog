@@ -185,7 +185,7 @@ export default function AdminContentPostContentTab({
         </div>
       </div>
 
-      {postContentViewMode === 'editor' ? (
+      {postContentViewMode === 'editor' && (
         <AdminMarkdownEditor
           id="admin-content-post-content-editor"
           label={t('adminAccount.content.modals.post.contentLabel', { ns: 'admin-account' })}
@@ -194,7 +194,8 @@ export default function AdminContentPostContentTab({
           rows={18}
           onChange={onPostEditorContentChange}
         />
-      ) : postContentViewMode === 'split' ? (
+      )}
+      {postContentViewMode === 'split' && (
         <div className="row g-3 admin-content-post-split-row">
           <div className="col-12 col-xl-6 admin-content-post-split-col">
             <AdminMarkdownEditor
@@ -227,7 +228,8 @@ export default function AdminContentPostContentTab({
             </div>
           </div>
         </div>
-      ) : (
+      )}
+      {postContentViewMode !== 'editor' && postContentViewMode !== 'split' && (
         <div className="mt-3">
           <Form.Label className="d-block mb-2">
             {t('adminAccount.content.modals.post.modes.preview', { ns: 'admin-account' })}

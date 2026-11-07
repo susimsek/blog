@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"suaybsimsek.com/blog-api/internal/domain"
+	"suaybsimsek.com/blog-api/internal/testassert"
 	"suaybsimsek.com/blog-api/pkg/httpapi"
 )
 
@@ -476,24 +477,16 @@ func TestAdminErrorMessageManagementErrorPaths(t *testing.T) {
 	t.Run("requires admin authentication", func(t *testing.T) {
 		key := domain.AdminErrorMessageKey{Locale: "en", Code: "ADMIN_TEST"}
 
-		if _, err := ListAdminErrorMessages(context.Background(), nil, domain.AdminErrorMessageFilter{}); err == nil || err.Error() != "admin authentication required" {
-			t.Fatalf("expected auth error for list, got %v", err)
-		}
-		if _, err := CreateAdminErrorMessage(context.Background(), nil, key, "value"); err == nil || err.Error() != "admin authentication required" {
-			t.Fatalf("expected auth error for create, got %v", err)
-		}
-		if _, err := UpdateAdminErrorMessage(context.Background(), nil, key, "value"); err == nil || err.Error() != "admin authentication required" {
-			t.Fatalf("expected auth error for update, got %v", err)
-		}
-		if err := DeleteAdminErrorMessage(context.Background(), nil, key); err == nil || err.Error() != "admin authentication required" {
-			t.Fatalf("expected auth error for delete, got %v", err)
-		}
-		if _, err := ListAdminErrorMessageAuditLogs(context.Background(), nil, 5); err == nil || err.Error() != "admin authentication required" {
-			t.Fatalf("expected auth error for audit logs, got %v", err)
-		}
-		if err := createAdminErrorMessageAuditLog(context.Background(), nil, "action", key, "", "", adminAuditStatusSuccess, ""); err == nil || err.Error() != "admin authentication required" {
-			t.Fatalf("expected auth error for audit create, got %v", err)
-		}
+		_, listErr := ListAdminErrorMessages(context.Background(), nil, domain.AdminErrorMessageFilter{})
+		testassert.ErrorContains(t, listErr, "admin authentication required")
+		_, createErr := CreateAdminErrorMessage(context.Background(), nil, key, "value")
+		testassert.ErrorContains(t, createErr, "admin authentication required")
+		_, updateErr := UpdateAdminErrorMessage(context.Background(), nil, key, "value")
+		testassert.ErrorContains(t, updateErr, "admin authentication required")
+		testassert.ErrorContains(t, DeleteAdminErrorMessage(context.Background(), nil, key), "admin authentication required")
+		_, auditListErr := ListAdminErrorMessageAuditLogs(context.Background(), nil, 5)
+		testassert.ErrorContains(t, auditListErr, "admin authentication required")
+		testassert.ErrorContains(t, createAdminErrorMessageAuditLog(context.Background(), nil, "action", key, "", "", adminAuditStatusSuccess, ""), "admin authentication required")
 	})
 
 	t.Run("maps repository failures", func(t *testing.T) {
@@ -501,15 +494,13 @@ func TestAdminErrorMessageManagementErrorPaths(t *testing.T) {
 		repo.listErr = errors.New("list down")
 		adminErrorMessageRepository = repo
 
-		if _, err := ListAdminErrorMessages(context.Background(), &domain.AdminUser{ID: "admin-1"}, domain.AdminErrorMessageFilter{}); err == nil || !strings.Contains(err.Error(), "failed to load admin error messages") {
-			t.Fatalf("expected list error, got %v", err)
-		}
+		_, listErr := ListAdminErrorMessages(context.Background(), &domain.AdminUser{ID: "admin-1"}, domain.AdminErrorMessageFilter{})
+		testassert.ErrorContains(t, listErr, "failed to load admin error messages")
 
 		audit := &adminErrorMessageManagementAuditStub{err: errors.New("audit list down")}
 		adminAuditLogRepo = audit
-		if _, err := ListAdminErrorMessageAuditLogs(context.Background(), &domain.AdminUser{ID: "admin-1"}, 1); err == nil || !strings.Contains(err.Error(), "failed to load admin audit logs") {
-			t.Fatalf("expected audit list error, got %v", err)
-		}
+		_, auditErr := ListAdminErrorMessageAuditLogs(context.Background(), &domain.AdminUser{ID: "admin-1"}, 1)
+		testassert.ErrorContains(t, auditErr, "failed to load admin audit logs")
 	})
 
 	t.Run("validates create update and delete payloads", func(t *testing.T) {
@@ -520,26 +511,19 @@ func TestAdminErrorMessageManagementErrorPaths(t *testing.T) {
 		adminAuditLogRepo = &adminErrorMessageManagementAuditStub{}
 		admin := &domain.AdminUser{ID: "admin-1", Email: "admin@example.com"}
 
-		if _, err := CreateAdminErrorMessage(context.Background(), admin, domain.AdminErrorMessageKey{Locale: "en", Code: "ADMIN_NEW"}, " "); err == nil || err.Error() != "error message is required" {
-			t.Fatalf("expected create required message error, got %v", err)
-		}
-		if _, err := CreateAdminErrorMessage(context.Background(), admin, domain.AdminErrorMessageKey{Locale: "en", Code: "ADMIN_TOO_LONG"}, strings.Repeat("a", adminErrorMessageMaxLength+1)); err == nil || err.Error() != "error message is too long" {
-			t.Fatalf("expected create too long error, got %v", err)
-		}
-		if _, err := CreateAdminErrorMessage(context.Background(), admin, domain.AdminErrorMessageKey{Locale: "en", Code: "ADMIN_EXISTS"}, "New value"); err == nil || err.Error() != "admin error message already exists" {
-			t.Fatalf("expected duplicate create error, got %v", err)
-		}
+		_, createRequiredErr := CreateAdminErrorMessage(context.Background(), admin, domain.AdminErrorMessageKey{Locale: "en", Code: "ADMIN_NEW"}, " ")
+		testassert.ErrorContains(t, createRequiredErr, "error message is required")
+		_, createLengthErr := CreateAdminErrorMessage(context.Background(), admin, domain.AdminErrorMessageKey{Locale: "en", Code: "ADMIN_TOO_LONG"}, strings.Repeat("a", adminErrorMessageMaxLength+1))
+		testassert.ErrorContains(t, createLengthErr, "error message is too long")
+		_, duplicateCreateErr := CreateAdminErrorMessage(context.Background(), admin, domain.AdminErrorMessageKey{Locale: "en", Code: "ADMIN_EXISTS"}, "New value")
+		testassert.ErrorContains(t, duplicateCreateErr, "admin error message already exists")
 
-		if _, err := UpdateAdminErrorMessage(context.Background(), admin, domain.AdminErrorMessageKey{Locale: "en", Code: "ADMIN_MISSING"}, "Updated"); err == nil || err.Error() != "admin error message not found" {
-			t.Fatalf("expected update missing error, got %v", err)
-		}
-		if _, err := UpdateAdminErrorMessage(context.Background(), admin, domain.AdminErrorMessageKey{Locale: "en", Code: "ADMIN_EXISTS"}, strings.Repeat("b", adminErrorMessageMaxLength+1)); err == nil || err.Error() != "error message is too long" {
-			t.Fatalf("expected update too long error, got %v", err)
-		}
+		_, missingUpdateErr := UpdateAdminErrorMessage(context.Background(), admin, domain.AdminErrorMessageKey{Locale: "en", Code: "ADMIN_MISSING"}, "Updated")
+		testassert.ErrorContains(t, missingUpdateErr, "admin error message not found")
+		_, updateLengthErr := UpdateAdminErrorMessage(context.Background(), admin, domain.AdminErrorMessageKey{Locale: "en", Code: "ADMIN_EXISTS"}, strings.Repeat("b", adminErrorMessageMaxLength+1))
+		testassert.ErrorContains(t, updateLengthErr, "error message is too long")
 
-		if err := DeleteAdminErrorMessage(context.Background(), admin, domain.AdminErrorMessageKey{Locale: "en", Code: "ADMIN_MISSING"}); err == nil || err.Error() != "admin error message not found" {
-			t.Fatalf("expected delete missing error, got %v", err)
-		}
+		testassert.ErrorContains(t, DeleteAdminErrorMessage(context.Background(), admin, domain.AdminErrorMessageKey{Locale: "en", Code: "ADMIN_MISSING"}), "admin error message not found")
 	})
 
 	t.Run("maps write failures", func(t *testing.T) {
@@ -549,35 +533,29 @@ func TestAdminErrorMessageManagementErrorPaths(t *testing.T) {
 		repo.upsertErr = errors.New("upsert failed")
 		adminErrorMessageRepository = repo
 		adminAuditLogRepo = &adminErrorMessageManagementAuditStub{}
-		if _, err := CreateAdminErrorMessage(context.Background(), admin, domain.AdminErrorMessageKey{Locale: "en", Code: "ADMIN_CREATE_FAIL"}, "Value"); err == nil || !strings.Contains(err.Error(), "failed to persist admin error message") {
-			t.Fatalf("expected create persist error, got %v", err)
-		}
+		_, createErr := CreateAdminErrorMessage(context.Background(), admin, domain.AdminErrorMessageKey{Locale: "en", Code: "ADMIN_CREATE_FAIL"}, "Value")
+		testassert.ErrorContains(t, createErr, "failed to persist admin error message")
 
 		repo = newAdminErrorMessageManagementStubRepository([]domain.ErrorMessageRecord{
 			{Scope: adminErrorMessageScope, Locale: "en", Code: "ADMIN_UPDATE_FAIL", Message: "Old"},
 		})
 		repo.upsertErr = errors.New("upsert failed")
 		adminErrorMessageRepository = repo
-		if _, err := UpdateAdminErrorMessage(context.Background(), admin, domain.AdminErrorMessageKey{Locale: "en", Code: "ADMIN_UPDATE_FAIL"}, "New"); err == nil || !strings.Contains(err.Error(), "failed to persist admin error message") {
-			t.Fatalf("expected update persist error, got %v", err)
-		}
+		_, updateErr := UpdateAdminErrorMessage(context.Background(), admin, domain.AdminErrorMessageKey{Locale: "en", Code: "ADMIN_UPDATE_FAIL"}, "New")
+		testassert.ErrorContains(t, updateErr, "failed to persist admin error message")
 
 		repo = newAdminErrorMessageManagementStubRepository([]domain.ErrorMessageRecord{
 			{Scope: adminErrorMessageScope, Locale: "en", Code: "ADMIN_DELETE_FAIL", Message: "Old"},
 		})
 		repo.deleteErr = errors.New("delete failed")
 		adminErrorMessageRepository = repo
-		if err := DeleteAdminErrorMessage(context.Background(), admin, domain.AdminErrorMessageKey{Locale: "en", Code: "ADMIN_DELETE_FAIL"}); err == nil || !strings.Contains(err.Error(), "failed to delete admin error message") {
-			t.Fatalf("expected delete failure, got %v", err)
-		}
+		testassert.ErrorContains(t, DeleteAdminErrorMessage(context.Background(), admin, domain.AdminErrorMessageKey{Locale: "en", Code: "ADMIN_DELETE_FAIL"}), "failed to delete admin error message")
 
 		adminAuditLogRepo = &adminErrorMessageManagementAuditStub{err: errors.New("audit failed")}
 		adminErrorMessageRepository = newAdminErrorMessageManagementStubRepository([]domain.ErrorMessageRecord{
 			{Scope: adminErrorMessageScope, Locale: "en", Code: "ADMIN_DELETE_MISSING", Message: "Old"},
 		})
-		if err := createAdminErrorMessageAuditLog(context.Background(), admin, "action", domain.AdminErrorMessageKey{Locale: "en", Code: "ADMIN_TEST"}, "", "", adminAuditStatusSuccess, ""); err == nil || !strings.Contains(err.Error(), "failed to persist admin audit log") {
-			t.Fatalf("expected audit create failure, got %v", err)
-		}
+		testassert.ErrorContains(t, createAdminErrorMessageAuditLog(context.Background(), admin, "action", domain.AdminErrorMessageKey{Locale: "en", Code: "ADMIN_TEST"}, "", "", adminAuditStatusSuccess, ""), "failed to persist admin audit log")
 	})
 }
 

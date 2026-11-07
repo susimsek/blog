@@ -3,7 +3,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Layout from '@/components/common/Layout';
-import type { LayoutPostSummary, PostSummary, Topic } from '@/types/posts';
 import PostList from '@/components/posts/PostList';
 import type { Localized } from '@/i18n/settings';
 import type { MediumPageData } from '@/lib/localizedPageData';

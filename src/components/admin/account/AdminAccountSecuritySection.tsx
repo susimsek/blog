@@ -48,7 +48,7 @@ type AdminAccountSecuritySectionProps = {
   isSecurityPasswordExpanded: boolean;
   onToggleSecurityPassword: () => void;
   onManageEmail: () => void;
-  handleSecuritySubmit: React.FormEventHandler<HTMLFormElement>;
+  handleSecuritySubmit: (event: React.SubmitEvent<HTMLFormElement>) => void;
   currentPassword: string;
   newPassword: string;
   confirmPassword: string;
@@ -237,7 +237,7 @@ export default function AdminAccountSecuritySection({
         </Alert>
       ) : null}
 
-      <ListGroup className="rounded-4 overflow-hidden border shadow-sm">
+      <ListGroup className="rounded-4 overflow-hidden border theme-shadow-sm">
         <ListGroup.Item className="px-4 py-4">
           <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
             <div className="d-flex align-items-start gap-3">

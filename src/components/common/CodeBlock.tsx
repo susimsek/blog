@@ -217,11 +217,7 @@ const hasTerminalPrompt = (line: string): boolean => {
 
   const firstCharacter = prompt.codePointAt(0) ?? 0;
   return (
-    firstCharacter >= 65 &&
-    firstCharacter <= 90 &&
-    prompt[1] === ':' &&
-    prompt[2] === '\\' &&
-    prompt.indexOf('>', 3) !== -1
+    firstCharacter >= 65 && firstCharacter <= 90 && prompt[1] === ':' && prompt[2] === '\\' && prompt.includes('>', 3)
   );
 };
 

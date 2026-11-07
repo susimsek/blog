@@ -177,7 +177,7 @@ export default function AdminContentPostCommentsTab({
         </Alert>
       ) : null}
 
-      <div className="card shadow-sm d-block">
+      <div className="card theme-shadow-sm d-block">
         <div className="card-body p-3 w-100">
           {postComments.length > 0 ? (
             <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
@@ -322,16 +322,18 @@ export default function AdminContentPostCommentsTab({
             </div>
           ) : null}
 
-          {isPostCommentsLoading ? (
+          {isPostCommentsLoading && (
             <AdminLoadingState
               className="admin-loading-stack"
               ariaLabel={t('adminAccount.comments.loading', { ns: 'admin-account' })}
             />
-          ) : postCommentsTotal === 0 ? (
+          )}
+          {!isPostCommentsLoading && postCommentsTotal === 0 && (
             <p className="small theme-text-muted mb-0">
               {t('adminAccount.content.modals.post.comments.empty', { ns: 'admin-account' })}
             </p>
-          ) : (
+          )}
+          {!isPostCommentsLoading && postCommentsTotal !== 0 && (
             <div className="d-grid gap-3">
               {postComments.map(item => {
                 const isActionPending = postCommentActionID === item.id;

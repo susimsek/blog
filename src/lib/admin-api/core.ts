@@ -1,6 +1,7 @@
 'use client';
 
 import { ApolloClient, ApolloLink, HttpLink, InMemoryCache, gql } from '@apollo/client/core';
+import type { TypedDocumentNode } from '@apollo/client/core';
 import type { DocumentNode } from 'graphql';
 import { withBasePath } from '@/lib/basePath';
 import { resolveDocumentLocale } from '@/i18n/clientLocale';
@@ -118,7 +119,7 @@ const getAdminClient = () => {
     operation.setContext(previousContext => ({
       ...previousContext,
       headers: {
-        ...(previousContext?.headers ?? {}),
+        ...previousContext?.headers,
         'Accept-Language': locale,
         ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
       },
@@ -181,37 +182,25 @@ export async function executeAdminGraphQL<TData, TVariables extends Record<strin
   } = {},
 ): Promise<TData> {
   const client = getAdminClient();
+  const typedDocument = document as TypedDocumentNode<TData, TVariables>;
+  const operationVariables = variables as TVariables;
   const shouldRetryOnUnauthorized = options.retryOnUnauthorized ?? true;
   const operationName = options.operationName || resolveOperationName(document);
 
   try {
     if (isMutationDocument(document)) {
-      const result =
-        variables === undefined
-          ? await client.mutate<TData, Record<string, never>>({
-              mutation: document,
-            })
-          : await client.mutate<TData, TVariables>({
-              mutation: document,
-              variables,
-            });
+      const result = await client.mutate({ mutation: typedDocument, variables: operationVariables });
       if (result.data !== undefined && result.data !== null) {
         return result.data;
       }
       throw new AdminGraphQLRequestError('Missing admin GraphQL payload');
     }
 
-    const result =
-      variables === undefined
-        ? await client.query<TData, Record<string, never>>({
-            query: document,
-            fetchPolicy: 'no-cache',
-          })
-        : await client.query<TData, TVariables>({
-            query: document,
-            variables,
-            fetchPolicy: 'no-cache',
-          });
+    const result = await client.query({
+      query: typedDocument,
+      variables: operationVariables,
+      fetchPolicy: 'no-cache',
+    });
     if (result.data !== undefined && result.data !== null) {
       return result.data;
     }

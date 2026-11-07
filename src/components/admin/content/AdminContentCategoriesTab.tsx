@@ -117,16 +117,18 @@ export default function AdminContentCategoriesTab({
               </Form.Group>
             </div>
           </div>
-          {isCategoryListLoading ? (
+          {isCategoryListLoading && (
             <AdminLoadingState
               className="admin-loading-stack"
               ariaLabel={t('adminAccount.content.loading.taxonomy', { ns: 'admin-account' })}
             />
-          ) : categoryTotal === 0 ? (
+          )}
+          {!isCategoryListLoading && categoryTotal === 0 && (
             <p className="small theme-text-muted mb-0">
               {t('adminAccount.content.empty.categories', { ns: 'admin-account' })}
             </p>
-          ) : (
+          )}
+          {!isCategoryListLoading && categoryTotal !== 0 && (
             <div className="post-list-results post-list-results--editorial">
               {categoryListItems.map(group => {
                 const item = group.preferred;

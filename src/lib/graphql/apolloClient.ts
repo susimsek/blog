@@ -171,7 +171,7 @@ export const queryGraphQL = async <TData, TVariables extends Record<string, unkn
   }
 
   try {
-    const result = await client.query<TData, TVariables>({
+    const result = await client.query({
       query,
       variables,
       context: {
@@ -181,7 +181,7 @@ export const queryGraphQL = async <TData, TVariables extends Record<string, unkn
       },
     });
     if (result.data) {
-      return result.data as TData;
+      return result.data;
     }
   } catch (error) {
     notifyGraphQLError(toGraphQLAppError(error), options);
@@ -217,7 +217,7 @@ export const mutateGraphQL = async <TData, TVariables extends Record<string, unk
   }
 
   try {
-    const result = await client.mutate<TData, TVariables>({
+    const result = await client.mutate({
       mutation,
       variables,
       context: {
@@ -227,7 +227,7 @@ export const mutateGraphQL = async <TData, TVariables extends Record<string, unk
       },
     });
     if (result.data) {
-      return result.data as TData;
+      return result.data;
     }
   } catch (error) {
     notifyGraphQLError(toGraphQLAppError(error), options);

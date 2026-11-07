@@ -343,12 +343,13 @@ export default function AdminContentPostDetailSection({
           </Nav>
         ) : null}
 
-        {isPostContentLoading ? (
+        {isPostContentLoading && (
           <div className="d-flex align-items-center gap-2 theme-text-muted small py-2">
             <Spinner animation="border" size="sm" />
             <span>{t('adminAccount.content.loading.postContent', { ns: 'admin-account' })}</span>
           </div>
-        ) : editingPost ? (
+        )}
+        {!isPostContentLoading && editingPost && (
           <>
             <Tabs
               id="admin-content-post-editor-tabs"
@@ -519,7 +520,8 @@ export default function AdminContentPostDetailSection({
               </Button>
             </div>
           </>
-        ) : (
+        )}
+        {!isPostContentLoading && !editingPost && (
           <p className="small theme-text-muted mb-0">
             {t('adminAccount.content.modals.post.empty', { ns: 'admin-account' })}
           </p>

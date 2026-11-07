@@ -94,20 +94,16 @@ describe('TopicsDropdown', () => {
     jest.clearAllMocks();
   });
 
-  test('renders with default title', () => {
-    renderComponent();
-    expect(screen.getByText('topic:topic.allTopics')).toBeInTheDocument();
-  });
-
-  test('displays selected topics as the title', () => {
-    renderComponent(['react', 'vue']);
-    expect(screen.getByText('React, Vue.js')).toBeInTheDocument();
-  });
-
-  test('renders without error when topics list is empty', () => {
-    renderComponent([], []);
-    expect(screen.getByText('topic:topic.allTopics')).toBeInTheDocument();
-    expect(screen.queryByText('React')).not.toBeInTheDocument();
+  test.each([
+    { selectedTopics: [], topics: mockTopics, expectedTitle: 'topic:topic.allTopics', hiddenTopic: null },
+    { selectedTopics: ['react', 'vue'], topics: mockTopics, expectedTitle: 'React, Vue.js', hiddenTopic: null },
+    { selectedTopics: [], topics: [], expectedTitle: 'topic:topic.allTopics', hiddenTopic: 'React' },
+  ])('renders the expected title: $expectedTitle', ({ selectedTopics, topics, expectedTitle, hiddenTopic }) => {
+    renderComponent(selectedTopics, topics);
+    expect(screen.getByText(expectedTitle)).toBeInTheDocument();
+    if (hiddenTopic) {
+      expect(screen.queryByText(hiddenTopic)).not.toBeInTheDocument();
+    }
   });
 
   test('filters topics based on search input', async () => {

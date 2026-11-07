@@ -23,6 +23,7 @@ import {
 const SUCCESS_MESSAGE_AUTO_HIDE_MS = 3500;
 type ResetTokenStatus = 'valid' | 'invalid' | 'expired';
 type Translate = ReturnType<typeof useTranslation>['t'];
+type ResetTouchedFields = { password: boolean; confirmPassword: boolean };
 
 const resolveResetTokenStatus = (status: string) => {
   const normalizedStatus = status.trim().toLowerCase();
@@ -178,6 +179,222 @@ const renderTokenState = (isCheckingToken: boolean, tokenStatus: ResetTokenStatu
   return null;
 };
 
+type AdminPasswordResetFormProps = {
+  tokenStatus: ResetTokenStatus;
+  isSuccess: boolean;
+  hasSubmitted: boolean;
+  handleSubmit: (event: React.SyntheticEvent<HTMLFormElement>) => void;
+  loginHref: string;
+  t: Translate;
+  password: string;
+  setPassword: React.Dispatch<React.SetStateAction<string>>;
+  confirmPassword: string;
+  setConfirmPassword: React.Dispatch<React.SetStateAction<string>>;
+  touchedFields: ResetTouchedFields;
+  setTouchedFields: React.Dispatch<React.SetStateAction<ResetTouchedFields>>;
+  displayedErrorMessage: string;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+  showPassword: boolean;
+  setShowPassword: React.Dispatch<React.SetStateAction<boolean>>;
+  showConfirmPassword: boolean;
+  setShowConfirmPassword: React.Dispatch<React.SetStateAction<boolean>>;
+  isSubmitting: boolean;
+};
+
+const AdminPasswordResetForm = ({
+  tokenStatus,
+  isSuccess,
+  hasSubmitted,
+  handleSubmit,
+  loginHref,
+  t,
+  password,
+  setPassword,
+  confirmPassword,
+  setConfirmPassword,
+  touchedFields,
+  setTouchedFields,
+  displayedErrorMessage,
+  setErrorMessage,
+  showPassword,
+  setShowPassword,
+  showConfirmPassword,
+  setShowConfirmPassword,
+  isSubmitting,
+}: Readonly<AdminPasswordResetFormProps>) => {
+  if (tokenStatus !== 'valid' || isSuccess) {
+    return null;
+  }
+
+  const passwordStrength = getAdminPasswordStrength(password);
+  const passwordError = resolvePasswordError(password, t);
+  const confirmPasswordError = resolveConfirmPasswordError(password, confirmPassword, t);
+  const showPasswordError = (hasSubmitted || touchedFields.password) && passwordError !== '';
+  const showConfirmPasswordError = (hasSubmitted || touchedFields.confirmPassword) && confirmPasswordError !== '';
+
+  return (
+    <Form noValidate onSubmit={handleSubmit}>
+      <Form.Group className="mb-4" controlId="admin-reset-password">
+        <Form.Label>{t('adminPasswordReset.reset.password')}</Form.Label>
+        <InputGroup>
+          <Form.Control
+            type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={event => {
+              setPassword(event.currentTarget.value);
+              setTouchedFields(previous => ({ ...previous, password: true }));
+              if (displayedErrorMessage) {
+                setErrorMessage('');
+              }
+            }}
+            onBlur={() => setTouchedFields(previous => ({ ...previous, password: true }))}
+            placeholder={t('adminPasswordReset.reset.passwordPlaceholder')}
+            autoComplete="new-password"
+            isInvalid={showPasswordError}
+            minLength={MIN_PASSWORD_LENGTH}
+            required
+          />
+          <Button
+            variant="outline-secondary"
+            type="button"
+            onClick={() => setShowPassword(previous => !previous)}
+            aria-label={resolvePasswordToggleLabel(
+              showPassword,
+              'adminPasswordReset.reset.showPassword',
+              'adminPasswordReset.reset.hidePassword',
+              t,
+            )}
+          >
+            <FontAwesomeIcon icon={showPassword ? 'eye-slash' : 'eye'} />
+          </Button>
+        </InputGroup>
+        <div className={`admin-password-strength admin-password-strength-${passwordStrength.tone}`} aria-live="polite">
+          <div className="admin-password-strength-head">
+            <span>{t('adminAccount.strength.title', { ns: 'admin-account' })}</span>
+          </div>
+          <div className="admin-password-strength-track" aria-hidden="true">
+            {Array.from({ length: 5 }, (_, index) => (
+              <span
+                key={`reset-strength:${index + 1}`}
+                className={`admin-password-strength-segment${index < passwordStrength.score ? ' is-active' : ''}`}
+              />
+            ))}
+          </div>
+        </div>
+        <Form.Text className="theme-text-muted">
+          {t('adminAccount.form.passwordHint', {
+            ns: 'admin-account',
+            count: MIN_PASSWORD_LENGTH,
+          })}
+        </Form.Text>
+        <Form.Control.Feedback type="invalid" className={showPasswordError ? 'd-block' : ''}>
+          {passwordError}
+        </Form.Control.Feedback>
+      </Form.Group>
+
+      <Form.Group className="mb-4" controlId="admin-reset-password-confirm">
+        <Form.Label>{t('adminPasswordReset.reset.confirmPassword')}</Form.Label>
+        <InputGroup>
+          <Form.Control
+            type={showConfirmPassword ? 'text' : 'password'}
+            value={confirmPassword}
+            onChange={event => {
+              setConfirmPassword(event.currentTarget.value);
+              setTouchedFields(previous => ({ ...previous, confirmPassword: true }));
+              if (displayedErrorMessage) {
+                setErrorMessage('');
+              }
+            }}
+            onBlur={() => setTouchedFields(previous => ({ ...previous, confirmPassword: true }))}
+            placeholder={t('adminPasswordReset.reset.confirmPasswordPlaceholder')}
+            autoComplete="new-password"
+            isInvalid={showConfirmPasswordError}
+            minLength={MIN_PASSWORD_LENGTH}
+            required
+          />
+          <Button
+            variant="outline-secondary"
+            type="button"
+            onClick={() => setShowConfirmPassword(previous => !previous)}
+            aria-label={resolvePasswordToggleLabel(
+              showConfirmPassword,
+              'adminPasswordReset.reset.showConfirmPassword',
+              'adminPasswordReset.reset.hideConfirmPassword',
+              t,
+            )}
+          >
+            <FontAwesomeIcon icon={showConfirmPassword ? 'eye-slash' : 'eye'} />
+          </Button>
+        </InputGroup>
+        <Form.Control.Feedback type="invalid" className={showConfirmPasswordError ? 'd-block' : ''}>
+          {confirmPasswordError}
+        </Form.Control.Feedback>
+      </Form.Group>
+
+      <div className="d-flex flex-column flex-sm-row gap-3">
+        <Button type="submit" className="post-summary-read-more justify-content-center" disabled={isSubmitting}>
+          {isSubmitting ? (
+            <>
+              <Spinner as="span" animation="border" size="sm" className="me-2" aria-hidden="true" />
+              <span className="read-more-label">{t('adminPasswordReset.reset.submitting')}</span>
+            </>
+          ) : (
+            <span className="read-more-label d-inline-flex align-items-center justify-content-center gap-2">
+              <FontAwesomeIcon icon="lock" />
+              <span>{t('adminPasswordReset.reset.submit')}</span>
+            </span>
+          )}
+        </Button>
+        <a href={loginHref} className="btn btn-secondary">
+          <span className="d-inline-flex align-items-center gap-2">
+            <FontAwesomeIcon icon="right-to-bracket" />
+            <span>{t('adminPasswordReset.reset.backToLogin')}</span>
+          </span>
+        </a>
+      </div>
+    </Form>
+  );
+};
+
+const AdminPasswordResetActions = ({
+  isCheckingToken,
+  tokenStatus,
+  isSuccess,
+  loginHref,
+  forgotPasswordHref,
+  t,
+}: {
+  isCheckingToken: boolean;
+  tokenStatus: ResetTokenStatus;
+  isSuccess: boolean;
+  loginHref: string;
+  forgotPasswordHref: string;
+  t: Translate;
+}) => {
+  if (isCheckingToken || !(tokenStatus === 'invalid' || tokenStatus === 'expired' || isSuccess)) {
+    return null;
+  }
+
+  return (
+    <div className="d-flex flex-column flex-sm-row gap-3">
+      {tokenStatus === 'invalid' || tokenStatus === 'expired' ? (
+        <a href={forgotPasswordHref} className="btn btn-primary">
+          <span className="d-inline-flex align-items-center gap-2">
+            <FontAwesomeIcon icon="envelope" />
+            <span>{t('adminPasswordReset.reset.requestAnother')}</span>
+          </span>
+        </a>
+      ) : null}
+      <a href={loginHref} className="btn btn-secondary">
+        <span className="d-inline-flex align-items-center gap-2">
+          <FontAwesomeIcon icon="right-to-bracket" />
+          <span>{t('adminPasswordReset.reset.backToLogin')}</span>
+        </span>
+      </a>
+    </div>
+  );
+};
+
 export default function AdminResetPasswordPage() {
   // NOSONAR
   const { t } = useTranslation(['admin-password-reset', 'admin-account']);
@@ -204,15 +421,11 @@ export default function AdminResetPasswordPage() {
     nextValue: false,
     isEmpty: value => value === false,
   });
-  const passwordStrength = getAdminPasswordStrength(password);
   const tokenState = useAdminPasswordResetTokenState(token, locale, t);
   const displayedErrorMessage = errorMessage || tokenState.errorMessage;
 
   const passwordError = resolvePasswordError(password, t);
   const confirmPasswordError = resolveConfirmPasswordError(password, confirmPassword, t);
-  const showPasswordError = (hasSubmitted || touchedFields.password) && passwordError !== '';
-  const showConfirmPasswordError = (hasSubmitted || touchedFields.confirmPassword) && confirmPasswordError !== '';
-
   const handleSubmit = React.useCallback(
     async (event: React.SyntheticEvent<HTMLFormElement>) => {
       event.preventDefault();
@@ -286,161 +499,35 @@ export default function AdminResetPasswordPage() {
 
               {renderTokenState(tokenState.isCheckingToken, tokenState.tokenStatus, t)}
 
-              {tokenState.tokenStatus === 'valid' && !isSuccess ? (
-                <Form noValidate onSubmit={handleSubmit}>
-                  <Form.Group className="mb-4" controlId="admin-reset-password">
-                    <Form.Label>{t('adminPasswordReset.reset.password')}</Form.Label>
-                    <InputGroup>
-                      <Form.Control
-                        type={showPassword ? 'text' : 'password'}
-                        value={password}
-                        onChange={event => {
-                          setPassword(event.currentTarget.value);
-                          setTouchedFields(previous => ({ ...previous, password: true }));
-                          if (displayedErrorMessage) {
-                            setErrorMessage('');
-                          }
-                        }}
-                        onBlur={() => {
-                          setTouchedFields(previous => ({ ...previous, password: true }));
-                        }}
-                        placeholder={t('adminPasswordReset.reset.passwordPlaceholder')}
-                        autoComplete="new-password"
-                        isInvalid={showPasswordError}
-                        minLength={MIN_PASSWORD_LENGTH}
-                        required
-                      />
-                      <Button
-                        variant="outline-secondary"
-                        type="button"
-                        onClick={() => setShowPassword(previous => !previous)}
-                        aria-label={resolvePasswordToggleLabel(
-                          showPassword,
-                          'adminPasswordReset.reset.showPassword',
-                          'adminPasswordReset.reset.hidePassword',
-                          t,
-                        )}
-                      >
-                        <FontAwesomeIcon icon={showPassword ? 'eye-slash' : 'eye'} />
-                      </Button>
-                    </InputGroup>
-                    <div
-                      className={`admin-password-strength admin-password-strength-${passwordStrength.tone}`}
-                      aria-live="polite"
-                    >
-                      <div className="admin-password-strength-head">
-                        <span>{t('adminAccount.strength.title', { ns: 'admin-account' })}</span>
-                      </div>
-                      <div className="admin-password-strength-track" aria-hidden="true">
-                        {Array.from({ length: 5 }, (_, index) => (
-                          <span
-                            key={`reset-strength:${index + 1}`}
-                            className={`admin-password-strength-segment${
-                              index < passwordStrength.score ? ' is-active' : ''
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <Form.Text className="theme-text-muted">
-                      {t('adminAccount.form.passwordHint', {
-                        ns: 'admin-account',
-                        count: MIN_PASSWORD_LENGTH,
-                      })}
-                    </Form.Text>
-                    <Form.Control.Feedback type="invalid" className={showPasswordError ? 'd-block' : ''}>
-                      {passwordError}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-
-                  <Form.Group className="mb-4" controlId="admin-reset-password-confirm">
-                    <Form.Label>{t('adminPasswordReset.reset.confirmPassword')}</Form.Label>
-                    <InputGroup>
-                      <Form.Control
-                        type={showConfirmPassword ? 'text' : 'password'}
-                        value={confirmPassword}
-                        onChange={event => {
-                          setConfirmPassword(event.currentTarget.value);
-                          setTouchedFields(previous => ({ ...previous, confirmPassword: true }));
-                          if (displayedErrorMessage) {
-                            setErrorMessage('');
-                          }
-                        }}
-                        onBlur={() => {
-                          setTouchedFields(previous => ({ ...previous, confirmPassword: true }));
-                        }}
-                        placeholder={t('adminPasswordReset.reset.confirmPasswordPlaceholder')}
-                        autoComplete="new-password"
-                        isInvalid={showConfirmPasswordError}
-                        minLength={MIN_PASSWORD_LENGTH}
-                        required
-                      />
-                      <Button
-                        variant="outline-secondary"
-                        type="button"
-                        onClick={() => setShowConfirmPassword(previous => !previous)}
-                        aria-label={resolvePasswordToggleLabel(
-                          showConfirmPassword,
-                          'adminPasswordReset.reset.showConfirmPassword',
-                          'adminPasswordReset.reset.hideConfirmPassword',
-                          t,
-                        )}
-                      >
-                        <FontAwesomeIcon icon={showConfirmPassword ? 'eye-slash' : 'eye'} />
-                      </Button>
-                    </InputGroup>
-                    <Form.Control.Feedback type="invalid" className={showConfirmPasswordError ? 'd-block' : ''}>
-                      {confirmPasswordError}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-
-                  <div className="d-flex flex-column flex-sm-row gap-3">
-                    <Button
-                      type="submit"
-                      className="post-summary-read-more justify-content-center"
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Spinner as="span" animation="border" size="sm" className="me-2" aria-hidden="true" />
-                          <span className="read-more-label">{t('adminPasswordReset.reset.submitting')}</span>
-                        </>
-                      ) : (
-                        <span className="read-more-label d-inline-flex align-items-center justify-content-center gap-2">
-                          <FontAwesomeIcon icon="lock" />
-                          <span>{t('adminPasswordReset.reset.submit')}</span>
-                        </span>
-                      )}
-                    </Button>
-                    <a href={loginHref} className="btn btn-secondary">
-                      <span className="d-inline-flex align-items-center gap-2">
-                        <FontAwesomeIcon icon="right-to-bracket" />
-                        <span>{t('adminPasswordReset.reset.backToLogin')}</span>
-                      </span>
-                    </a>
-                  </div>
-                </Form>
-              ) : null}
-
-              {!tokenState.isCheckingToken &&
-              (tokenState.tokenStatus === 'invalid' || tokenState.tokenStatus === 'expired' || isSuccess) ? (
-                <div className="d-flex flex-column flex-sm-row gap-3">
-                  {tokenState.tokenStatus === 'invalid' || tokenState.tokenStatus === 'expired' ? (
-                    <a href={forgotPasswordHref} className="btn btn-primary">
-                      <span className="d-inline-flex align-items-center gap-2">
-                        <FontAwesomeIcon icon="envelope" />
-                        <span>{t('adminPasswordReset.reset.requestAnother')}</span>
-                      </span>
-                    </a>
-                  ) : null}
-                  <a href={loginHref} className="btn btn-secondary">
-                    <span className="d-inline-flex align-items-center gap-2">
-                      <FontAwesomeIcon icon="right-to-bracket" />
-                      <span>{t('adminPasswordReset.reset.backToLogin')}</span>
-                    </span>
-                  </a>
-                </div>
-              ) : null}
+              <AdminPasswordResetForm
+                tokenStatus={tokenState.tokenStatus}
+                isSuccess={isSuccess}
+                hasSubmitted={hasSubmitted}
+                handleSubmit={handleSubmit}
+                loginHref={loginHref}
+                t={t}
+                password={password}
+                setPassword={setPassword}
+                confirmPassword={confirmPassword}
+                setConfirmPassword={setConfirmPassword}
+                touchedFields={touchedFields}
+                setTouchedFields={setTouchedFields}
+                displayedErrorMessage={displayedErrorMessage}
+                setErrorMessage={setErrorMessage}
+                showPassword={showPassword}
+                setShowPassword={setShowPassword}
+                showConfirmPassword={showConfirmPassword}
+                setShowConfirmPassword={setShowConfirmPassword}
+                isSubmitting={isSubmitting}
+              />
+              <AdminPasswordResetActions
+                isCheckingToken={tokenState.isCheckingToken}
+                tokenStatus={tokenState.tokenStatus}
+                isSuccess={isSuccess}
+                loginHref={loginHref}
+                forgotPasswordHref={forgotPasswordHref}
+                t={t}
+              />
             </div>
           </div>
         </div>

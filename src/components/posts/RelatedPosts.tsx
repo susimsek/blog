@@ -3,7 +3,6 @@ import type { PostSummary } from '@/types/posts';
 import Link from '@/components/common/Link';
 import DateDisplay from '@/components/common/DateDisplay';
 import { useTranslation } from 'react-i18next';
-import { useLocale } from '@/i18n/useLocale';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -33,8 +32,6 @@ export const resolveThumbnailSrc = (value: string, prefix: string) => {
 
 export default function RelatedPosts({ posts }: Readonly<RelatedPostsProps>) {
   const { t } = useTranslation(['post', 'common']);
-  const currentLocale = useLocale();
-
   if (posts.length === 0) {
     return null;
   }

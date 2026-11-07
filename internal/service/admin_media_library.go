@@ -423,8 +423,7 @@ func resolveAdminMediaFileMetadata(
 
 func resolveAdminMediaPublicFilePath(
 	value string,
-	publicRoot string,
-	siteURL string,
+	publicRoot, siteURL string,
 ) (string, bool) {
 	resolved := strings.TrimSpace(value)
 	if resolved == "" {

@@ -363,47 +363,8 @@ func TestUpdateAdminContentPostMetadataUpdatesAndAudits(t *testing.T) {
 			}
 			return &domain.AdminContentTopicRecord{Locale: locale, ID: topicID, Name: strings.ToUpper(topicID)}, nil
 		},
-		updatePostMetadata: func(
-			_ context.Context,
-			locale string,
-			postID string,
-			fields domain.AdminContentPostMetadataFields,
-			category *domain.AdminContentCategoryRecord,
-			topics []domain.AdminContentTopicRecord,
-			revisionStamp *domain.AdminContentPostRevisionStamp,
-			now time.Time,
-		) (*domain.AdminContentPostRecord, error) {
-			if locale != "en" || postID != "alpha-post" {
-				t.Fatalf("UpdatePostMetadata args = %q %q", locale, postID)
-			}
-			if fields.Title != "New Title" || fields.Summary != "New Summary" || fields.Thumbnail != "/images/new-alpha.png" {
-				t.Fatalf("unexpected metadata fields: %#v", fields)
-			}
-			if category == nil || category.ID != "tech" {
-				t.Fatalf("unexpected category: %#v", category)
-			}
-			if len(topics) != 2 || topics[0].ID != "alpha-topic" || topics[1].ID != "beta-topic" {
-				t.Fatalf("unexpected topics: %#v", topics)
-			}
-			if revisionStamp == nil || revisionStamp.Number != 1 || revisionStamp.CreatedAt.IsZero() {
-				t.Fatalf("unexpected revision stamp: %#v", revisionStamp)
-			}
-			if now.IsZero() {
-				t.Fatal("expected update timestamp")
-			}
-			return &domain.AdminContentPostRecord{
-				Locale:        locale,
-				ID:            postID,
-				Title:         fields.Title,
-				Summary:       fields.Summary,
-				Thumbnail:     fields.Thumbnail,
-				PublishedDate: fields.PublishedDate,
-				UpdatedDate:   fields.UpdatedDate,
-				CategoryID:    category.ID,
-				CategoryName:  category.Name,
-				TopicIDs:      []string{topics[0].ID, topics[1].ID},
-				Source:        "blog",
-			}, nil
+		updatePostMetadata: func(_ context.Context, update domain.AdminContentPostMetadataUpdate) (*domain.AdminContentPostRecord, error) {
+			return updatedAdminContentPostFromMetadata(t, update), nil
 		},
 	}
 	postsRepository = postStubRepository{
@@ -445,6 +406,46 @@ func TestUpdateAdminContentPostMetadataUpdatesAndAudits(t *testing.T) {
 	}
 	if len(audit.records) != 1 || audit.records[0].Action != "content_post_updated" {
 		t.Fatalf("unexpected audit records: %#v", audit.records)
+	}
+}
+
+func updatedAdminContentPostFromMetadata(
+	t *testing.T,
+	update domain.AdminContentPostMetadataUpdate,
+) *domain.AdminContentPostRecord {
+	t.Helper()
+
+	if update.Locale != "en" || update.PostID != "alpha-post" {
+		t.Fatalf("UpdatePostMetadata args = %q %q", update.Locale, update.PostID)
+	}
+	if update.Fields.Title != "New Title" || update.Fields.Summary != "New Summary" || update.Fields.Thumbnail != "/images/new-alpha.png" {
+		t.Fatalf("unexpected metadata fields: %#v", update.Fields)
+	}
+	if update.Category == nil || update.Category.ID != "tech" {
+		t.Fatalf("unexpected category: %#v", update.Category)
+	}
+	if len(update.Topics) != 2 || update.Topics[0].ID != "alpha-topic" || update.Topics[1].ID != "beta-topic" {
+		t.Fatalf("unexpected topics: %#v", update.Topics)
+	}
+	if update.RevisionStamp == nil || update.RevisionStamp.Number != 1 || update.RevisionStamp.CreatedAt.IsZero() {
+		t.Fatalf("unexpected revision stamp: %#v", update.RevisionStamp)
+	}
+	if update.Now.IsZero() {
+		t.Fatal("expected update timestamp")
+	}
+
+	return &domain.AdminContentPostRecord{
+		Locale:        update.Locale,
+		ID:            update.PostID,
+		Title:         update.Fields.Title,
+		Summary:       update.Fields.Summary,
+		Thumbnail:     update.Fields.Thumbnail,
+		PublishedDate: update.Fields.PublishedDate,
+		UpdatedDate:   update.Fields.UpdatedDate,
+		CategoryID:    update.Category.ID,
+		CategoryName:  update.Category.Name,
+		TopicIDs:      []string{update.Topics[0].ID, update.Topics[1].ID},
+		Source:        "blog",
 	}
 }
 

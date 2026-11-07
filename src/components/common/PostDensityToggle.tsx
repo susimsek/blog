@@ -16,7 +16,7 @@ export default function PostDensityToggle({ value, onChange }: Readonly<PostDens
 
   return (
     <div className="post-density-control" aria-label={label}>
-      <ButtonGroup className="post-density-toggle" aria-label={label}>
+      <ButtonGroup id="post-density-toggle" className="post-density-toggle" aria-label={label}>
         <button
           type="button"
           className={`btn${value === 'default' ? ' is-active' : ''}`}

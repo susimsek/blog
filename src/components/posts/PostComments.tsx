@@ -23,6 +23,138 @@ type PostCommentsProps = {
   initialLoading?: boolean;
 };
 
+type PostCommentsTranslate = ReturnType<typeof useTranslation>['t'];
+type ComposerViewer = NonNullable<ReturnType<typeof usePostCommentAuth>['composerViewer']>;
+type ComposerFeedback = NonNullable<ReturnType<typeof usePostCommentAuth>['authFeedback']>;
+
+const renderAuthLoading = (isAuthLoading: boolean, t: PostCommentsTranslate) =>
+  isAuthLoading ? (
+    <div className="post-comments-auth-loading">
+      <Spinner size="sm" />
+      <span>{t('post.comments.auth.loading')}</span>
+    </div>
+  ) : null;
+
+const renderAuthenticatedViewer = (options: {
+  viewer: ComposerViewer | null;
+  isAvatarBroken: boolean;
+  setIsAvatarBroken: React.Dispatch<React.SetStateAction<boolean>>;
+  accessMethod: string;
+  isLoggingOut: boolean;
+  onAccessMethodChange: (method: 'email' | 'google' | 'github') => void;
+  onLogout: () => void;
+  resolveProviderLabel: (provider: string) => string;
+  t: PostCommentsTranslate;
+}) => {
+  const {
+    viewer,
+    isAvatarBroken,
+    setIsAvatarBroken,
+    accessMethod,
+    isLoggingOut,
+    onAccessMethodChange,
+    onLogout,
+    resolveProviderLabel,
+    t,
+  } = options;
+  if (!viewer) {
+    return null;
+  }
+
+  return (
+    <div className="post-comments-authenticated">
+      <div className="post-comments-authenticated-user">
+        <div className="post-comments-authenticated-avatar" aria-hidden="true">
+          {viewer.avatarUrl && !isAvatarBroken ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={viewer.avatarUrl}
+              className="post-comments-authenticated-avatar-image"
+              src={viewer.avatarUrl}
+              alt=""
+              referrerPolicy="no-referrer"
+              onLoad={() => setIsAvatarBroken(false)}
+              onError={() => {
+                console.warn('post comments viewer avatar failed to load', {
+                  avatarUrl: viewer.avatarUrl,
+                  viewerId: viewer.id,
+                  provider: viewer.provider,
+                });
+                setIsAvatarBroken(true);
+              }}
+            />
+          ) : (
+            <FontAwesomeIcon icon="user" className="post-comments-authenticated-avatar-fallback" />
+          )}
+        </div>
+        <div className="post-comments-authenticated-copy">
+          <span className="post-comments-authenticated-title">
+            {t('post.comments.auth.signedInAs', { name: viewer.name })}
+          </span>
+          <small className="theme-text-muted">
+            {t('post.comments.auth.providerHint', {
+              provider: resolveProviderLabel(viewer.provider ?? accessMethod),
+              email: viewer.email,
+            })}
+          </small>
+        </div>
+      </div>
+      <div className="post-comments-authenticated-actions">
+        <Button
+          type="button"
+          variant="link"
+          className="post-comments-auth-alert-action"
+          onClick={() => onAccessMethodChange('email')}
+        >
+          {t('post.comments.auth.useEmail')}
+        </Button>
+        <Button type="button" variant="secondary" onClick={onLogout} disabled={isLoggingOut}>
+          {isLoggingOut ? (
+            <span className="d-inline-flex align-items-center gap-2">
+              <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+              <span>{t('post.comments.auth.signingOut')}</span>
+            </span>
+          ) : (
+            <>
+              <FontAwesomeIcon icon="right-from-bracket" className="me-2" />
+              <span>{t('post.comments.auth.signOut')}</span>
+            </>
+          )}
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+const renderCommentFeedback = (authFeedback: ComposerFeedback | null, successMessage: string, errorMessage: string) => {
+  if (!authFeedback && !successMessage && !errorMessage) {
+    return null;
+  }
+
+  return (
+    <div className="post-comments-status-stack">
+      {authFeedback ? (
+        <Alert
+          variant={authFeedback.variant}
+          className={`mb-0 post-comments-status-alert post-comments-status-alert--${authFeedback.variant}`}
+        >
+          {authFeedback.message}
+        </Alert>
+      ) : null}
+      {successMessage ? (
+        <Alert variant="success" className="mb-0 post-comments-status-alert post-comments-status-alert--success">
+          {successMessage}
+        </Alert>
+      ) : null}
+      {errorMessage ? (
+        <Alert variant="danger" className="mb-0 post-comments-status-alert post-comments-status-alert--danger">
+          {errorMessage}
+        </Alert>
+      ) : null}
+    </div>
+  );
+};
+
 export default function PostComments({
   // NOSONAR
   locale,
@@ -258,12 +390,7 @@ export default function PostComments({
                 <span className="post-comments-auth-kicker">{t('post.comments.auth.title')}</span>
                 <p className="mb-0 theme-text-muted">{t('post.comments.auth.copy')}</p>
               </div>
-              {isAuthLoading ? (
-                <div className="post-comments-auth-loading">
-                  <Spinner size="sm" />
-                  <span>{t('post.comments.auth.loading')}</span>
-                </div>
-              ) : null}
+              {renderAuthLoading(isAuthLoading, t)}
               <fieldset className="post-comments-auth-options border-0 p-0 m-0">
                 <legend className="visually-hidden">{t('post.comments.auth.title')}</legend>
                 <Button
@@ -303,99 +430,20 @@ export default function PostComments({
                   <FontAwesomeIcon icon="envelope" />
                 </Button>
               </fieldset>
-              {composerViewer ? (
-                <div className="post-comments-authenticated">
-                  <div className="post-comments-authenticated-user">
-                    <div className="post-comments-authenticated-avatar" aria-hidden="true">
-                      {composerViewer.avatarUrl && !isViewerAvatarBroken ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          key={composerViewer.avatarUrl}
-                          className="post-comments-authenticated-avatar-image"
-                          src={composerViewer.avatarUrl}
-                          alt=""
-                          referrerPolicy="no-referrer"
-                          onLoad={() => setIsViewerAvatarBroken(false)}
-                          onError={() => {
-                            console.warn('post comments viewer avatar failed to load', {
-                              avatarUrl: composerViewer.avatarUrl,
-                              viewerId: composerViewer.id,
-                              provider: composerViewer.provider,
-                            });
-                            setIsViewerAvatarBroken(true);
-                          }}
-                        />
-                      ) : (
-                        <FontAwesomeIcon icon="user" className="post-comments-authenticated-avatar-fallback" />
-                      )}
-                    </div>
-                    <div className="post-comments-authenticated-copy">
-                      <span className="post-comments-authenticated-title">
-                        {t('post.comments.auth.signedInAs', { name: composerViewer.name })}
-                      </span>
-                      <small className="theme-text-muted">
-                        {t('post.comments.auth.providerHint', {
-                          provider: resolveProviderLabel(composerViewer.provider ?? composerAccessMethod),
-                          email: composerViewer.email,
-                        })}
-                      </small>
-                    </div>
-                  </div>
-                  <div className="post-comments-authenticated-actions">
-                    <Button
-                      type="button"
-                      variant="link"
-                      className="post-comments-auth-alert-action"
-                      onClick={() => handleComposerAccessMethodChange('email')}
-                    >
-                      {t('post.comments.auth.useEmail')}
-                    </Button>
-                    <Button type="button" variant="secondary" onClick={handleViewerLogout} disabled={isLoggingOut}>
-                      {isLoggingOut ? (
-                        <span className="d-inline-flex align-items-center gap-2">
-                          <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
-                          <span>{t('post.comments.auth.signingOut')}</span>
-                        </span>
-                      ) : (
-                        <>
-                          <FontAwesomeIcon icon="right-from-bracket" className="me-2" />
-                          <span>{t('post.comments.auth.signOut')}</span>
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              ) : null}
+              {renderAuthenticatedViewer({
+                viewer: composerViewer,
+                isAvatarBroken: isViewerAvatarBroken,
+                setIsAvatarBroken: setIsViewerAvatarBroken,
+                accessMethod: composerAccessMethod,
+                isLoggingOut,
+                onAccessMethodChange: handleComposerAccessMethodChange,
+                onLogout: handleViewerLogout,
+                resolveProviderLabel,
+                t,
+              })}
             </div>
 
-            {authFeedback || successMessage || errorMessage ? (
-              <div className="post-comments-status-stack">
-                {authFeedback ? (
-                  <Alert
-                    variant={authFeedback.variant}
-                    className={`mb-0 post-comments-status-alert post-comments-status-alert--${authFeedback.variant}`}
-                  >
-                    {authFeedback.message}
-                  </Alert>
-                ) : null}
-                {successMessage ? (
-                  <Alert
-                    variant="success"
-                    className="mb-0 post-comments-status-alert post-comments-status-alert--success"
-                  >
-                    {successMessage}
-                  </Alert>
-                ) : null}
-                {errorMessage ? (
-                  <Alert
-                    variant="danger"
-                    className="mb-0 post-comments-status-alert post-comments-status-alert--danger"
-                  >
-                    {errorMessage}
-                  </Alert>
-                ) : null}
-              </div>
-            ) : null}
+            {renderCommentFeedback(authFeedback, successMessage, errorMessage)}
 
             <CommentForm
               postId={postId}

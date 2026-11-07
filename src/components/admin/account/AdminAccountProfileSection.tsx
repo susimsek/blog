@@ -29,7 +29,7 @@ type AdminAccountProfileSectionProps = {
   onOpenAvatarPicker: () => void;
   onRemoveAvatar: () => void | Promise<void>;
   onAvatarFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void | Promise<void>;
-  handleNameSubmit: React.FormEventHandler<HTMLFormElement>;
+  handleNameSubmit: (event: React.SubmitEvent<HTMLFormElement>) => void;
   nameInput: string;
   onNameInputChange: (value: string) => void;
   clearNameFeedback: () => void;

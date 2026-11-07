@@ -5,13 +5,13 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 	"time"
 
 	appconfig "suaybsimsek.com/blog-api/internal/config"
 	"suaybsimsek.com/blog-api/internal/domain"
 	"suaybsimsek.com/blog-api/internal/repository"
+	"suaybsimsek.com/blog-api/internal/testassert"
 )
 
 type adminNewsletterManagementStubRepository struct {
@@ -533,59 +533,45 @@ func TestAdminNewsletterManagementValidationAndRepositoryErrors(t *testing.T) {
 
 	admin := &domain.AdminUser{ID: "admin-1"}
 
-	if _, err := UpdateAdminNewsletterSubscriberStatus(context.Background(), admin, "bad", adminNewsletterStatusActive); err == nil || err.Error() != "invalid subscriber email" {
-		t.Fatalf("expected invalid subscriber email error, got %v", err)
-	}
-	if _, err := UpdateAdminNewsletterSubscriberStatus(context.Background(), admin, "reader@example.com", "pending"); err == nil || err.Error() != "unsupported newsletter status" {
-		t.Fatalf("expected invalid subscriber status error, got %v", err)
-	}
-	if err := DeleteAdminNewsletterSubscriber(context.Background(), admin, "bad"); err == nil || err.Error() != "invalid subscriber email" {
-		t.Fatalf("expected invalid delete email error, got %v", err)
-	}
-	if _, err := ListAdminNewsletterCampaigns(context.Background(), admin, domain.AdminNewsletterCampaignFilter{Status: "broken"}); err == nil || err.Error() != "unsupported newsletter campaign status" {
-		t.Fatalf("expected invalid campaign status error, got %v", err)
-	}
-	if _, err := ListAdminNewsletterDeliveryFailures(context.Background(), admin, domain.AdminNewsletterDeliveryFailureFilter{Locale: "de", ItemKey: "post:alpha"}); err == nil || err.Error() != "newsletter campaign locale is required" {
-		t.Fatalf("expected locale required error, got %v", err)
-	}
-	if _, err := SendAdminNewsletterTestEmail(context.Background(), admin, "bad", "en", "post:alpha"); err == nil || err.Error() != "invalid test email" {
-		t.Fatalf("expected invalid test email error, got %v", err)
-	}
-	if _, err := SendAdminNewsletterTestEmail(context.Background(), admin, "reader@example.com", "", "post:alpha"); err == nil || err.Error() != "newsletter locale is required" {
-		t.Fatalf("expected missing locale error, got %v", err)
-	}
-	if _, err := SendAdminNewsletterTestEmail(context.Background(), admin, "reader@example.com", "en", " "); err == nil || err.Error() != "newsletter item key is required" {
-		t.Fatalf("expected missing item key error, got %v", err)
-	}
+	_, err := UpdateAdminNewsletterSubscriberStatus(context.Background(), admin, "bad", adminNewsletterStatusActive)
+	testassert.ErrorContains(t, err, "invalid subscriber email")
+	_, err = UpdateAdminNewsletterSubscriberStatus(context.Background(), admin, "reader@example.com", "pending")
+	testassert.ErrorContains(t, err, "unsupported newsletter status")
+	testassert.ErrorContains(t, DeleteAdminNewsletterSubscriber(context.Background(), admin, "bad"), "invalid subscriber email")
+	_, err = ListAdminNewsletterCampaigns(context.Background(), admin, domain.AdminNewsletterCampaignFilter{Status: "broken"})
+	testassert.ErrorContains(t, err, "unsupported newsletter campaign status")
+	_, err = ListAdminNewsletterDeliveryFailures(context.Background(), admin, domain.AdminNewsletterDeliveryFailureFilter{Locale: "de", ItemKey: "post:alpha"})
+	testassert.ErrorContains(t, err, "newsletter campaign locale is required")
+	_, err = SendAdminNewsletterTestEmail(context.Background(), admin, "bad", "en", "post:alpha")
+	testassert.ErrorContains(t, err, "invalid test email")
+	_, err = SendAdminNewsletterTestEmail(context.Background(), admin, "reader@example.com", "", "post:alpha")
+	testassert.ErrorContains(t, err, "newsletter locale is required")
+	_, err = SendAdminNewsletterTestEmail(context.Background(), admin, "reader@example.com", "en", " ")
+	testassert.ErrorContains(t, err, "newsletter item key is required")
 
 	adminNewsletterRepository = &adminNewsletterManagementStubRepository{
 		campaignsErr: repository.ErrAdminNewsletterRepositoryUnavailable,
 	}
-	if _, err := ListAdminNewsletterCampaigns(context.Background(), admin, domain.AdminNewsletterCampaignFilter{}); err == nil || !strings.Contains(err.Error(), "admin newsletter is unavailable") {
-		t.Fatalf("expected campaigns unavailable error, got %v", err)
-	}
+	_, err = ListAdminNewsletterCampaigns(context.Background(), admin, domain.AdminNewsletterCampaignFilter{})
+	testassert.ErrorContains(t, err, "admin newsletter is unavailable")
 
 	adminNewsletterRepository = &adminNewsletterManagementStubRepository{
 		failuresErr: repository.ErrAdminNewsletterRepositoryUnavailable,
 	}
-	if _, err := ListAdminNewsletterDeliveryFailures(context.Background(), admin, domain.AdminNewsletterDeliveryFailureFilter{Locale: "en", ItemKey: "post:alpha"}); err == nil || !strings.Contains(err.Error(), "admin newsletter is unavailable") {
-		t.Fatalf("expected failures unavailable error, got %v", err)
-	}
+	_, err = ListAdminNewsletterDeliveryFailures(context.Background(), admin, domain.AdminNewsletterDeliveryFailureFilter{Locale: "en", ItemKey: "post:alpha"})
+	testassert.ErrorContains(t, err, "admin newsletter is unavailable")
 
 	adminNewsletterRepository = &adminNewsletterManagementStubRepository{
 		deleteErr: repository.ErrAdminNewsletterRepositoryUnavailable,
 	}
-	if err := DeleteAdminNewsletterSubscriber(context.Background(), admin, "reader@example.com"); err == nil || !strings.Contains(err.Error(), "admin newsletter is unavailable") {
-		t.Fatalf("expected delete unavailable error, got %v", err)
-	}
+	testassert.ErrorContains(t, DeleteAdminNewsletterSubscriber(context.Background(), admin, "reader@example.com"), "admin newsletter is unavailable")
 }
 
 func TestAdminNewsletterDispatchAndHelperErrorPaths(t *testing.T) {
 	admin := &domain.AdminUser{ID: "admin-1"}
 
-	if _, err := TriggerAdminNewsletterDispatch(context.Background(), admin); err == nil || !strings.Contains(err.Error(), "newsletter dispatch is not configured") {
-		t.Fatalf("expected dispatch config error, got %v", err)
-	}
+	_, err := TriggerAdminNewsletterDispatch(context.Background(), admin)
+	testassert.ErrorContains(t, err, "newsletter dispatch is not configured")
 
 	previousClient := adminNewsletterDispatchClient
 	t.Cleanup(func() {
@@ -597,18 +583,15 @@ func TestAdminNewsletterDispatchAndHelperErrorPaths(t *testing.T) {
 			return nil, errors.New("network down")
 		}),
 	}
-	_, err := executeAdminNewsletterDispatchRequest(context.Background(), appconfig.NewsletterConfig{
+	_, err = executeAdminNewsletterDispatchRequest(context.Background(), appconfig.NewsletterConfig{
 		SiteURL:    "https://example.com",
 		CronSecret: "cron-secret",
 	}, nil)
-	if err == nil || !strings.Contains(err.Error(), "newsletter dispatch is unavailable") {
-		t.Fatalf("expected dispatch unavailable error, got %v", err)
-	}
+	testassert.ErrorContains(t, err, "newsletter dispatch is unavailable")
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		if _, err := w.Write([]byte(`{"status":"ok"`)); err != nil {
-			t.Fatalf("Write returned error: %v", err)
-		}
+		_, err := w.Write([]byte(`{"status":"ok"`))
+		testassert.NoError(t, err, "write malformed response")
 	}))
 	defer server.Close()
 
@@ -617,14 +600,11 @@ func TestAdminNewsletterDispatchAndHelperErrorPaths(t *testing.T) {
 		SiteURL:    server.URL,
 		CronSecret: "cron-secret",
 	}, nil)
-	if err == nil || !strings.Contains(err.Error(), "failed to decode newsletter dispatch response") {
-		t.Fatalf("expected decode error, got %v", err)
-	}
+	testassert.ErrorContains(t, err, "failed to decode newsletter dispatch response")
 
 	errorServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		if _, err := w.Write([]byte(`{"status":"error","message":" "}`)); err != nil {
-			t.Fatalf("Write returned error: %v", err)
-		}
+		_, err := w.Write([]byte(`{"status":"error","message":" "}`))
+		testassert.NoError(t, err, "write error response")
 	}))
 	defer errorServer.Close()
 
@@ -633,14 +613,11 @@ func TestAdminNewsletterDispatchAndHelperErrorPaths(t *testing.T) {
 		SiteURL:    errorServer.URL,
 		CronSecret: "cron-secret",
 	}, nil)
-	if err == nil || err.Error() != "newsletter dispatch failed" {
-		t.Fatalf("expected default dispatch failure error, got %v", err)
-	}
+	testassert.ErrorContains(t, err, "newsletter dispatch failed")
 
 	incompleteServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		if _, err := w.Write([]byte(`{"status":"ok","timestamp":"bad","message":" ","locales":{}}`)); err != nil {
-			t.Fatalf("Write returned error: %v", err)
-		}
+		_, err := w.Write([]byte(`{"status":"ok","timestamp":"bad","message":" ","locales":{}}`))
+		testassert.NoError(t, err, "write incomplete response")
 	}))
 	defer incompleteServer.Close()
 
@@ -649,19 +626,14 @@ func TestAdminNewsletterDispatchAndHelperErrorPaths(t *testing.T) {
 	t.Setenv("CRON_SECRET", "cron-secret")
 	t.Setenv("NEWSLETTER_UNSUBSCRIBE_SECRET", "unsubscribe-secret")
 
-	if _, err := SendAdminNewsletterTestEmail(context.Background(), admin, "reader@example.com", "en", "post:alpha"); err == nil || err.Error() != "newsletter test send response is incomplete" {
-		t.Fatalf("expected incomplete locale payload error, got %v", err)
-	}
+	_, err = SendAdminNewsletterTestEmail(context.Background(), admin, "reader@example.com", "en", "post:alpha")
+	testassert.ErrorContains(t, err, "newsletter test send response is incomplete")
 
 	t.Run("helper mappings", func(t *testing.T) {
-		if status, err := normalizeAdminNewsletterStatusFilter(" all "); err != nil || status != "" {
-			t.Fatalf("unexpected all status result: %q err=%v", status, err)
-		}
-		if mapped := toAdminNewsletterError(repository.ErrAdminNewsletterSubscriberNotFound, "fallback"); mapped == nil || mapped.Error() != "newsletter subscriber not found" {
-			t.Fatalf("expected not found mapping, got %v", mapped)
-		}
-		if mapped := toAdminNewsletterError(errors.New("boom"), "fallback"); mapped == nil || !strings.Contains(mapped.Error(), "fallback") {
-			t.Fatalf("expected fallback mapping, got %v", mapped)
-		}
+		status, err := normalizeAdminNewsletterStatusFilter(" all ")
+		testassert.NoError(t, err, "normalize all status")
+		testassert.Equal(t, status, "", "normalized all status")
+		testassert.ErrorContains(t, toAdminNewsletterError(repository.ErrAdminNewsletterSubscriberNotFound, "fallback"), "newsletter subscriber not found")
+		testassert.ErrorContains(t, toAdminNewsletterError(errors.New("boom"), "fallback"), "fallback")
 	})
 }

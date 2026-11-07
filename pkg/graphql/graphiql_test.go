@@ -16,10 +16,7 @@ func TestGraphiQLHandler(t *testing.T) {
 		recorder := httptest.NewRecorder()
 
 		GraphiQLHandler(recorder, request)
-
-		if recorder.Code != http.StatusNotFound {
-			t.Fatalf("status = %d, want %d", recorder.Code, http.StatusNotFound)
-		}
+		assertGraphiQLStatus(t, recorder, http.StatusNotFound)
 	})
 
 	t.Run("returns HTML page when enabled", func(t *testing.T) {
@@ -29,28 +26,16 @@ func TestGraphiQLHandler(t *testing.T) {
 		recorder := httptest.NewRecorder()
 
 		GraphiQLHandler(recorder, request)
-
-		if recorder.Code != http.StatusOK {
-			t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
-		}
-
-		if got := recorder.Header().Get("Content-Type"); got != "text/html; charset=utf-8" {
-			t.Fatalf("content type = %q, want %q", got, "text/html; charset=utf-8")
-		}
-
-		body := recorder.Body.String()
-		for _, expected := range []string{
+		assertGraphiQLStatus(t, recorder, http.StatusOK)
+		assertGraphiQLHeader(t, recorder, "Content-Type", "text/html; charset=utf-8")
+		assertGraphiQLBodyContains(t, recorder.Body.String(), []string{
 			"@graphiql/plugin-explorer",
 			"suayb-blog:graphiql",
 			"/graphql",
 			"PostsExample",
 			"graphiql/setup-workers/esm.sh",
 			"importmap",
-		} {
-			if !strings.Contains(body, expected) {
-				t.Fatalf("expected response body to contain %q", expected)
-			}
-		}
+		})
 	})
 
 	t.Run("rejects unsupported methods", func(t *testing.T) {
@@ -60,14 +45,8 @@ func TestGraphiQLHandler(t *testing.T) {
 		recorder := httptest.NewRecorder()
 
 		GraphiQLHandler(recorder, request)
-
-		if recorder.Code != http.StatusMethodNotAllowed {
-			t.Fatalf("status = %d, want %d", recorder.Code, http.StatusMethodNotAllowed)
-		}
-
-		if got := recorder.Header().Get("Allow"); got != "GET, HEAD" {
-			t.Fatalf("allow = %q, want %q", got, "GET, HEAD")
-		}
+		assertGraphiQLStatus(t, recorder, http.StatusMethodNotAllowed)
+		assertGraphiQLHeader(t, recorder, "Allow", "GET, HEAD")
 	})
 
 	t.Run("serves head requests", func(t *testing.T) {
@@ -77,11 +56,31 @@ func TestGraphiQLHandler(t *testing.T) {
 		recorder := httptest.NewRecorder()
 
 		GraphiQLHandler(recorder, request)
-
-		if recorder.Code != http.StatusOK {
-			t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
-		}
+		assertGraphiQLStatus(t, recorder, http.StatusOK)
 	})
+}
+
+func assertGraphiQLStatus(t *testing.T, recorder *httptest.ResponseRecorder, want int) {
+	t.Helper()
+	if recorder.Code != want {
+		t.Fatalf("status = %d, want %d", recorder.Code, want)
+	}
+}
+
+func assertGraphiQLHeader(t *testing.T, recorder *httptest.ResponseRecorder, name, want string) {
+	t.Helper()
+	if got := recorder.Header().Get(name); got != want {
+		t.Fatalf("%s = %q, want %q", name, got, want)
+	}
+}
+
+func assertGraphiQLBodyContains(t *testing.T, body string, expected []string) {
+	t.Helper()
+	for _, value := range expected {
+		if !strings.Contains(body, value) {
+			t.Fatalf("expected response body to contain %q", value)
+		}
+	}
 }
 
 func TestBuildGraphiQLPageData(t *testing.T) {

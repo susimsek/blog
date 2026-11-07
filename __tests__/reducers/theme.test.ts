@@ -38,40 +38,18 @@ describe('theme reducer', () => {
       expect(initialState.hasExplicitTheme).toBe(false);
     });
 
-    it('should initialize with dark theme when localStorage has dark', () => {
-      // Set mock before the reducer is accessed
-      getItemMock.mockReturnValue('dark');
+    it.each(['dark', 'oceanic', 'forest'] as const)(
+      'should initialize with %s theme when localStorage has it',
+      storedTheme => {
+        getItemMock.mockReturnValue(storedTheme);
+        jest.resetModules();
+        const reloadedThemeReducer = require('@/reducers/theme').default;
 
-      // Require the reducer to re-evaluate the mocked localStorage
-      jest.resetModules();
-      const themeReducer = require('@/reducers/theme').default;
-
-      const initialState = themeReducer(undefined, { type: '@@INIT' });
-      expect(initialState.theme).toBe('dark');
-      expect(initialState.hasExplicitTheme).toBe(true);
-    });
-
-    it('should initialize with oceanic theme when localStorage has oceanic', () => {
-      getItemMock.mockReturnValue('oceanic');
-
-      jest.resetModules();
-      const themeReducer = require('@/reducers/theme').default;
-
-      const initialState = themeReducer(undefined, { type: '@@INIT' });
-      expect(initialState.theme).toBe('oceanic');
-      expect(initialState.hasExplicitTheme).toBe(true);
-    });
-
-    it('should initialize with forest theme when localStorage has forest', () => {
-      getItemMock.mockReturnValue('forest');
-
-      jest.resetModules();
-      const themeReducer = require('@/reducers/theme').default;
-
-      const initialState = themeReducer(undefined, { type: '@@INIT' });
-      expect(initialState.theme).toBe('forest');
-      expect(initialState.hasExplicitTheme).toBe(true);
-    });
+        const initialState = reloadedThemeReducer(undefined, { type: '@@INIT' });
+        expect(initialState.theme).toBe(storedTheme);
+        expect(initialState.hasExplicitTheme).toBe(true);
+      },
+    );
 
     it('should initialize with light theme when localStorage has invalid value', () => {
       getItemMock.mockReturnValue('invalid-value');
@@ -107,70 +85,35 @@ describe('theme reducer', () => {
   });
 
   describe('toggleTheme', () => {
-    it('should toggle theme from light to dark', () => {
-      const initialState: { theme: Theme; hasExplicitTheme: boolean } = { theme: 'light', hasExplicitTheme: false };
+    it.each([
+      ['light', 'dark'],
+      ['dark', 'oceanic'],
+      ['oceanic', 'forest'],
+      ['forest', 'light'],
+    ] as const)('should toggle theme from %s to %s', (theme, expectedTheme) => {
+      const initialState: { theme: Theme; hasExplicitTheme: boolean } = { theme, hasExplicitTheme: false };
       const newState = themeReducer(initialState, toggleTheme());
-      expect(newState.theme).toBe('dark');
+      expect(newState.theme).toBe(expectedTheme);
       expect(newState.hasExplicitTheme).toBe(true);
-      expect(setItemMock).toHaveBeenCalledWith('theme', 'dark');
-    });
-
-    it('should toggle theme from dark to oceanic', () => {
-      const initialState: { theme: Theme; hasExplicitTheme: boolean } = { theme: 'dark', hasExplicitTheme: false };
-      const newState = themeReducer(initialState, toggleTheme());
-      expect(newState.theme).toBe('oceanic');
-      expect(newState.hasExplicitTheme).toBe(true);
-      expect(setItemMock).toHaveBeenCalledWith('theme', 'oceanic');
-    });
-
-    it('should toggle theme from oceanic to forest', () => {
-      const initialState: { theme: Theme; hasExplicitTheme: boolean } = { theme: 'oceanic', hasExplicitTheme: false };
-      const newState = themeReducer(initialState, toggleTheme());
-      expect(newState.theme).toBe('forest');
-      expect(newState.hasExplicitTheme).toBe(true);
-      expect(setItemMock).toHaveBeenCalledWith('theme', 'forest');
-    });
-
-    it('should toggle theme from forest to light', () => {
-      const initialState: { theme: Theme; hasExplicitTheme: boolean } = { theme: 'forest', hasExplicitTheme: false };
-      const newState = themeReducer(initialState, toggleTheme());
-      expect(newState.theme).toBe('light');
-      expect(newState.hasExplicitTheme).toBe(true);
-      expect(setItemMock).toHaveBeenCalledWith('theme', 'light');
+      expect(setItemMock).toHaveBeenCalledWith('theme', expectedTheme);
     });
   });
 
   describe('setTheme', () => {
-    it('should set theme to light', () => {
-      const initialState: { theme: Theme; hasExplicitTheme: boolean } = { theme: 'dark', hasExplicitTheme: false };
-      const newState = themeReducer(initialState, setTheme('light'));
-      expect(newState.theme).toBe('light');
+    it.each([
+      ['dark', 'light'],
+      ['light', 'dark'],
+      ['light', 'oceanic'],
+      ['light', 'forest'],
+    ] as const)('should set theme from %s to %s', (initialTheme, expectedTheme) => {
+      const initialState: { theme: Theme; hasExplicitTheme: boolean } = {
+        theme: initialTheme,
+        hasExplicitTheme: false,
+      };
+      const newState = themeReducer(initialState, setTheme(expectedTheme));
+      expect(newState.theme).toBe(expectedTheme);
       expect(newState.hasExplicitTheme).toBe(true);
-      expect(setItemMock).toHaveBeenCalledWith('theme', 'light');
-    });
-
-    it('should set theme to dark', () => {
-      const initialState: { theme: Theme; hasExplicitTheme: boolean } = { theme: 'light', hasExplicitTheme: false };
-      const newState = themeReducer(initialState, setTheme('dark'));
-      expect(newState.theme).toBe('dark');
-      expect(newState.hasExplicitTheme).toBe(true);
-      expect(setItemMock).toHaveBeenCalledWith('theme', 'dark');
-    });
-
-    it('should set theme to oceanic', () => {
-      const initialState: { theme: Theme; hasExplicitTheme: boolean } = { theme: 'light', hasExplicitTheme: false };
-      const newState = themeReducer(initialState, setTheme('oceanic'));
-      expect(newState.theme).toBe('oceanic');
-      expect(newState.hasExplicitTheme).toBe(true);
-      expect(setItemMock).toHaveBeenCalledWith('theme', 'oceanic');
-    });
-
-    it('should set theme to forest', () => {
-      const initialState: { theme: Theme; hasExplicitTheme: boolean } = { theme: 'light', hasExplicitTheme: false };
-      const newState = themeReducer(initialState, setTheme('forest'));
-      expect(newState.theme).toBe('forest');
-      expect(newState.hasExplicitTheme).toBe(true);
-      expect(setItemMock).toHaveBeenCalledWith('theme', 'forest');
+      expect(setItemMock).toHaveBeenCalledWith('theme', expectedTheme);
     });
   });
 

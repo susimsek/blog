@@ -24,9 +24,29 @@ type UseAdminErrorsSectionOptions = {
 };
 
 const ERROR_MESSAGE_CODE_PATTERN = /^[A-Z0-9_]{2,120}$/;
+type ErrorLocaleFilter = 'all' | 'en' | 'tr';
+
+const resolvePageNumber = (page: number | undefined, fallback: number) => (page && page > 0 ? page : fallback);
+
+const resolveErrorLocaleFilter = (locale: ErrorLocaleFilter) => (locale === 'all' ? undefined : locale);
+
+const resolveErrorMessagesLoadError = (error: unknown, t: AdminAccountTranslate) => {
+  const resolvedError = resolveAdminError(error);
+  return resolvedError.kind === 'network'
+    ? t('adminCommon.errors.network', { ns: 'admin-common' })
+    : resolvedError.message || t('adminAccount.errorsCatalog.errors.load', { ns: 'admin-account' });
+};
 
 const toAdminErrorMessageKey = (item: Pick<AdminErrorMessageItem, 'scope' | 'locale' | 'code'>) =>
   `${item.scope}|${item.locale}|${item.code}`;
+
+const resolveSelectedErrorMessageKey = (items: AdminErrorMessageItem[], currentKey: string) => {
+  if (items.some(item => toAdminErrorMessageKey(item) === currentKey)) {
+    return currentKey;
+  }
+
+  return items[0] ? toAdminErrorMessageKey(items[0]) : '';
+};
 
 const scrollRefIntoView = (target: HTMLDivElement | null) => {
   if (!target) {
@@ -132,7 +152,7 @@ export default function useAdminErrorsSection({
         return [];
       }
 
-      const requestedPage = options?.page && options.page > 0 ? options.page : errorMessagesPage;
+      const requestedPage = resolvePageNumber(options?.page, errorMessagesPage);
       const requestID = errorMessagesRequestIDRef.current + 1;
       errorMessagesRequestIDRef.current = requestID;
       setIsErrorMessagesLoading(true);
@@ -140,7 +160,7 @@ export default function useAdminErrorsSection({
 
       try {
         const payload = await fetchAdminErrorMessages({
-          locale: errorFilterLocale === 'all' ? undefined : errorFilterLocale,
+          locale: resolveErrorLocaleFilter(errorFilterLocale),
           query: errorFilterQueryDebounced,
           page: requestedPage,
           size: errorMessagesPageSize,
@@ -154,7 +174,7 @@ export default function useAdminErrorsSection({
         setErrorMessages(items);
         setTotalErrorMessages(payload.total ?? 0);
 
-        const resolvedPage = payload.page > 0 ? payload.page : requestedPage;
+        const resolvedPage = resolvePageNumber(payload.page, requestedPage);
         if (resolvedPage !== errorMessagesPage) {
           setErrorMessagesPage(resolvedPage);
         }
@@ -165,13 +185,7 @@ export default function useAdminErrorsSection({
 
         const preferredSelectedKey = options?.preferredSelectedKey?.trim() ?? '';
         const currentSelectedKey = preferredSelectedKey || selectedErrorMessageKeyRef.current;
-        const hasCurrentSelection = items.some(item => toAdminErrorMessageKey(item) === currentSelectedKey);
-        let nextSelectedKey = '';
-        if (hasCurrentSelection) {
-          nextSelectedKey = currentSelectedKey;
-        } else if (items[0]) {
-          nextSelectedKey = toAdminErrorMessageKey(items[0]);
-        }
+        const nextSelectedKey = resolveSelectedErrorMessageKey(items, currentSelectedKey);
         setSelectedErrorMessageKey(nextSelectedKey);
         selectedErrorMessageKeyRef.current = nextSelectedKey;
 
@@ -187,12 +201,7 @@ export default function useAdminErrorsSection({
           onSessionExpired();
           return [];
         }
-        const resolvedError = resolveAdminError(error);
-        setErrorMessagesErrorMessage(
-          resolvedError.kind === 'network'
-            ? t('adminCommon.errors.network', { ns: 'admin-common' })
-            : resolvedError.message || t('adminAccount.errorsCatalog.errors.load', { ns: 'admin-account' }),
-        );
+        setErrorMessagesErrorMessage(resolveErrorMessagesLoadError(error, t));
         return [];
       } finally {
         if (requestID === errorMessagesRequestIDRef.current) {

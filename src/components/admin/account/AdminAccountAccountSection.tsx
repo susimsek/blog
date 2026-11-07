@@ -14,7 +14,7 @@ type AdminAccountAccountSectionProps = {
   t: AdminAccountTranslate;
   usernameErrorMessage: string;
   usernameSuccessMessage: string;
-  handleUsernameSubmit: React.FormEventHandler<HTMLFormElement>;
+  handleUsernameSubmit: (event: React.SubmitEvent<HTMLFormElement>) => void;
   usernameInput: string;
   onUsernameInputChange: (value: string) => void;
   clearUsernameFeedback: () => void;
@@ -25,7 +25,7 @@ type AdminAccountAccountSectionProps = {
   isUsernameSubmitting: boolean;
   deleteErrorMessage: string;
   deleteSuccessMessage: string;
-  handleDeleteSubmit: React.FormEventHandler<HTMLFormElement>;
+  handleDeleteSubmit: (event: React.SubmitEvent<HTMLFormElement>) => void;
   deleteCurrentPassword: string;
   onDeleteCurrentPasswordChange: (value: string) => void;
   deleteConfirmation: string;

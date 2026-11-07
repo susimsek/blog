@@ -12,6 +12,7 @@ import (
 	"suaybsimsek.com/blog-api/internal/domain"
 	"suaybsimsek.com/blog-api/internal/graphql/admin/model"
 	appservice "suaybsimsek.com/blog-api/internal/service"
+	"suaybsimsek.com/blog-api/internal/testassert"
 	appscalars "suaybsimsek.com/blog-api/pkg/graphql/scalars"
 	"suaybsimsek.com/blog-api/pkg/httpapi"
 	"suaybsimsek.com/blog-api/pkg/httpauth"
@@ -69,10 +70,13 @@ func TestAdminResolverFactoriesAndMe(t *testing.T) {
 
 func TestAdminResolverMappingHelpers(t *testing.T) {
 	now := time.Date(2026, time.March, 21, 12, 30, 0, 0, time.FixedZone("TR", 3*60*60))
-	parentID := "parent-1"
-	scope := " admin "
-	icon := " tag "
+	testAdminResolverDashboardMappings(t, now)
+	testAdminResolverNewsletterPayloadMappings(t, now)
+	testAdminResolverContentMappings(t, now)
+	testAdminResolverInputMappings(t, now)
+}
 
+func testAdminResolverDashboardMappings(t *testing.T, now time.Time) {
 	if toOptionalAdminProfileName("  ") != nil || toOptionalAdminUsername("  ") != nil || toOptionalAdminEmail("  ") != nil || toOptionalAdminAvatarURL("  ") != nil {
 		t.Fatal("expected blank optional admin values to map to nil")
 	}
@@ -150,7 +154,9 @@ func TestAdminResolverMappingHelpers(t *testing.T) {
 	if mapAdminNewsletterSubscriberListPayload(nil).Page != 1 {
 		t.Fatal("expected nil subscriber payload defaults")
 	}
+}
 
+func testAdminResolverNewsletterPayloadMappings(t *testing.T, now time.Time) {
 	campaignPayload := mapAdminNewsletterCampaignListPayload(&domain.AdminNewsletterCampaignListResult{
 		Items: []domain.AdminNewsletterCampaignRecord{{
 			Locale:      "tr",
@@ -242,7 +248,9 @@ func TestAdminResolverMappingHelpers(t *testing.T) {
 	if errorMessagePayload.Total != 1 || len(errorMessagePayload.Items) != 1 || errorMessagePayload.Items[0].UpdatedAt == nil {
 		t.Fatalf("unexpected error message payload: %#v", errorMessagePayload)
 	}
+}
 
+func testAdminResolverContentMappings(t *testing.T, now time.Time) {
 	postPayload := mapAdminContentPostListPayload(&domain.AdminContentPostListResult{
 		Items: []domain.AdminContentPostGroupRecord{{
 			ID:     "alpha-post",
@@ -336,7 +344,12 @@ func TestAdminResolverMappingHelpers(t *testing.T) {
 	if len(auditLogs) != 1 || auditLogs[0].CreatedAt.IsZero() || auditLogs[0].FailureCode != nil {
 		t.Fatalf("unexpected audit logs: %#v", auditLogs)
 	}
+}
 
+func testAdminResolverInputMappings(t *testing.T, now time.Time) {
+	parentID := "parent-1"
+	scope := " admin "
+	icon := " tag "
 	mappedKey := mapAdminErrorMessageKey(model.AdminErrorMessageKeyInput{
 		Scope:  &scope,
 		Locale: " en ",
@@ -386,7 +399,10 @@ func TestAdminResolverMappingHelpers(t *testing.T) {
 	if toOptionalAdminTimePointer(&now) == nil {
 		t.Fatal("expected optional admin time pointer")
 	}
+	testAdminResolverStatusAndCommentMappings(t, now, parentID)
+}
 
+func testAdminResolverStatusAndCommentMappings(t *testing.T, now time.Time, parentID string) {
 	if mapAdminNewsletterStatusInput(model.AdminNewsletterSubscriberStatusUnsubscribed) != "unsubscribed" ||
 		mapAdminNewsletterStatusInput(model.AdminNewsletterSubscriberStatusPending) != "pending" ||
 		mapAdminNewsletterStatusOutput(" ACTIVE ") != model.AdminNewsletterSubscriberStatusActive ||
@@ -516,6 +532,24 @@ func TestAdminResolverSessionAndRequestHelpers(t *testing.T) {
 		t.Fatal("unexpected country code resolution")
 	}
 
+	assertAdminDeviceLabels(t)
+
+	config := appconfig.ResolveAdminConfig()
+	clearAdminSessionCookies(recorder, config)
+	setAdminRefreshCookie(recorder, config, &appservice.AdminAuthResponse{
+		RefreshToken: "refresh-token",
+		RememberMe:   true,
+		RefreshTTL:   2 * time.Hour,
+	})
+	setAdminRefreshCookie(recorder, config, &appservice.AdminAuthResponse{
+		RefreshToken: "refresh-session-token",
+		RememberMe:   false,
+	})
+	assertAdminCookieHeaders(t, recorder, config)
+}
+
+func assertAdminDeviceLabels(t *testing.T) {
+	t.Helper()
 	if resolveAdminDeviceLabel("Mozilla/5.0 Chrome/122 Windows NT 10.0") != "Chrome on Windows" {
 		t.Fatal("expected desktop device label")
 	}
@@ -537,18 +571,10 @@ func TestAdminResolverSessionAndRequestHelpers(t *testing.T) {
 	if resolveAdminIPAddressLabel(" ") != "Unknown" || resolveAdminCountryCodeLabel("xyz") != "Unknown" {
 		t.Fatal("unexpected fallback labels")
 	}
+}
 
-	config := appconfig.ResolveAdminConfig()
-	clearAdminSessionCookies(recorder, config)
-	setAdminRefreshCookie(recorder, config, &appservice.AdminAuthResponse{
-		RefreshToken: "refresh-token",
-		RememberMe:   true,
-		RefreshTTL:   2 * time.Hour,
-	})
-	setAdminRefreshCookie(recorder, config, &appservice.AdminAuthResponse{
-		RefreshToken: "refresh-session-token",
-		RememberMe:   false,
-	})
+func assertAdminCookieHeaders(t *testing.T, recorder *httptest.ResponseRecorder, config appconfig.AdminConfig) {
+	t.Helper()
 	headers := recorder.Result().Header["Set-Cookie"]
 	if len(headers) < 5 {
 		t.Fatalf("expected multiple set-cookie headers, got %#v", headers)
@@ -632,9 +658,14 @@ func TestAdminQueryResolvers(t *testing.T) {
 		}, nil
 	}
 	listAdminCommentsFn = func(_ context.Context, user *domain.AdminUser, filter domain.AdminCommentFilter) (*domain.AdminCommentListResult, error) {
-		if user.ID != "admin-1" || filter.Status != "approved" || filter.PostID != "post-1" || filter.Query != "alpha" || filter.Page == nil || *filter.Page != 2 || filter.Size == nil || *filter.Size != 15 {
-			t.Fatalf("unexpected comment filter: %#v", filter)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "comment list user")
+		testassert.Equal(t, filter.Status, "approved", "comment status filter")
+		testassert.Equal(t, filter.PostID, "post-1", "comment post filter")
+		testassert.Equal(t, filter.Query, "alpha", "comment query filter")
+		testassert.NotNil(t, filter.Page, "comment page should be provided")
+		testassert.Equal(t, *filter.Page, 2, "comment page")
+		testassert.NotNil(t, filter.Size, "comment size should be provided")
+		testassert.Equal(t, *filter.Size, 15, "comment page size")
 		return &domain.AdminCommentListResult{
 			Items: []domain.CommentRecord{{ID: "comment-1", PostID: "post-1", AuthorName: "Reader", AuthorEmail: "reader@example.com", Content: "hello", Status: "approved", CreatedAt: now, UpdatedAt: now}},
 			Total: 1,
@@ -643,9 +674,7 @@ func TestAdminQueryResolvers(t *testing.T) {
 		}, nil
 	}
 	listActiveAdminSessionsFn = func(_ context.Context, user *domain.AdminUser) ([]domain.AdminSessionRecord, error) {
-		if user.ID != "admin-1" {
-			t.Fatalf("unexpected session user: %#v", user)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "active session user")
 		return []domain.AdminSessionRecord{{
 			ID:          "session-123",
 			UserAgent:   "Mozilla/5.0 Chrome/122 Windows NT 10.0",
@@ -658,9 +687,14 @@ func TestAdminQueryResolvers(t *testing.T) {
 		}}, nil
 	}
 	listAdminNewsletterSubscribersFn = func(_ context.Context, user *domain.AdminUser, filter domain.AdminNewsletterSubscriberFilter) (*domain.AdminNewsletterSubscriberListResult, error) {
-		if user.ID != "admin-1" || filter.Locale != "tr" || filter.Status != "active" || filter.Query != "alpha" || filter.Page == nil || *filter.Page != 2 || filter.Size == nil || *filter.Size != 15 {
-			t.Fatalf("unexpected subscriber filter: %#v", filter)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "subscriber list user")
+		testassert.Equal(t, filter.Locale, "tr", "subscriber locale filter")
+		testassert.Equal(t, filter.Status, "active", "subscriber status filter")
+		testassert.Equal(t, filter.Query, "alpha", "subscriber query filter")
+		testassert.NotNil(t, filter.Page, "subscriber page should be provided")
+		testassert.Equal(t, *filter.Page, 2, "subscriber page")
+		testassert.NotNil(t, filter.Size, "subscriber size should be provided")
+		testassert.Equal(t, *filter.Size, 15, "subscriber page size")
 		return &domain.AdminNewsletterSubscriberListResult{
 			Items: []domain.AdminNewsletterSubscriberRecord{{Email: "reader@example.com", Locale: "tr", Status: "active", UpdatedAt: now, CreatedAt: now}},
 			Total: 1,
@@ -669,9 +703,14 @@ func TestAdminQueryResolvers(t *testing.T) {
 		}, nil
 	}
 	listAdminNewsletterCampaignsFn = func(_ context.Context, user *domain.AdminUser, filter domain.AdminNewsletterCampaignFilter) (*domain.AdminNewsletterCampaignListResult, error) {
-		if user.ID != "admin-1" || filter.Locale != "tr" || filter.Status != "sent" || filter.Query != "alpha" || filter.Page == nil || *filter.Page != 2 || filter.Size == nil || *filter.Size != 15 {
-			t.Fatalf("unexpected campaign filter: %#v", filter)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "campaign list user")
+		testassert.Equal(t, filter.Locale, "tr", "campaign locale filter")
+		testassert.Equal(t, filter.Status, "sent", "campaign status filter")
+		testassert.Equal(t, filter.Query, "alpha", "campaign query filter")
+		testassert.NotNil(t, filter.Page, "campaign page should be provided")
+		testassert.Equal(t, *filter.Page, 2, "campaign page")
+		testassert.NotNil(t, filter.Size, "campaign size should be provided")
+		testassert.Equal(t, *filter.Size, 15, "campaign page size")
 		return &domain.AdminNewsletterCampaignListResult{
 			Items: []domain.AdminNewsletterCampaignRecord{{Locale: "tr", ItemKey: "post:1", Title: "Alpha", Status: "sent", UpdatedAt: now, CreatedAt: now, LastRunAt: now}},
 			Total: 1,
@@ -680,9 +719,13 @@ func TestAdminQueryResolvers(t *testing.T) {
 		}, nil
 	}
 	listAdminNewsletterDeliveryFailuresFn = func(_ context.Context, user *domain.AdminUser, filter domain.AdminNewsletterDeliveryFailureFilter) (*domain.AdminNewsletterDeliveryFailureListResult, error) {
-		if user.ID != "admin-1" || filter.Locale != "tr" || filter.ItemKey != "alpha-item" || filter.Page == nil || *filter.Page != 2 || filter.Size == nil || *filter.Size != 15 {
-			t.Fatalf("unexpected failure filter: %#v", filter)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "failure list user")
+		testassert.Equal(t, filter.Locale, "tr", "failure locale filter")
+		testassert.Equal(t, filter.ItemKey, "alpha-item", "failure item filter")
+		testassert.NotNil(t, filter.Page, "failure page should be provided")
+		testassert.Equal(t, *filter.Page, 2, "failure page")
+		testassert.NotNil(t, filter.Size, "failure size should be provided")
+		testassert.Equal(t, *filter.Size, 15, "failure page size")
 		return &domain.AdminNewsletterDeliveryFailureListResult{
 			Items: []domain.AdminNewsletterDeliveryFailureRecord{{Locale: "tr", ItemKey: "alpha-item", Email: "reader@example.com", Status: "failed", LastAttemptAt: now, UpdatedAt: now, CreatedAt: now}},
 			Total: 1,
@@ -691,9 +734,14 @@ func TestAdminQueryResolvers(t *testing.T) {
 		}, nil
 	}
 	listAdminErrorMessagesFn = func(_ context.Context, user *domain.AdminUser, filter domain.AdminErrorMessageFilter) (*domain.AdminErrorMessageListResult, error) {
-		if user.ID != "admin-1" || filter.Locale != "tr" || filter.Code != "ERR_1" || filter.Query != "alpha" || filter.Page == nil || *filter.Page != 2 || filter.Size == nil || *filter.Size != 15 {
-			t.Fatalf("unexpected error message filter: %#v", filter)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "error message list user")
+		testassert.Equal(t, filter.Locale, "tr", "error message locale filter")
+		testassert.Equal(t, filter.Code, "ERR_1", "error message code filter")
+		testassert.Equal(t, filter.Query, "alpha", "error message query filter")
+		testassert.NotNil(t, filter.Page, "error message page should be provided")
+		testassert.Equal(t, *filter.Page, 2, "error message page")
+		testassert.NotNil(t, filter.Size, "error message size should be provided")
+		testassert.Equal(t, *filter.Size, 15, "error message page size")
 		return &domain.AdminErrorMessageListResult{
 			Items: []domain.AdminErrorMessageView{{AdminErrorMessageKey: domain.AdminErrorMessageKey{Scope: "admin", Locale: "tr", Code: "ERR_1"}, Message: "Error", UpdatedAt: now}},
 			Total: 1,
@@ -702,9 +750,17 @@ func TestAdminQueryResolvers(t *testing.T) {
 		}, nil
 	}
 	listAdminContentPostsFn = func(_ context.Context, user *domain.AdminUser, filter domain.AdminContentPostFilter) (*domain.AdminContentPostListResult, error) {
-		if user.ID != "admin-1" || filter.Locale != "tr" || filter.PreferredLocale != "en" || filter.Source != "medium" || filter.Query != "alpha" || filter.CategoryID != "category-1" || filter.TopicID != "topic-1" || filter.Page == nil || *filter.Page != 2 || filter.Size == nil || *filter.Size != 15 {
-			t.Fatalf("unexpected content post filter: %#v", filter)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "content post list user")
+		testassert.Equal(t, filter.Locale, "tr", "content post locale filter")
+		testassert.Equal(t, filter.PreferredLocale, "en", "preferred content post locale filter")
+		testassert.Equal(t, filter.Source, "medium", "content post source filter")
+		testassert.Equal(t, filter.Query, "alpha", "content post query filter")
+		testassert.Equal(t, filter.CategoryID, "category-1", "content post category filter")
+		testassert.Equal(t, filter.TopicID, "topic-1", "content post topic filter")
+		testassert.NotNil(t, filter.Page, "content post page should be provided")
+		testassert.Equal(t, *filter.Page, 2, "content post page")
+		testassert.NotNil(t, filter.Size, "content post size should be provided")
+		testassert.Equal(t, *filter.Size, 15, "content post page size")
 		return &domain.AdminContentPostListResult{
 			Items: []domain.AdminContentPostGroupRecord{{
 				ID:     "post-1",
@@ -723,15 +779,20 @@ func TestAdminQueryResolvers(t *testing.T) {
 		}, nil
 	}
 	getAdminContentPostFn = func(_ context.Context, user *domain.AdminUser, contentLocale, id string) (*domain.AdminContentPostRecord, error) {
-		if user.ID != "admin-1" || contentLocale != "tr" || id != "post-1" {
-			t.Fatalf("unexpected content entity key: %q %q", contentLocale, id)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "content post user")
+		testassert.Equal(t, contentLocale, "tr", "content post locale")
+		testassert.Equal(t, id, "post-1", "content post ID")
 		return &domain.AdminContentPostRecord{Locale: "tr", ID: "post-1", Title: "Alpha", Source: "blog", PublishedDate: "2026-03-22"}, nil
 	}
 	listAdminContentTopicsPageFn = func(_ context.Context, user *domain.AdminUser, filter domain.AdminContentTaxonomyFilter) (*domain.AdminContentTopicListResult, error) {
-		if user.ID != "admin-1" || filter.Locale != "tr" || filter.PreferredLocale != "en" || filter.Query != "alpha" || filter.Page == nil || *filter.Page != 2 || filter.Size == nil || *filter.Size != 15 {
-			t.Fatalf("unexpected topic page filter: %#v", filter)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "topic list user")
+		testassert.Equal(t, filter.Locale, "tr", "topic locale filter")
+		testassert.Equal(t, filter.PreferredLocale, "en", "preferred topic locale filter")
+		testassert.Equal(t, filter.Query, "alpha", "topic query filter")
+		testassert.NotNil(t, filter.Page, "topic page should be provided")
+		testassert.Equal(t, *filter.Page, 2, "topic page")
+		testassert.NotNil(t, filter.Size, "topic size should be provided")
+		testassert.Equal(t, *filter.Size, 15, "topic page size")
 		return &domain.AdminContentTopicListResult{
 			Items: []domain.AdminContentTopicGroupRecord{{ID: "topic-1", Preferred: domain.AdminContentTopicRecord{Locale: "en", ID: "topic-1", Name: "Alpha", Color: "#fff", UpdatedAt: now}}},
 			Total: 1,
@@ -740,9 +801,14 @@ func TestAdminQueryResolvers(t *testing.T) {
 		}, nil
 	}
 	listAdminContentCategoriesPageFn = func(_ context.Context, user *domain.AdminUser, filter domain.AdminContentTaxonomyFilter) (*domain.AdminContentCategoryListResult, error) {
-		if user.ID != "admin-1" || filter.Locale != "tr" || filter.PreferredLocale != "en" || filter.Query != "alpha" || filter.Page == nil || *filter.Page != 2 || filter.Size == nil || *filter.Size != 15 {
-			t.Fatalf("unexpected category page filter: %#v", filter)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "category list user")
+		testassert.Equal(t, filter.Locale, "tr", "category locale filter")
+		testassert.Equal(t, filter.PreferredLocale, "en", "preferred category locale filter")
+		testassert.Equal(t, filter.Query, "alpha", "category query filter")
+		testassert.NotNil(t, filter.Page, "category page should be provided")
+		testassert.Equal(t, *filter.Page, 2, "category page")
+		testassert.NotNil(t, filter.Size, "category size should be provided")
+		testassert.Equal(t, *filter.Size, 15, "category page size")
 		return &domain.AdminContentCategoryListResult{
 			Items: []domain.AdminContentCategoryGroupRecord{{ID: "category-1", Preferred: domain.AdminContentCategoryRecord{Locale: "en", ID: "category-1", Name: "Alpha", Color: "#000", UpdatedAt: now}}},
 			Total: 1,
@@ -751,21 +817,19 @@ func TestAdminQueryResolvers(t *testing.T) {
 		}, nil
 	}
 	listAdminContentTopicsFn = func(_ context.Context, user *domain.AdminUser, contentLocale, text string) ([]domain.AdminContentTopicRecord, error) {
-		if user.ID != "admin-1" || contentLocale != "tr" || text != "alpha" {
-			t.Fatalf("unexpected topics lookup: %q %q", contentLocale, text)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "topic lookup user")
+		testassert.Equal(t, contentLocale, "tr", "topic lookup locale")
+		testassert.Equal(t, text, "alpha", "topic lookup query")
 		return []domain.AdminContentTopicRecord{{Locale: "tr", ID: "topic-1", Name: "Alpha", Color: "#fff", UpdatedAt: now}}, nil
 	}
 	listAdminContentCategoriesFn = func(_ context.Context, user *domain.AdminUser, contentLocale string) ([]domain.AdminContentCategoryRecord, error) {
-		if user.ID != "admin-1" || contentLocale != "tr" {
-			t.Fatalf("unexpected categories lookup: %q", contentLocale)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "category lookup user")
+		testassert.Equal(t, contentLocale, "tr", "category lookup locale")
 		return []domain.AdminContentCategoryRecord{{Locale: "tr", ID: "category-1", Name: "Alpha", Color: "#000", UpdatedAt: now}}, nil
 	}
 	listAdminErrorMessageAuditLogsFn = func(_ context.Context, user *domain.AdminUser, limit int) ([]domain.AdminAuditLogRecord, error) {
-		if user.ID != "admin-1" || limit != 5 {
-			t.Fatalf("unexpected audit log limit: %d", limit)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "audit log user")
+		testassert.Equal(t, limit, 5, "audit log limit")
 		return []domain.AdminAuditLogRecord{{ID: "audit-1", ActorID: "admin-1", ActorEmail: "admin@example.com", Action: "updated", Scope: "admin", Locale: "tr", Code: "ERR_1", Status: "success", CreatedAt: now}}, nil
 	}
 
@@ -775,19 +839,19 @@ func TestAdminQueryResolvers(t *testing.T) {
 	queryResolver := &adminQueryResolver{Resolver: &Resolver{}}
 
 	googleStatus, err := queryResolver.GoogleAuthStatus(ctx)
-	if err != nil || !googleStatus.Enabled || !googleStatus.LoginAvailable {
-		t.Fatalf("GoogleAuthStatus() = %#v, %v", googleStatus, err)
-	}
+	testassert.NoError(t, err, "GoogleAuthStatus()")
+	testassert.True(t, googleStatus.Enabled, "Google auth should be enabled")
+	testassert.True(t, googleStatus.LoginAvailable, "Google login should be available")
 
 	githubStatus, err := queryResolver.GithubAuthStatus(ctx)
-	if err != nil || !githubStatus.Enabled || githubStatus.LoginAvailable {
-		t.Fatalf("GithubAuthStatus() = %#v, %v", githubStatus, err)
-	}
+	testassert.NoError(t, err, "GithubAuthStatus()")
+	testassert.True(t, githubStatus.Enabled, "GitHub auth should be enabled")
+	testassert.True(t, !githubStatus.LoginAvailable, "GitHub login should be unavailable")
 
 	dashboard, err := queryResolver.Dashboard(ctx)
-	if err != nil || dashboard.TotalPosts != 7 || dashboard.TotalSubscribers != 11 {
-		t.Fatalf("Dashboard() = %#v, %v", dashboard, err)
-	}
+	testassert.NoError(t, err, "Dashboard()")
+	testassert.Equal(t, dashboard.TotalPosts, 7, "dashboard post count")
+	testassert.Equal(t, dashboard.TotalSubscribers, 11, "dashboard subscriber count")
 
 	commentList, err := queryResolver.Comments(ctx, &model.AdminCommentFilterInput{
 		Status: &commentStatus,
@@ -796,14 +860,14 @@ func TestAdminQueryResolvers(t *testing.T) {
 		Page:   &page,
 		Size:   &size,
 	})
-	if err != nil || commentList.Total != 1 || len(commentList.Items) != 1 {
-		t.Fatalf("Comments() = %#v, %v", commentList, err)
-	}
+	testassert.NoError(t, err, "Comments()")
+	testassert.Equal(t, commentList.Total, 1, "comment list total")
+	testassert.Equal(t, len(commentList.Items), 1, "comment list item count")
 
 	sessions, err := queryResolver.ActiveSessions(ctx)
-	if err != nil || len(sessions) != 1 || !sessions[0].Current {
-		t.Fatalf("ActiveSessions() = %#v, %v", sessions, err)
-	}
+	testassert.NoError(t, err, "ActiveSessions()")
+	testassert.Equal(t, len(sessions), 1, "active session count")
+	testassert.True(t, sessions[0].Current, "active session should be marked current")
 
 	subscriberList, err := queryResolver.NewsletterSubscribers(ctx, &model.AdminNewsletterSubscriberFilterInput{
 		Locale: &locale,
@@ -812,9 +876,9 @@ func TestAdminQueryResolvers(t *testing.T) {
 		Page:   &page,
 		Size:   &size,
 	})
-	if err != nil || subscriberList.Total != 1 || len(subscriberList.Items) != 1 {
-		t.Fatalf("NewsletterSubscribers() = %#v, %v", subscriberList, err)
-	}
+	testassert.NoError(t, err, "NewsletterSubscribers()")
+	testassert.Equal(t, subscriberList.Total, 1, "subscriber list total")
+	testassert.Equal(t, len(subscriberList.Items), 1, "subscriber list item count")
 
 	campaignList, err := queryResolver.NewsletterCampaigns(ctx, &model.AdminNewsletterCampaignFilterInput{
 		Locale: &locale,
@@ -823,9 +887,9 @@ func TestAdminQueryResolvers(t *testing.T) {
 		Page:   &page,
 		Size:   &size,
 	})
-	if err != nil || campaignList.Total != 1 || len(campaignList.Items) != 1 {
-		t.Fatalf("NewsletterCampaigns() = %#v, %v", campaignList, err)
-	}
+	testassert.NoError(t, err, "NewsletterCampaigns()")
+	testassert.Equal(t, campaignList.Total, 1, "campaign list total")
+	testassert.Equal(t, len(campaignList.Items), 1, "campaign list item count")
 
 	failureList, err := queryResolver.NewsletterCampaignFailures(ctx, model.AdminNewsletterDeliveryFailureFilterInput{
 		Locale:  locale,
@@ -833,9 +897,9 @@ func TestAdminQueryResolvers(t *testing.T) {
 		Page:    &page,
 		Size:    &size,
 	})
-	if err != nil || failureList.Total != 1 || len(failureList.Items) != 1 {
-		t.Fatalf("NewsletterCampaignFailures() = %#v, %v", failureList, err)
-	}
+	testassert.NoError(t, err, "NewsletterCampaignFailures()")
+	testassert.Equal(t, failureList.Total, 1, "campaign failure list total")
+	testassert.Equal(t, len(failureList.Items), 1, "campaign failure item count")
 
 	errorList, err := queryResolver.ErrorMessages(ctx, &model.AdminErrorMessageFilterInput{
 		Locale: &locale,
@@ -844,9 +908,9 @@ func TestAdminQueryResolvers(t *testing.T) {
 		Page:   &page,
 		Size:   &size,
 	})
-	if err != nil || errorList.Total != 1 || len(errorList.Items) != 1 {
-		t.Fatalf("ErrorMessages() = %#v, %v", errorList, err)
-	}
+	testassert.NoError(t, err, "ErrorMessages()")
+	testassert.Equal(t, errorList.Total, 1, "error message list total")
+	testassert.Equal(t, len(errorList.Items), 1, "error message item count")
 
 	postList, err := queryResolver.ContentPosts(ctx, &model.AdminContentPostFilterInput{
 		Locale:          &locale,
@@ -858,14 +922,14 @@ func TestAdminQueryResolvers(t *testing.T) {
 		Page:            &page,
 		Size:            &size,
 	})
-	if err != nil || postList.Total != 1 || len(postList.Items) != 1 {
-		t.Fatalf("ContentPosts() = %#v, %v", postList, err)
-	}
+	testassert.NoError(t, err, "ContentPosts()")
+	testassert.Equal(t, postList.Total, 1, "content post list total")
+	testassert.Equal(t, len(postList.Items), 1, "content post item count")
 
 	post, err := queryResolver.ContentPost(ctx, model.AdminContentEntityKeyInput{Locale: locale, ID: postID})
-	if err != nil || post == nil || post.ID != "post-1" {
-		t.Fatalf("ContentPost() = %#v, %v", post, err)
-	}
+	testassert.NoError(t, err, "ContentPost()")
+	testassert.NotNil(t, post, "content post should be returned")
+	testassert.Equal(t, post.ID, "post-1", "content post ID")
 
 	topicPage, err := queryResolver.ContentTopicsPage(ctx, &model.AdminContentTaxonomyFilterInput{
 		Locale:          &locale,
@@ -874,9 +938,9 @@ func TestAdminQueryResolvers(t *testing.T) {
 		Page:            &page,
 		Size:            &size,
 	})
-	if err != nil || topicPage.Total != 1 || len(topicPage.Items) != 1 {
-		t.Fatalf("ContentTopicsPage() = %#v, %v", topicPage, err)
-	}
+	testassert.NoError(t, err, "ContentTopicsPage()")
+	testassert.Equal(t, topicPage.Total, 1, "topic page total")
+	testassert.Equal(t, len(topicPage.Items), 1, "topic page item count")
 
 	categoryPage, err := queryResolver.ContentCategoriesPage(ctx, &model.AdminContentTaxonomyFilterInput{
 		Locale:          &locale,
@@ -885,25 +949,25 @@ func TestAdminQueryResolvers(t *testing.T) {
 		Page:            &page,
 		Size:            &size,
 	})
-	if err != nil || categoryPage.Total != 1 || len(categoryPage.Items) != 1 {
-		t.Fatalf("ContentCategoriesPage() = %#v, %v", categoryPage, err)
-	}
+	testassert.NoError(t, err, "ContentCategoriesPage()")
+	testassert.Equal(t, categoryPage.Total, 1, "category page total")
+	testassert.Equal(t, len(categoryPage.Items), 1, "category page item count")
 
 	topics, err := queryResolver.ContentTopics(ctx, &locale, &query)
-	if err != nil || len(topics) != 1 || topics[0].ID != "topic-1" {
-		t.Fatalf("ContentTopics() = %#v, %v", topics, err)
-	}
+	testassert.NoError(t, err, "ContentTopics()")
+	testassert.Equal(t, len(topics), 1, "content topic count")
+	testassert.Equal(t, topics[0].ID, "topic-1", "content topic ID")
 
 	categories, err := queryResolver.ContentCategories(ctx, &locale)
-	if err != nil || len(categories) != 1 || categories[0].ID != "category-1" {
-		t.Fatalf("ContentCategories() = %#v, %v", categories, err)
-	}
+	testassert.NoError(t, err, "ContentCategories()")
+	testassert.Equal(t, len(categories), 1, "content category count")
+	testassert.Equal(t, categories[0].ID, "category-1", "content category ID")
 
 	limit := 5
 	auditLogs, err := queryResolver.ErrorMessageAuditLogs(ctx, &limit)
-	if err != nil || len(auditLogs) != 1 || auditLogs[0].ID != "audit-1" {
-		t.Fatalf("ErrorMessageAuditLogs() = %#v, %v", auditLogs, err)
-	}
+	testassert.NoError(t, err, "ErrorMessageAuditLogs()")
+	testassert.Equal(t, len(auditLogs), 1, "audit log count")
+	testassert.Equal(t, auditLogs[0].ID, "audit-1", "audit log ID")
 }
 
 func TestAdminMutationAuthResolvers(t *testing.T) {
@@ -974,9 +1038,11 @@ func TestAdminMutationAuthResolvers(t *testing.T) {
 	})
 
 	loginAdminFn = func(_ context.Context, email, password string, rememberMe bool, metadata appservice.AdminSessionMetadata) (*appservice.AdminAuthResponse, error) {
-		if email != "admin@example.com" || password != "password" || !rememberMe || metadata.RemoteIP != "203.0.113.20" || metadata.CountryCode != "TR" {
-			t.Fatalf("unexpected login call: %q %q %t %#v", email, password, rememberMe, metadata)
-		}
+		testassert.Equal(t, email, "admin@example.com", "login email")
+		testassert.Equal(t, password, "password", "login password")
+		testassert.True(t, rememberMe, "login should remember the session")
+		testassert.Equal(t, metadata.RemoteIP, "203.0.113.20", "login remote IP")
+		testassert.Equal(t, metadata.CountryCode, "TR", "login country")
 		return &appservice.AdminAuthResponse{
 			Success:      true,
 			User:         adminUser,
@@ -987,33 +1053,27 @@ func TestAdminMutationAuthResolvers(t *testing.T) {
 		}, nil
 	}
 	startAdminGoogleConnectFn = func(_ context.Context, user *domain.AdminUser, locale string) (*appservice.AdminGoogleConnectResult, error) {
-		if user.ID != "admin-1" || locale != "tr" {
-			t.Fatalf("unexpected google connect input: %q %#v", locale, user)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "Google connect user")
+		testassert.Equal(t, locale, "tr", "Google connect locale")
 		return &appservice.AdminGoogleConnectResult{URL: "/api/oauth/connect?provider=google"}, nil
 	}
 	disconnectAdminGoogleAccountFn = func(_ context.Context, user *domain.AdminUser) (*domain.AdminUser, error) {
-		if user.ID != "admin-1" {
-			t.Fatalf("unexpected google disconnect user: %#v", user)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "Google disconnect user")
 		return &domain.AdminUser{ID: "admin-1", Email: "admin@example.com"}, nil
 	}
 	startAdminGithubConnectFn = func(_ context.Context, user *domain.AdminUser, locale string) (*appservice.AdminGithubConnectResult, error) {
-		if user.ID != "admin-1" || locale != "tr" {
-			t.Fatalf("unexpected github connect input: %q %#v", locale, user)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "GitHub connect user")
+		testassert.Equal(t, locale, "tr", "GitHub connect locale")
 		return &appservice.AdminGithubConnectResult{URL: "/api/oauth/connect?provider=github"}, nil
 	}
 	disconnectAdminGithubAccountFn = func(_ context.Context, user *domain.AdminUser) (*domain.AdminUser, error) {
-		if user.ID != "admin-1" {
-			t.Fatalf("unexpected github disconnect user: %#v", user)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "GitHub disconnect user")
 		return &domain.AdminUser{ID: "admin-1", Email: "admin@example.com"}, nil
 	}
 	refreshAdminSessionFn = func(_ context.Context, token string, metadata appservice.AdminSessionMetadata) (*appservice.AdminAuthResponse, error) {
-		if token != "refresh-session" || metadata.RemoteIP != "203.0.113.20" || metadata.CountryCode != "TR" {
-			t.Fatalf("unexpected refresh input: %q %#v", token, metadata)
-		}
+		testassert.Equal(t, token, "refresh-session", "refresh token")
+		testassert.Equal(t, metadata.RemoteIP, "203.0.113.20", "refresh remote IP")
+		testassert.Equal(t, metadata.CountryCode, "TR", "refresh country")
 		return &appservice.AdminAuthResponse{
 			Success:      true,
 			User:         adminUser,
@@ -1023,21 +1083,17 @@ func TestAdminMutationAuthResolvers(t *testing.T) {
 		}, nil
 	}
 	logoutAdminFn = func(_ context.Context, token string) error {
-		if token != "refresh-session" {
-			t.Fatalf("unexpected logout token: %q", token)
-		}
+		testassert.Equal(t, token, "refresh-session", "logout token")
 		return nil
 	}
 	requestAdminPasswordResetFn = func(_ context.Context, email, locale string) error {
-		if email != "admin@example.com" || locale != "tr" {
-			t.Fatalf("unexpected password reset request input: %q %q", email, locale)
-		}
+		testassert.Equal(t, email, "admin@example.com", "password reset email")
+		testassert.Equal(t, locale, "tr", "password reset locale")
 		return nil
 	}
 	validateAdminPasswordResetTokenFn = func(_ context.Context, token, locale string) (*appservice.AdminPasswordResetValidationResult, error) {
-		if token != "reset-token" || locale != "tr" {
-			t.Fatalf("unexpected password reset token validation input: %q %q", token, locale)
-		}
+		testassert.Equal(t, token, "reset-token", "password reset token")
+		testassert.Equal(t, locale, "tr", "password reset validation locale")
 		return &appservice.AdminPasswordResetValidationResult{Status: "success", Locale: "tr"}, nil
 	}
 	resetAdminPasswordWithTokenFn = func(
@@ -1047,75 +1103,65 @@ func TestAdminMutationAuthResolvers(t *testing.T) {
 		confirmPassword,
 		locale string,
 	) (*appservice.AdminPasswordResetResult, error) {
-		if token != "reset-token" || newPassword != "new-password" || confirmPassword != "new-password" || locale != "tr" {
-			t.Fatalf(
-				"unexpected password reset confirm input: %q %q %q %q",
-				token,
-				newPassword,
-				confirmPassword,
-				locale,
-			)
-		}
+		testassert.Equal(t, token, "reset-token", "password reset confirmation token")
+		testassert.Equal(t, newPassword, "new-password", "password reset new password")
+		testassert.Equal(t, confirmPassword, "new-password", "password reset confirmation")
+		testassert.Equal(t, locale, "tr", "password reset confirmation locale")
 		return &appservice.AdminPasswordResetResult{Success: true, Locale: "tr"}, nil
 	}
 	confirmAdminEmailChangeFn = func(_ context.Context, token, locale string) (*appservice.AdminEmailChangeConfirmResult, error) {
-		if token != "confirm-token" || locale != "tr" {
-			t.Fatalf("unexpected email change confirm input: %q %q", token, locale)
-		}
+		testassert.Equal(t, token, "confirm-token", "email confirmation token")
+		testassert.Equal(t, locale, "tr", "email confirmation locale")
 		return &appservice.AdminEmailChangeConfirmResult{Status: "success", Locale: "tr"}, nil
 	}
 	changeAdminNameFn = func(_ context.Context, user *domain.AdminUser, name string) (*domain.AdminUser, error) {
-		if user.ID != "admin-1" || name != "Display Name" {
-			t.Fatalf("unexpected change name input: %q %#v", name, user)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "name change user")
+		testassert.Equal(t, name, "Display Name", "updated display name")
 		updatedUser := *adminUser
 		updatedUser.Name = name
 		return &updatedUser, nil
 	}
 	changeAdminAvatarFn = func(_ context.Context, user *domain.AdminUser, avatarURL *string) (*domain.AdminUser, error) {
-		if user.ID != "admin-1" || avatarURL == nil || *avatarURL != "/avatar.png" {
-			t.Fatalf("unexpected change avatar input: %#v %#v", avatarURL, user)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "avatar change user")
+		testassert.NotNil(t, avatarURL, "avatar URL should be provided")
+		testassert.Equal(t, *avatarURL, "/avatar.png", "avatar URL")
 		updatedUser := *adminUser
 		updatedUser.AvatarURL = strings.TrimSpace(*avatarURL)
 		return &updatedUser, nil
 	}
 	changeAdminUsernameFn = func(_ context.Context, user *domain.AdminUser, username string) (*domain.AdminUser, error) {
-		if user.ID != "admin-1" || username != " next-admin " {
-			t.Fatalf("unexpected change username input: %q %#v", username, user)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "username change user")
+		testassert.Equal(t, username, " next-admin ", "requested username")
 		updatedUser := *adminUser
 		updatedUser.Username = "next-admin"
 		return &updatedUser, nil
 	}
 	requestAdminEmailChangeFn = func(_ context.Context, user *domain.AdminUser, newEmail, currentPassword, locale string) (*appservice.AdminEmailChangeRequestResult, error) {
-		if user.ID != "admin-1" || newEmail != "next@example.com" || currentPassword != "password" || locale != "tr" {
-			t.Fatalf("unexpected email change request input: %q %q %q", newEmail, currentPassword, locale)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "email change user")
+		testassert.Equal(t, newEmail, "next@example.com", "new email")
+		testassert.Equal(t, currentPassword, "password", "email change password")
+		testassert.Equal(t, locale, "tr", "email change locale")
 		return &appservice.AdminEmailChangeRequestResult{Success: true, PendingEmail: "next@example.com", ExpiresAt: now.Add(time.Hour)}, nil
 	}
 	deleteAdminAccountFn = func(_ context.Context, user *domain.AdminUser, currentPassword string) error {
-		if user.ID != "admin-1" || currentPassword != "password" {
-			t.Fatalf("unexpected delete account input: %q %#v", currentPassword, user)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "deleted account user")
+		testassert.Equal(t, currentPassword, "password", "account deletion password")
 		return nil
 	}
 	changeAdminPasswordFn = func(_ context.Context, user *domain.AdminUser, currentPassword, newPassword, confirmPassword string) error {
-		if user.ID != "admin-1" || currentPassword != "current" || newPassword != "new-password" || confirmPassword != "new-password" {
-			t.Fatalf("unexpected change password input: %q %q %q", currentPassword, newPassword, confirmPassword)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "password change user")
+		testassert.Equal(t, currentPassword, "current", "current password")
+		testassert.Equal(t, newPassword, "new-password", "new password")
+		testassert.Equal(t, confirmPassword, "new-password", "password confirmation")
 		return nil
 	}
 	revokeAdminSessionFn = func(_ context.Context, user *domain.AdminUser, sessionID string) (bool, error) {
-		if user.ID != "admin-1" || sessionID != "session-123" {
-			t.Fatalf("unexpected revoke session input: %q %#v", sessionID, user)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "session revoke user")
+		testassert.Equal(t, sessionID, "session-123", "revoked session")
 		return true, nil
 	}
 	revokeAllAdminSessionsFn = func(_ context.Context, user *domain.AdminUser) error {
-		if user.ID != "admin-1" {
-			t.Fatalf("unexpected revoke all user: %#v", user)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "revoke all sessions user")
 		return nil
 	}
 
@@ -1126,29 +1172,30 @@ func TestAdminMutationAuthResolvers(t *testing.T) {
 		Password:   "password",
 		RememberMe: &rememberMe,
 	})
-	if err != nil || !loginResult.Success || loginResult.User == nil || loginResult.User.ID != "admin-1" {
-		t.Fatalf("Login() = %#v, %v", loginResult, err)
-	}
+	testassert.NoError(t, err, "Login()")
+	testassert.True(t, loginResult.Success, "Login should succeed")
+	testassert.NotNil(t, loginResult.User, "Login user should be returned")
+	testassert.Equal(t, loginResult.User.ID, "admin-1", "Login user ID")
 
 	googleConnectResult, err := mutationResolver.StartGoogleConnect(authCtx, model.AdminStartGoogleConnectInput{Locale: localePtr(" tr ")})
-	if err != nil || googleConnectResult.URL != "/api/oauth/connect?provider=google" {
-		t.Fatalf("StartGoogleConnect() = %#v, %v", googleConnectResult, err)
-	}
+	testassert.NoError(t, err, "StartGoogleConnect()")
+	testassert.Equal(t, googleConnectResult.URL, "/api/oauth/connect?provider=google", "Google connect URL")
 
 	googleDisconnectResult, err := mutationResolver.DisconnectGoogle(authCtx)
-	if err != nil || !googleDisconnectResult.Success || googleDisconnectResult.User == nil || googleDisconnectResult.User.ID != "admin-1" {
-		t.Fatalf("DisconnectGoogle() = %#v, %v", googleDisconnectResult, err)
-	}
+	testassert.NoError(t, err, "DisconnectGoogle()")
+	testassert.True(t, googleDisconnectResult.Success, "Google disconnect should succeed")
+	testassert.NotNil(t, googleDisconnectResult.User, "Google disconnect user should be returned")
+	testassert.Equal(t, googleDisconnectResult.User.ID, "admin-1", "Google disconnect user ID")
 
 	githubConnectResult, err := mutationResolver.StartGithubConnect(authCtx, model.AdminStartGithubConnectInput{Locale: localePtr(" tr ")})
-	if err != nil || githubConnectResult.URL != "/api/oauth/connect?provider=github" {
-		t.Fatalf("StartGithubConnect() = %#v, %v", githubConnectResult, err)
-	}
+	testassert.NoError(t, err, "StartGithubConnect()")
+	testassert.Equal(t, githubConnectResult.URL, "/api/oauth/connect?provider=github", "GitHub connect URL")
 
 	githubDisconnectResult, err := mutationResolver.DisconnectGithub(authCtx)
-	if err != nil || !githubDisconnectResult.Success || githubDisconnectResult.User == nil || githubDisconnectResult.User.ID != "admin-1" {
-		t.Fatalf("DisconnectGithub() = %#v, %v", githubDisconnectResult, err)
-	}
+	testassert.NoError(t, err, "DisconnectGithub()")
+	testassert.True(t, githubDisconnectResult.Success, "GitHub disconnect should succeed")
+	testassert.NotNil(t, githubDisconnectResult.User, "GitHub disconnect user should be returned")
+	testassert.Equal(t, githubDisconnectResult.User.ID, "admin-1", "GitHub disconnect user ID")
 
 	refreshRequest := httptest.NewRequest(http.MethodPost, "/admin/graphql", nil)
 	refreshRequest.RemoteAddr = "203.0.113.20:8080"
@@ -1157,34 +1204,33 @@ func TestAdminMutationAuthResolvers(t *testing.T) {
 	refreshRequest.AddCookie(&http.Cookie{Name: "admin_refresh", Value: "refresh-session"})
 	refreshCtx := withRequestContext(traceCtx, refreshRequest, httptest.NewRecorder())
 	refreshResult, err := mutationResolver.RefreshAdminSession(refreshCtx)
-	if err != nil || !refreshResult.Success || refreshResult.User == nil || refreshResult.User.ID != "admin-1" {
-		t.Fatalf("RefreshAdminSession() = %#v, %v", refreshResult, err)
-	}
+	testassert.NoError(t, err, "RefreshAdminSession()")
+	testassert.True(t, refreshResult.Success, "RefreshAdminSession should succeed")
+	testassert.NotNil(t, refreshResult.User, "refreshed admin user should be returned")
+	testassert.Equal(t, refreshResult.User.ID, "admin-1", "refreshed admin user ID")
 
 	logoutRequest := httptest.NewRequest(http.MethodPost, "/admin/graphql", nil)
 	logoutRequest.AddCookie(&http.Cookie{Name: "admin_refresh", Value: "refresh-session"})
 	logoutCtx := withRequestContext(context.Background(), logoutRequest, httptest.NewRecorder())
 	logoutResult, err := mutationResolver.Logout(logoutCtx)
-	if err != nil || !logoutResult.Success {
-		t.Fatalf("Logout() = %#v, %v", logoutResult, err)
-	}
+	testassert.NoError(t, err, "Logout()")
+	testassert.True(t, logoutResult.Success, "Logout should succeed")
 
 	requestPasswordResetResult, err := mutationResolver.RequestPasswordReset(ctx, model.AdminRequestPasswordResetInput{
 		Email:  "admin@example.com",
 		Locale: localePtr("tr"),
 	})
-	if err != nil || !requestPasswordResetResult.Success {
-		t.Fatalf("RequestPasswordReset() = %#v, %v", requestPasswordResetResult, err)
-	}
+	testassert.NoError(t, err, "RequestPasswordReset()")
+	testassert.True(t, requestPasswordResetResult.Success, "password reset request should succeed")
 
 	validatePasswordResetResult, err := (&adminQueryResolver{Resolver: &Resolver{}}).ValidatePasswordResetToken(
 		ctx,
 		" reset-token ",
 		localePtr("tr"),
 	)
-	if err != nil || validatePasswordResetResult.Status != "success" || validatePasswordResetResult.Locale != "tr" {
-		t.Fatalf("ValidatePasswordResetToken() = %#v, %v", validatePasswordResetResult, err)
-	}
+	testassert.NoError(t, err, "ValidatePasswordResetToken()")
+	testassert.Equal(t, validatePasswordResetResult.Status, "success", "password reset validation status")
+	testassert.Equal(t, validatePasswordResetResult.Locale, "tr", "password reset validation locale")
 
 	confirmPasswordResetResult, err := mutationResolver.ConfirmPasswordReset(ctx, model.AdminConfirmPasswordResetInput{
 		Token:           " reset-token ",
@@ -1192,70 +1238,68 @@ func TestAdminMutationAuthResolvers(t *testing.T) {
 		ConfirmPassword: "new-password",
 		Locale:          localePtr("tr"),
 	})
-	if err != nil || !confirmPasswordResetResult.Success || confirmPasswordResetResult.Locale != "tr" {
-		t.Fatalf("ConfirmPasswordReset() = %#v, %v", confirmPasswordResetResult, err)
-	}
+	testassert.NoError(t, err, "ConfirmPasswordReset()")
+	testassert.True(t, confirmPasswordResetResult.Success, "password reset confirmation should succeed")
+	testassert.Equal(t, confirmPasswordResetResult.Locale, "tr", "password reset confirmation locale")
 
 	confirmEmailChangeResult, err := mutationResolver.ConfirmEmailChange(ctx, " confirm-token ", localePtr("tr"))
-	if err != nil || confirmEmailChangeResult.Status != "success" || confirmEmailChangeResult.Locale != "tr" {
-		t.Fatalf("ConfirmEmailChange() = %#v, %v", confirmEmailChangeResult, err)
-	}
+	testassert.NoError(t, err, "ConfirmEmailChange()")
+	testassert.Equal(t, confirmEmailChangeResult.Status, "success", "email change confirmation status")
+	testassert.Equal(t, confirmEmailChangeResult.Locale, "tr", "email change confirmation locale")
 
 	changeNameResult, err := mutationResolver.ChangeName(authCtx, model.AdminChangeNameInput{Name: "Display Name"})
-	if err != nil || changeNameResult.User == nil || changeNameResult.User.Name == nil || *changeNameResult.User.Name != "Display Name" {
-		t.Fatalf("ChangeName() = %#v, %v", changeNameResult, err)
-	}
+	testassert.NoError(t, err, "ChangeName()")
+	testassert.NotNil(t, changeNameResult.User, "updated user should be returned")
+	testassert.NotNil(t, changeNameResult.User.Name, "updated name should be returned")
+	testassert.Equal(t, *changeNameResult.User.Name, "Display Name", "updated name")
 
 	changeAvatarResult, err := mutationResolver.ChangeAvatar(authCtx, model.AdminChangeAvatarInput{AvatarURL: urlPtr(" /avatar.png ")})
-	if err != nil || changeAvatarResult.User == nil || changeAvatarResult.User.AvatarURL == nil || *changeAvatarResult.User.AvatarURL != "/avatar.png" {
-		t.Fatalf("ChangeAvatar() = %#v, %v", changeAvatarResult, err)
-	}
+	testassert.NoError(t, err, "ChangeAvatar()")
+	testassert.NotNil(t, changeAvatarResult.User, "avatar update user should be returned")
+	testassert.NotNil(t, changeAvatarResult.User.AvatarURL, "updated avatar URL should be returned")
+	testassert.Equal(t, *changeAvatarResult.User.AvatarURL, "/avatar.png", "updated avatar URL")
 
 	changeUsernameResult, err := mutationResolver.ChangeUsername(authCtx, model.AdminChangeUsernameInput{NewUsername: " next-admin "})
-	if err != nil || changeUsernameResult.User == nil || changeUsernameResult.User.Username == nil || *changeUsernameResult.User.Username != "next-admin" {
-		t.Fatalf("ChangeUsername() = %#v, %v", changeUsernameResult, err)
-	}
+	testassert.NoError(t, err, "ChangeUsername()")
+	testassert.NotNil(t, changeUsernameResult.User, "username update user should be returned")
+	testassert.NotNil(t, changeUsernameResult.User.Username, "updated username should be returned")
+	testassert.Equal(t, *changeUsernameResult.User.Username, "next-admin", "updated username")
 
 	emailChangeResult, err := mutationResolver.RequestEmailChange(authCtx, model.AdminRequestEmailChangeInput{
 		NewEmail:        "next@example.com",
 		CurrentPassword: "password",
 		Locale:          localePtr("tr"),
 	})
-	if err != nil || !emailChangeResult.Success || emailChangeResult.PendingEmail != "next@example.com" {
-		t.Fatalf("RequestEmailChange() = %#v, %v", emailChangeResult, err)
-	}
+	testassert.NoError(t, err, "RequestEmailChange()")
+	testassert.True(t, emailChangeResult.Success, "email change request should succeed")
+	testassert.Equal(t, emailChangeResult.PendingEmail, "next@example.com", "pending email")
 
 	deleteAccountResult, err := mutationResolver.DeleteAccount(authCtx, model.AdminDeleteAccountInput{CurrentPassword: "password"})
-	if err != nil || !deleteAccountResult.Success {
-		t.Fatalf("DeleteAccount() = %#v, %v", deleteAccountResult, err)
-	}
+	testassert.NoError(t, err, "DeleteAccount()")
+	testassert.True(t, deleteAccountResult.Success, "account deletion should succeed")
 
 	changePasswordResult, err := mutationResolver.ChangePassword(authCtx, model.AdminChangePasswordInput{
 		CurrentPassword: "current",
 		NewPassword:     "new-password",
 		ConfirmPassword: "new-password",
 	})
-	if err != nil || !changePasswordResult.Success {
-		t.Fatalf("ChangePassword() = %#v, %v", changePasswordResult, err)
-	}
+	testassert.NoError(t, err, "ChangePassword()")
+	testassert.True(t, changePasswordResult.Success, "password change should succeed")
 
 	currentSessionRequest := httptest.NewRequest(http.MethodPost, "/admin/graphql", nil)
 	currentSessionRequest.AddCookie(&http.Cookie{Name: "admin_refresh", Value: issueAdminRefreshSessionTokenForTest(t, "session-123")})
 	currentSessionCtx := withRequestContext(WithAdminUser(context.Background(), adminUser), currentSessionRequest, httptest.NewRecorder())
 	revokeSessionResult, err := mutationResolver.RevokeSession(currentSessionCtx, "session-123")
-	if err != nil || !revokeSessionResult.Success {
-		t.Fatalf("RevokeSession() = %#v, %v", revokeSessionResult, err)
-	}
+	testassert.NoError(t, err, "RevokeSession()")
+	testassert.True(t, revokeSessionResult.Success, "session revocation should succeed")
 
 	revokeAllSessionsResult, err := mutationResolver.RevokeAllSessions(authCtx)
-	if err != nil || !revokeAllSessionsResult.Success {
-		t.Fatalf("RevokeAllSessions() = %#v, %v", revokeAllSessionsResult, err)
-	}
+	testassert.NoError(t, err, "RevokeAllSessions()")
+	testassert.True(t, revokeAllSessionsResult.Success, "all sessions should be revoked")
 
 	cookies := strings.Join(recorder.Result().Header["Set-Cookie"], "\n")
-	if !strings.Contains(cookies, "admin_access=") || !strings.Contains(cookies, "admin_refresh=") {
-		t.Fatalf("expected admin cookies to be written, got %s", cookies)
-	}
+	testassert.True(t, strings.Contains(cookies, "admin_access="), "access cookie should be written")
+	testassert.True(t, strings.Contains(cookies, "admin_refresh="), "refresh cookie should be written")
 }
 
 func TestAdminMutationManagementResolvers(t *testing.T) {
@@ -1311,123 +1355,142 @@ func TestAdminMutationManagementResolvers(t *testing.T) {
 	})
 
 	updateAdminCommentStatusFn = func(_ context.Context, user *domain.AdminUser, commentID, status string) (*domain.CommentRecord, error) {
-		if user.ID != "admin-1" || commentID != "comment-1" || status != "approved" {
-			t.Fatalf("unexpected update comment status input: %q %q", commentID, status)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "comment update user")
+		testassert.Equal(t, commentID, "comment-1", "comment ID")
+		testassert.Equal(t, status, "approved", "comment status")
 		return &domain.CommentRecord{ID: "comment-1", PostID: "post-1", AuthorName: "Reader", AuthorEmail: "reader@example.com", Content: "hello", Status: "approved", CreatedAt: now, UpdatedAt: now}, nil
 	}
 	deleteAdminCommentFn = func(_ context.Context, user *domain.AdminUser, commentID string) error {
-		if user.ID != "admin-1" || commentID != "comment-1" {
-			t.Fatalf("unexpected delete comment input: %q", commentID)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "comment delete user")
+		testassert.Equal(t, commentID, "comment-1", "deleted comment ID")
 		return nil
 	}
 	bulkUpdateAdminCommentStatusFn = func(_ context.Context, user *domain.AdminUser, commentIDs []string, status string) (int, error) {
-		if user.ID != "admin-1" || status != "spam" || len(commentIDs) != 2 || commentIDs[0] != "comment-1" || commentIDs[1] != "comment-2" {
-			t.Fatalf("unexpected bulk update input: %#v %q", commentIDs, status)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "bulk comment update user")
+		testassert.Equal(t, status, "spam", "bulk comment status")
+		testassert.Equal(t, len(commentIDs), 2, "bulk comment update count")
+		testassert.Equal(t, commentIDs[0], "comment-1", "first updated comment")
+		testassert.Equal(t, commentIDs[1], "comment-2", "second updated comment")
 		return 2, nil
 	}
 	bulkDeleteAdminCommentsFn = func(_ context.Context, user *domain.AdminUser, commentIDs []string) (int, error) {
-		if user.ID != "admin-1" || len(commentIDs) != 2 || commentIDs[0] != "comment-1" || commentIDs[1] != "comment-2" {
-			t.Fatalf("unexpected bulk delete input: %#v", commentIDs)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "bulk comment delete user")
+		testassert.Equal(t, len(commentIDs), 2, "bulk comment delete count")
+		testassert.Equal(t, commentIDs[0], "comment-1", "first deleted comment")
+		testassert.Equal(t, commentIDs[1], "comment-2", "second deleted comment")
 		return 2, nil
 	}
 	updateAdminNewsletterSubscriberStatusFn = func(_ context.Context, user *domain.AdminUser, email, status string) (*domain.AdminNewsletterSubscriberRecord, error) {
-		if user.ID != "admin-1" || email != "reader@example.com" || status != "active" {
-			t.Fatalf("unexpected update subscriber input: %q %q", email, status)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "subscriber update user")
+		testassert.Equal(t, email, "reader@example.com", "subscriber email")
+		testassert.Equal(t, status, "active", "subscriber status")
 		return &domain.AdminNewsletterSubscriberRecord{Email: email, Locale: "tr", Status: status, UpdatedAt: now, CreatedAt: now}, nil
 	}
 	deleteAdminNewsletterSubscriberFn = func(_ context.Context, user *domain.AdminUser, email string) error {
-		if user.ID != "admin-1" || email != "reader@example.com" {
-			t.Fatalf("unexpected delete subscriber input: %q", email)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "subscriber delete user")
+		testassert.Equal(t, email, "reader@example.com", "deleted subscriber email")
 		return nil
 	}
 	triggerAdminNewsletterDispatchFn = func(_ context.Context, user *domain.AdminUser) (*domain.AdminNewsletterDispatchResult, error) {
-		if user.ID != "admin-1" {
-			t.Fatalf("unexpected dispatch user: %#v", user)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "newsletter dispatch user")
 		return &domain.AdminNewsletterDispatchResult{Success: true, Message: "sent", Timestamp: now}, nil
 	}
 	sendAdminNewsletterTestEmailFn = func(_ context.Context, user *domain.AdminUser, email, locale, itemKey string) (*domain.AdminNewsletterTestSendResult, error) {
-		if user.ID != "admin-1" || email != "reader@example.com" || locale != "tr" || itemKey != "post:1" {
-			t.Fatalf("unexpected test send input: %q %q %q", email, locale, itemKey)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "test newsletter user")
+		testassert.Equal(t, email, "reader@example.com", "test newsletter email")
+		testassert.Equal(t, locale, "tr", "test newsletter locale")
+		testassert.Equal(t, itemKey, "post:1", "test newsletter item")
 		return &domain.AdminNewsletterTestSendResult{Success: true, Message: "queued", Timestamp: now, Email: email, Locale: locale, ItemKey: itemKey, PostTitle: "Alpha"}, nil
 	}
 	createAdminErrorMessageFn = func(_ context.Context, user *domain.AdminUser, key domain.AdminErrorMessageKey, message string) (*domain.AdminErrorMessageView, error) {
-		if user.ID != "admin-1" || key.Scope != "admin" || key.Locale != "tr" || key.Code != "ERR_1" || message != "Created" {
-			t.Fatalf("unexpected create error message input: %#v %q", key, message)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "error message create user")
+		testassert.Equal(t, key.Scope, "admin", "created error scope")
+		testassert.Equal(t, key.Locale, "tr", "created error locale")
+		testassert.Equal(t, key.Code, "ERR_1", "created error code")
+		testassert.Equal(t, message, "Created", "created error message")
 		return &domain.AdminErrorMessageView{AdminErrorMessageKey: key, Message: message, UpdatedAt: now}, nil
 	}
 	updateAdminErrorMessageFn = func(_ context.Context, user *domain.AdminUser, key domain.AdminErrorMessageKey, message string) (*domain.AdminErrorMessageView, error) {
-		if user.ID != "admin-1" || key.Scope != "admin" || key.Locale != "tr" || key.Code != "ERR_1" || message != "Updated" {
-			t.Fatalf("unexpected update error message input: %#v %q", key, message)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "error message update user")
+		testassert.Equal(t, key.Scope, "admin", "updated error scope")
+		testassert.Equal(t, key.Locale, "tr", "updated error locale")
+		testassert.Equal(t, key.Code, "ERR_1", "updated error code")
+		testassert.Equal(t, message, "Updated", "updated error message")
 		return &domain.AdminErrorMessageView{AdminErrorMessageKey: key, Message: message, UpdatedAt: now}, nil
 	}
 	deleteAdminErrorMessageFn = func(_ context.Context, user *domain.AdminUser, key domain.AdminErrorMessageKey) error {
-		if user.ID != "admin-1" || key.Scope != "admin" || key.Locale != "tr" || key.Code != "ERR_1" {
-			t.Fatalf("unexpected delete error key: %#v", key)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "error message delete user")
+		testassert.Equal(t, key.Scope, "admin", "deleted error scope")
+		testassert.Equal(t, key.Locale, "tr", "deleted error locale")
+		testassert.Equal(t, key.Code, "ERR_1", "deleted error code")
 		return nil
 	}
 	updateAdminContentPostMetadataFn = func(_ context.Context, user *domain.AdminUser, input domain.AdminContentPostMetadataInput) (*domain.AdminContentPostRecord, error) {
-		if user.ID != "admin-1" || input.Locale != "tr" || input.ID != "post-1" || input.Title == nil || *input.Title != "Alpha" || input.CategoryID != "category-1" || len(input.TopicIDs) != 2 || input.TopicIDs[0] != "topic-1" || input.TopicIDs[1] != "topic-2" {
-			t.Fatalf("unexpected content metadata input: %#v", input)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "metadata update user")
+		testassert.Equal(t, input.Locale, "tr", "metadata update locale")
+		testassert.Equal(t, input.ID, "post-1", "metadata update post ID")
+		testassert.NotNil(t, input.Title, "metadata title should be provided")
+		testassert.Equal(t, *input.Title, "Alpha", "metadata title")
+		testassert.Equal(t, input.CategoryID, "category-1", "metadata category")
+		testassert.Equal(t, len(input.TopicIDs), 2, "metadata topic count")
+		testassert.Equal(t, input.TopicIDs[0], "topic-1", "first metadata topic")
+		testassert.Equal(t, input.TopicIDs[1], "topic-2", "second metadata topic")
 		return &domain.AdminContentPostRecord{Locale: input.Locale, ID: input.ID, Title: *input.Title, Source: "blog", PublishedDate: "2026-03-22"}, nil
 	}
 	updateAdminContentPostContentFn = func(_ context.Context, user *domain.AdminUser, input domain.AdminContentPostContentInput) (*domain.AdminContentPostRecord, error) {
-		if user.ID != "admin-1" || input.Locale != "tr" || input.ID != "post-1" || input.Content != "Body" {
-			t.Fatalf("unexpected content body input: %#v", input)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "content update user")
+		testassert.Equal(t, input.Locale, "tr", "content update locale")
+		testassert.Equal(t, input.ID, "post-1", "content update post ID")
+		testassert.Equal(t, input.Content, "Body", "content update body")
 		return &domain.AdminContentPostRecord{Locale: input.Locale, ID: input.ID, Title: "Alpha", Content: input.Content, Source: "blog", PublishedDate: "2026-03-22"}, nil
 	}
 	deleteAdminContentPostFn = func(_ context.Context, user *domain.AdminUser, locale, id string) error {
-		if user.ID != "admin-1" || locale != "tr" || id != "post-1" {
-			t.Fatalf("unexpected delete content post input: %q %q", locale, id)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "content post delete user")
+		testassert.Equal(t, locale, "tr", "content post delete locale")
+		testassert.Equal(t, id, "post-1", "deleted content post ID")
 		return nil
 	}
 	createAdminContentTopicFn = func(_ context.Context, user *domain.AdminUser, input domain.AdminContentTopicInput) (*domain.AdminContentTopicRecord, error) {
-		if user.ID != "admin-1" || input.Locale != "tr" || input.ID != "topic-1" || input.Name != "Alpha Topic" || input.Color != "#fff" || input.Link != "https://example.com/topic" {
-			t.Fatalf("unexpected create topic input: %#v", input)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "topic create user")
+		testassert.Equal(t, input.Locale, "tr", "topic create locale")
+		testassert.Equal(t, input.ID, "topic-1", "topic create ID")
+		testassert.Equal(t, input.Name, "Alpha Topic", "topic create name")
+		testassert.Equal(t, input.Color, "#fff", "topic create color")
+		testassert.Equal(t, input.Link, "https://example.com/topic", "topic create link")
 		return &domain.AdminContentTopicRecord{Locale: input.Locale, ID: input.ID, Name: input.Name, Color: input.Color, Link: input.Link, UpdatedAt: now}, nil
 	}
 	updateAdminContentTopicFn = func(_ context.Context, user *domain.AdminUser, input domain.AdminContentTopicInput) (*domain.AdminContentTopicRecord, error) {
-		if user.ID != "admin-1" || input.Locale != "tr" || input.ID != "topic-1" {
-			t.Fatalf("unexpected update topic input: %#v", input)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "topic update user")
+		testassert.Equal(t, input.Locale, "tr", "topic update locale")
+		testassert.Equal(t, input.ID, "topic-1", "topic update ID")
 		return &domain.AdminContentTopicRecord{Locale: input.Locale, ID: input.ID, Name: input.Name, Color: input.Color, Link: input.Link, UpdatedAt: now}, nil
 	}
 	deleteAdminContentTopicFn = func(_ context.Context, user *domain.AdminUser, locale, id string) error {
-		if user.ID != "admin-1" || locale != "tr" || id != "topic-1" {
-			t.Fatalf("unexpected delete topic input: %q %q", locale, id)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "topic delete user")
+		testassert.Equal(t, locale, "tr", "topic delete locale")
+		testassert.Equal(t, id, "topic-1", "deleted topic ID")
 		return nil
 	}
 	createAdminContentCategoryFn = func(_ context.Context, user *domain.AdminUser, input domain.AdminContentCategoryInput) (*domain.AdminContentCategoryRecord, error) {
-		if user.ID != "admin-1" || input.Locale != "tr" || input.ID != "category-1" || input.Name != "Alpha Category" || input.Color != "#000" || input.Icon != "tag" || input.Link != "https://example.com/category" {
-			t.Fatalf("unexpected create category input: %#v", input)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "category create user")
+		testassert.Equal(t, input.Locale, "tr", "category create locale")
+		testassert.Equal(t, input.ID, "category-1", "category create ID")
+		testassert.Equal(t, input.Name, "Alpha Category", "category create name")
+		testassert.Equal(t, input.Color, "#000", "category create color")
+		testassert.Equal(t, input.Icon, "tag", "category create icon")
+		testassert.Equal(t, input.Link, "https://example.com/category", "category create link")
 		return &domain.AdminContentCategoryRecord{Locale: input.Locale, ID: input.ID, Name: input.Name, Color: input.Color, Icon: input.Icon, Link: input.Link, UpdatedAt: now}, nil
 	}
 	updateAdminContentCategoryFn = func(_ context.Context, user *domain.AdminUser, input domain.AdminContentCategoryInput) (*domain.AdminContentCategoryRecord, error) {
-		if user.ID != "admin-1" || input.Locale != "tr" || input.ID != "category-1" {
-			t.Fatalf("unexpected update category input: %#v", input)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "category update user")
+		testassert.Equal(t, input.Locale, "tr", "category update locale")
+		testassert.Equal(t, input.ID, "category-1", "category update ID")
 		return &domain.AdminContentCategoryRecord{Locale: input.Locale, ID: input.ID, Name: input.Name, Color: input.Color, Icon: input.Icon, Link: input.Link, UpdatedAt: now}, nil
 	}
 	deleteAdminContentCategoryFn = func(_ context.Context, user *domain.AdminUser, locale, id string) error {
-		if user.ID != "admin-1" || locale != "tr" || id != "category-1" {
-			t.Fatalf("unexpected delete category input: %q %q", locale, id)
-		}
+		testassert.Equal(t, user.ID, "admin-1", "category delete user")
+		testassert.Equal(t, locale, "tr", "category delete locale")
+		testassert.Equal(t, id, "category-1", "deleted category ID")
 		return nil
 	}
 
@@ -1435,72 +1498,68 @@ func TestAdminMutationManagementResolvers(t *testing.T) {
 	mutationResolver := &adminMutationResolver{Resolver: &Resolver{}}
 
 	commentResult, err := mutationResolver.UpdateCommentStatus(ctx, model.AdminUpdateCommentStatusInput{CommentID: " comment-1 ", Status: model.AdminCommentStatusApproved})
-	if err != nil || commentResult == nil || commentResult.Status != model.AdminCommentStatusApproved {
-		t.Fatalf("UpdateCommentStatus() = %#v, %v", commentResult, err)
-	}
+	testassert.NoError(t, err, "UpdateCommentStatus()")
+	testassert.NotNil(t, commentResult, "updated comment should be returned")
+	testassert.Equal(t, commentResult.Status, model.AdminCommentStatusApproved, "updated comment status")
 
 	deleteCommentResult, err := mutationResolver.DeleteComment(ctx, model.AdminDeleteCommentInput{CommentID: " comment-1 "})
-	if err != nil || !deleteCommentResult.Success {
-		t.Fatalf("DeleteComment() = %#v, %v", deleteCommentResult, err)
-	}
+	testassert.NoError(t, err, "DeleteComment()")
+	testassert.True(t, deleteCommentResult.Success, "comment deletion should succeed")
 
 	bulkUpdateResult, err := mutationResolver.BulkUpdateCommentStatus(ctx, model.AdminBulkUpdateCommentStatusInput{
 		CommentIds: []string{" comment-1 ", "comment-2 "},
 		Status:     model.AdminCommentStatusSpam,
 	})
-	if err != nil || bulkUpdateResult.SuccessCount != 2 {
-		t.Fatalf("BulkUpdateCommentStatus() = %#v, %v", bulkUpdateResult, err)
-	}
+	testassert.NoError(t, err, "BulkUpdateCommentStatus()")
+	testassert.Equal(t, bulkUpdateResult.SuccessCount, 2, "updated comment count")
 
 	bulkDeleteResult, err := mutationResolver.BulkDeleteComments(ctx, model.AdminBulkDeleteCommentsInput{
 		CommentIds: []string{" comment-1 ", "comment-2 "},
 	})
-	if err != nil || bulkDeleteResult.SuccessCount != 2 {
-		t.Fatalf("BulkDeleteComments() = %#v, %v", bulkDeleteResult, err)
-	}
+	testassert.NoError(t, err, "BulkDeleteComments()")
+	testassert.Equal(t, bulkDeleteResult.SuccessCount, 2, "deleted comment count")
 
 	subscriberResult, err := mutationResolver.UpdateNewsletterSubscriberStatus(ctx, model.AdminUpdateNewsletterSubscriberStatusInput{
 		Email:  "reader@example.com",
 		Status: model.AdminNewsletterSubscriberStatusActive,
 	})
-	if err != nil || subscriberResult == nil || subscriberResult.Status != model.AdminNewsletterSubscriberStatusActive {
-		t.Fatalf("UpdateNewsletterSubscriberStatus() = %#v, %v", subscriberResult, err)
-	}
+	testassert.NoError(t, err, "UpdateNewsletterSubscriberStatus()")
+	testassert.NotNil(t, subscriberResult, "updated subscriber should be returned")
+	testassert.Equal(t, subscriberResult.Status, model.AdminNewsletterSubscriberStatusActive, "subscriber status")
 
 	deleteSubscriberResult, err := mutationResolver.DeleteNewsletterSubscriber(ctx, model.AdminDeleteNewsletterSubscriberInput{Email: "reader@example.com"})
-	if err != nil || !deleteSubscriberResult.Success {
-		t.Fatalf("DeleteNewsletterSubscriber() = %#v, %v", deleteSubscriberResult, err)
-	}
+	testassert.NoError(t, err, "DeleteNewsletterSubscriber()")
+	testassert.True(t, deleteSubscriberResult.Success, "subscriber deletion should succeed")
 
 	dispatchResult, err := mutationResolver.TriggerNewsletterDispatch(ctx)
-	if err != nil || !dispatchResult.Success || dispatchResult.Message != "sent" {
-		t.Fatalf("TriggerNewsletterDispatch() = %#v, %v", dispatchResult, err)
-	}
+	testassert.NoError(t, err, "TriggerNewsletterDispatch()")
+	testassert.True(t, dispatchResult.Success, "newsletter dispatch should succeed")
+	testassert.Equal(t, dispatchResult.Message, "sent", "dispatch message")
 
 	testNewsletterResult, err := mutationResolver.SendTestNewsletter(ctx, model.AdminSendTestNewsletterInput{
 		Email:   "reader@example.com",
 		Locale:  "tr",
 		ItemKey: "post:1",
 	})
-	if err != nil || !testNewsletterResult.Success || testNewsletterResult.PostTitle == nil || *testNewsletterResult.PostTitle != "Alpha" {
-		t.Fatalf("SendTestNewsletter() = %#v, %v", testNewsletterResult, err)
-	}
+	testassert.NoError(t, err, "SendTestNewsletter()")
+	testassert.True(t, testNewsletterResult.Success, "test newsletter should succeed")
+	testassert.NotNil(t, testNewsletterResult.PostTitle, "test newsletter title should be returned")
+	testassert.Equal(t, *testNewsletterResult.PostTitle, "Alpha", "test newsletter post title")
 
 	errorKey := &model.AdminErrorMessageKeyInput{Scope: stringPtr(" admin "), Locale: " tr ", Code: " ERR_1 "}
 	createErrorResult, err := mutationResolver.CreateErrorMessage(ctx, model.AdminCreateErrorMessageInput{Key: errorKey, Message: "Created"})
-	if err != nil || createErrorResult == nil || createErrorResult.Code != "ERR_1" {
-		t.Fatalf("CreateErrorMessage() = %#v, %v", createErrorResult, err)
-	}
+	testassert.NoError(t, err, "CreateErrorMessage()")
+	testassert.NotNil(t, createErrorResult, "created error message should be returned")
+	testassert.Equal(t, createErrorResult.Code, "ERR_1", "created error message code")
 
 	updateErrorResult, err := mutationResolver.UpdateErrorMessage(ctx, model.AdminUpdateErrorMessageInput{Key: errorKey, Message: "Updated"})
-	if err != nil || updateErrorResult == nil || updateErrorResult.Message != "Updated" {
-		t.Fatalf("UpdateErrorMessage() = %#v, %v", updateErrorResult, err)
-	}
+	testassert.NoError(t, err, "UpdateErrorMessage()")
+	testassert.NotNil(t, updateErrorResult, "updated error message should be returned")
+	testassert.Equal(t, updateErrorResult.Message, "Updated", "updated error message")
 
 	deleteErrorResult, err := mutationResolver.DeleteErrorMessage(ctx, model.AdminErrorMessageKeyInput{Scope: stringPtr(" admin "), Locale: " tr ", Code: " ERR_1 "})
-	if err != nil || !deleteErrorResult.Success {
-		t.Fatalf("DeleteErrorMessage() = %#v, %v", deleteErrorResult, err)
-	}
+	testassert.NoError(t, err, "DeleteErrorMessage()")
+	testassert.True(t, deleteErrorResult.Success, "error message deletion should succeed")
 
 	postTitle := " Alpha "
 	postSummary := " Summary "
@@ -1517,23 +1576,23 @@ func TestAdminMutationManagementResolvers(t *testing.T) {
 		CategoryID:    &postCategoryID,
 		TopicIds:      []string{" topic-1 ", " ", "topic-2"},
 	})
-	if err != nil || updateMetadataResult == nil || updateMetadataResult.ID != "post-1" {
-		t.Fatalf("UpdateContentPostMetadata() = %#v, %v", updateMetadataResult, err)
-	}
+	testassert.NoError(t, err, "UpdateContentPostMetadata()")
+	testassert.NotNil(t, updateMetadataResult, "updated post metadata should be returned")
+	testassert.Equal(t, updateMetadataResult.ID, "post-1", "updated post metadata ID")
 
 	updateContentResult, err := mutationResolver.UpdateContentPostContent(ctx, model.AdminUpdateContentPostContentInput{
 		Locale:  " tr ",
 		ID:      " post-1 ",
 		Content: "Body",
 	})
-	if err != nil || updateContentResult == nil || updateContentResult.Content == nil || *updateContentResult.Content != "Body" {
-		t.Fatalf("UpdateContentPostContent() = %#v, %v", updateContentResult, err)
-	}
+	testassert.NoError(t, err, "UpdateContentPostContent()")
+	testassert.NotNil(t, updateContentResult, "updated post content should be returned")
+	testassert.NotNil(t, updateContentResult.Content, "updated content body should be returned")
+	testassert.Equal(t, *updateContentResult.Content, "Body", "updated content body")
 
 	deleteContentPostResult, err := mutationResolver.DeleteContentPost(ctx, model.AdminContentEntityKeyInput{Locale: " tr ", ID: " post-1 "})
-	if err != nil || !deleteContentPostResult.Success {
-		t.Fatalf("DeleteContentPost() = %#v, %v", deleteContentPostResult, err)
-	}
+	testassert.NoError(t, err, "DeleteContentPost()")
+	testassert.True(t, deleteContentPostResult.Success, "content post deletion should succeed")
 
 	createTopicResult, err := mutationResolver.CreateContentTopic(ctx, model.AdminContentTopicInput{
 		Locale: " tr ",
@@ -1542,9 +1601,9 @@ func TestAdminMutationManagementResolvers(t *testing.T) {
 		Color:  " #fff ",
 		Link:   urlPtr(" https://example.com/topic "),
 	})
-	if err != nil || createTopicResult == nil || createTopicResult.ID != "topic-1" {
-		t.Fatalf("CreateContentTopic() = %#v, %v", createTopicResult, err)
-	}
+	testassert.NoError(t, err, "CreateContentTopic()")
+	testassert.NotNil(t, createTopicResult, "created topic should be returned")
+	testassert.Equal(t, createTopicResult.ID, "topic-1", "created topic ID")
 
 	updateTopicResult, err := mutationResolver.UpdateContentTopic(ctx, model.AdminContentTopicInput{
 		Locale: " tr ",
@@ -1553,14 +1612,13 @@ func TestAdminMutationManagementResolvers(t *testing.T) {
 		Color:  " #fff ",
 		Link:   urlPtr(" https://example.com/topic "),
 	})
-	if err != nil || updateTopicResult == nil || updateTopicResult.ID != "topic-1" {
-		t.Fatalf("UpdateContentTopic() = %#v, %v", updateTopicResult, err)
-	}
+	testassert.NoError(t, err, "UpdateContentTopic()")
+	testassert.NotNil(t, updateTopicResult, "updated topic should be returned")
+	testassert.Equal(t, updateTopicResult.ID, "topic-1", "updated topic ID")
 
 	deleteTopicResult, err := mutationResolver.DeleteContentTopic(ctx, model.AdminContentEntityKeyInput{Locale: " tr ", ID: " topic-1 "})
-	if err != nil || !deleteTopicResult.Success {
-		t.Fatalf("DeleteContentTopic() = %#v, %v", deleteTopicResult, err)
-	}
+	testassert.NoError(t, err, "DeleteContentTopic()")
+	testassert.True(t, deleteTopicResult.Success, "topic deletion should succeed")
 
 	categoryIcon := " tag "
 	createCategoryResult, err := mutationResolver.CreateContentCategory(ctx, model.AdminContentCategoryInput{
@@ -1571,9 +1629,9 @@ func TestAdminMutationManagementResolvers(t *testing.T) {
 		Icon:   &categoryIcon,
 		Link:   urlPtr(" https://example.com/category "),
 	})
-	if err != nil || createCategoryResult == nil || createCategoryResult.ID != "category-1" {
-		t.Fatalf("CreateContentCategory() = %#v, %v", createCategoryResult, err)
-	}
+	testassert.NoError(t, err, "CreateContentCategory()")
+	testassert.NotNil(t, createCategoryResult, "created category should be returned")
+	testassert.Equal(t, createCategoryResult.ID, "category-1", "created category ID")
 
 	updateCategoryResult, err := mutationResolver.UpdateContentCategory(ctx, model.AdminContentCategoryInput{
 		Locale: " tr ",
@@ -1583,14 +1641,13 @@ func TestAdminMutationManagementResolvers(t *testing.T) {
 		Icon:   &categoryIcon,
 		Link:   urlPtr(" https://example.com/category "),
 	})
-	if err != nil || updateCategoryResult == nil || updateCategoryResult.ID != "category-1" {
-		t.Fatalf("UpdateContentCategory() = %#v, %v", updateCategoryResult, err)
-	}
+	testassert.NoError(t, err, "UpdateContentCategory()")
+	testassert.NotNil(t, updateCategoryResult, "updated category should be returned")
+	testassert.Equal(t, updateCategoryResult.ID, "category-1", "updated category ID")
 
 	deleteCategoryResult, err := mutationResolver.DeleteContentCategory(ctx, model.AdminContentEntityKeyInput{Locale: " tr ", ID: " category-1 "})
-	if err != nil || !deleteCategoryResult.Success {
-		t.Fatalf("DeleteContentCategory() = %#v, %v", deleteCategoryResult, err)
-	}
+	testassert.NoError(t, err, "DeleteContentCategory()")
+	testassert.True(t, deleteCategoryResult.Success, "category deletion should succeed")
 }
 
 func issueAdminRefreshSessionTokenForTest(t *testing.T, sessionID string) string {

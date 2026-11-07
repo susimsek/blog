@@ -118,7 +118,7 @@ export default function AdminChrome({ children }: Readonly<AdminChromeProps>) {
         expand="lg"
         expanded={isNavExpanded}
         onToggle={(expanded: boolean) => setIsNavExpanded(Boolean(expanded))}
-        className={`shadow-sm sticky-top p-2${isNavExpanded ? ' is-mobile-nav-expanded' : ''}`}
+        className={`theme-shadow-sm sticky-top p-2${isNavExpanded ? ' is-mobile-nav-expanded' : ''}`}
       >
         {showSidebarToggle ? (
           <button

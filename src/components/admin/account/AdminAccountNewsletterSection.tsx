@@ -222,7 +222,7 @@ export default function AdminAccountNewsletterSection({
           <div className="pt-3">
             {newsletterFeedback}
             <div className="admin-account-section-stack">
-              <section className="card border shadow-sm admin-newsletter-panel">
+              <section className="card border theme-shadow-sm admin-newsletter-panel">
                 <div className="card-body p-4">
                   <div className="admin-newsletter-operations-layout">
                     <div className="admin-newsletter-operations-copy">
@@ -301,7 +301,7 @@ export default function AdminAccountNewsletterSection({
                 </div>
               </section>
 
-              <section className="card border shadow-sm admin-newsletter-panel">
+              <section className="card border theme-shadow-sm admin-newsletter-panel">
                 <div className="card-body p-4">
                   <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-3">
                     <div>
@@ -359,7 +359,7 @@ export default function AdminAccountNewsletterSection({
                 </div>
               </section>
 
-              <section className="card border shadow-sm admin-newsletter-panel">
+              <section className="card border theme-shadow-sm admin-newsletter-panel">
                 <div className="card-body p-4">
                   <h4 className="admin-dashboard-panel-title mb-2">
                     {t('adminAccount.newsletter.campaigns.title', { ns: 'admin-account' })}
@@ -531,7 +531,7 @@ export default function AdminAccountNewsletterSection({
           <div className="pt-3">
             {newsletterFeedback}
             <div className="d-grid gap-3">
-              <div className="card shadow-sm d-block">
+              <div className="card theme-shadow-sm d-block">
                 <div className="card-body p-3 w-100">
                   <div className="row g-3">
                     <div className="col-12 col-md-4">
@@ -620,7 +620,7 @@ export default function AdminAccountNewsletterSection({
                 </div>
               </div>
 
-              <div ref={newsletterListTopRef} className="card shadow-sm d-block">
+              <div ref={newsletterListTopRef} className="card theme-shadow-sm d-block">
                 <div className="card-body p-3 w-100">
                   <div className="mb-3">
                     <div>

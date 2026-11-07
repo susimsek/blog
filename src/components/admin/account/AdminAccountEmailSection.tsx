@@ -16,7 +16,7 @@ type AdminAccountEmailSectionProps = {
   pendingEmail: string;
   emailErrorMessage: string;
   emailSuccessMessage: string;
-  handleEmailSubmit: React.FormEventHandler<HTMLFormElement>;
+  handleEmailSubmit: (event: React.SubmitEvent<HTMLFormElement>) => void;
   emailInput: string;
   onEmailInputChange: (value: string) => void;
   onEmailInputBlur: () => void;

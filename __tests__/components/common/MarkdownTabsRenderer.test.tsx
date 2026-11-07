@@ -100,7 +100,7 @@ describe('TabsRenderer', () => {
 
     const elements = screen.getAllByText(content => content.includes('println("Hello, World!")'));
 
-    expect(elements.length).toBe(2);
+    expect(elements).toHaveLength(2);
     expect(elements[0]).toBeVisible();
     expect(elements[1]).toBeVisible();
   });
@@ -120,7 +120,7 @@ describe('TabsRenderer', () => {
 
     // Ensure the tab renders but with an empty title
     const tabs = screen.queryAllByRole('tab');
-    expect(tabs.length).toBe(1); // Only one tab should render
+    expect(tabs).toHaveLength(1); // Only one tab should render
     expect(tabs[0].textContent).toBe(''); // Tab title should be empty
   });
 });

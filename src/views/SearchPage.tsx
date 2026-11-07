@@ -2,7 +2,6 @@
 
 import React from 'react';
 import PostList from '@/components/posts/PostList';
-import type { PostSummary, Topic } from '@/types/posts';
 import Layout from '@/components/common/Layout';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'next/navigation';

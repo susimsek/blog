@@ -108,6 +108,16 @@ type AdminContentPostMetadataFields struct {
 	ScheduledAt   time.Time
 }
 
+type AdminContentPostMetadataUpdate struct {
+	Locale        string
+	PostID        string
+	Fields        AdminContentPostMetadataFields
+	Category      *AdminContentCategoryRecord
+	Topics        []AdminContentTopicRecord
+	RevisionStamp *AdminContentPostRevisionStamp
+	Now           time.Time
+}
+
 type AdminContentPostContentInput struct {
 	Locale  string
 	ID      string

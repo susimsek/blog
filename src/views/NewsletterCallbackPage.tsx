@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Layout from '@/components/common/Layout';
 import Link from '@/components/common/Link';
-import type { LayoutPostSummary, Topic } from '@/types/posts';
 import type { Localized } from '@/i18n/settings';
 import type { LayoutPageData } from '@/lib/localizedPageData';
 import { useLocalizedContent } from '@/i18n/useLocalizedContent';

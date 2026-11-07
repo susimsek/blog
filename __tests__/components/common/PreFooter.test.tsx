@@ -321,8 +321,12 @@ describe('PreFooter', () => {
     });
   });
 
-  it('shows rate-limited message when api responds with rate-limited status', async () => {
-    subscribeNewsletterMock.mockResolvedValue({ status: 'rate-limited' });
+  it.each([
+    { status: 'rate-limited', message: 'common.preFooter.newsletter.errors.rateLimited' },
+    { status: 'invalid-email', message: 'common.preFooter.newsletter.errors.invalidEmail' },
+    { status: 'unknown-error', message: 'common.preFooter.newsletter.errors.generic' },
+  ] as const)('shows the $status newsletter error', async ({ status, message }) => {
+    subscribeNewsletterMock.mockResolvedValue({ status });
 
     render(<PreFooter posts={[]} topics={[]} />);
 
@@ -331,33 +335,7 @@ describe('PreFooter', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'common.preFooter.newsletter.submit' }));
 
-    expect(await screen.findByText('common.preFooter.newsletter.errors.rateLimited')).toBeInTheDocument();
-  });
-
-  it('shows invalid-email server error message when api returns invalid-email status', async () => {
-    subscribeNewsletterMock.mockResolvedValue({ status: 'invalid-email' });
-
-    render(<PreFooter posts={[]} topics={[]} />);
-
-    fireEvent.change(screen.getByLabelText('common.preFooter.newsletter.emailLabel'), {
-      target: { value: 'reader@example.com' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'common.preFooter.newsletter.submit' }));
-
-    expect(await screen.findByText('common.preFooter.newsletter.errors.invalidEmail')).toBeInTheDocument();
-  });
-
-  it('shows generic error when api returns unknown-error status', async () => {
-    subscribeNewsletterMock.mockResolvedValue({ status: 'unknown-error' });
-
-    render(<PreFooter posts={[]} topics={[]} />);
-
-    fireEvent.change(screen.getByLabelText('common.preFooter.newsletter.emailLabel'), {
-      target: { value: 'reader@example.com' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'common.preFooter.newsletter.submit' }));
-
-    expect(await screen.findByText('common.preFooter.newsletter.errors.generic')).toBeInTheDocument();
+    expect(await screen.findByText(message)).toBeInTheDocument();
   });
 
   it('shows generic error when api is unreachable', async () => {

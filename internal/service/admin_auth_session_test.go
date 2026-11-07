@@ -3,13 +3,13 @@ package service
 import (
 	"context"
 	"errors"
-	"strings"
 	"testing"
 	"time"
 
 	appconfig "suaybsimsek.com/blog-api/internal/config"
 	"suaybsimsek.com/blog-api/internal/domain"
 	"suaybsimsek.com/blog-api/internal/repository"
+	"suaybsimsek.com/blog-api/internal/testassert"
 	"suaybsimsek.com/blog-api/pkg/httpauth"
 
 	"golang.org/x/crypto/bcrypt"
@@ -788,9 +788,8 @@ func TestAdminAuthSessionErrorPaths(t *testing.T) {
 			adminAuthEmailChangeStubUserRepository: newAdminAuthEmailChangeStubUserRepository(nil),
 		}
 
-		if _, err := LoginAdmin(context.Background(), "missing@example.com", "password", false, AdminSessionMetadata{}); err == nil || !strings.Contains(err.Error(), "invalid credentials") {
-			t.Fatalf("expected invalid credentials error, got %v", err)
-		}
+		_, loginErr := LoginAdmin(context.Background(), "missing@example.com", "password", false, AdminSessionMetadata{})
+		testassert.ErrorContains(t, loginErr, "invalid credentials")
 	})
 
 	t.Run("RefreshAdminSession rejects missing persisted session", func(t *testing.T) {
@@ -809,9 +808,7 @@ func TestAdminAuthSessionErrorPaths(t *testing.T) {
 			IssuedAt:        time.Now().Add(-time.Minute).Unix(),
 			ExpiresAt:       time.Now().Add(time.Hour).Unix(),
 		}, "admin-secret")
-		if err != nil {
-			t.Fatalf("IssueHS256JWT returned error: %v", err)
-		}
+		testassert.NoError(t, err, "IssueHS256JWT")
 
 		adminRefreshTokensRepository = adminAuthSessionStubRefreshRepository{
 			findActiveByToken: func(context.Context, string, string, time.Time) (*domain.AdminRefreshTokenRecord, error) {
@@ -819,15 +816,12 @@ func TestAdminAuthSessionErrorPaths(t *testing.T) {
 			},
 		}
 
-		if _, err := RefreshAdminSession(context.Background(), refreshToken, AdminSessionMetadata{}); err == nil || !strings.Contains(err.Error(), "invalid admin session") {
-			t.Fatalf("expected invalid session error, got %v", err)
-		}
+		_, refreshErr := RefreshAdminSession(context.Background(), refreshToken, AdminSessionMetadata{})
+		testassert.ErrorContains(t, refreshErr, "invalid admin session")
 	})
 
 	t.Run("LogoutAdmin ignores invalid token", func(t *testing.T) {
-		if err := LogoutAdmin(context.Background(), "not-a-jwt"); err != nil {
-			t.Fatalf("expected invalid token to be ignored, got %v", err)
-		}
+		testassert.NoError(t, LogoutAdmin(context.Background(), "not-a-jwt"), "LogoutAdmin should ignore invalid token")
 	})
 
 	t.Run("ChangeAdminPassword validates auth and password rules", func(t *testing.T) {
@@ -837,9 +831,7 @@ func TestAdminAuthSessionErrorPaths(t *testing.T) {
 		})
 
 		passwordHashBytes, err := bcrypt.GenerateFromPassword([]byte("current-password"), bcrypt.DefaultCost)
-		if err != nil {
-			t.Fatalf("GenerateFromPassword returned error: %v", err)
-		}
+		testassert.NoError(t, err, "GenerateFromPassword")
 
 		adminUsersRepository = &adminAuthSessionStubUserRepository{
 			adminAuthEmailChangeStubUserRepository: newAdminAuthEmailChangeStubUserRepository(&domain.AdminUserRecord{
@@ -848,18 +840,10 @@ func TestAdminAuthSessionErrorPaths(t *testing.T) {
 			}),
 		}
 
-		if err := ChangeAdminPassword(context.Background(), nil, "current-password", "next-password", "next-password"); err == nil || !strings.Contains(err.Error(), adminAuthRequiredMessage) {
-			t.Fatalf("expected auth error, got %v", err)
-		}
-		if err := ChangeAdminPassword(context.Background(), &domain.AdminUser{ID: "admin-1"}, "current-password", "short", "short"); err == nil || !strings.Contains(err.Error(), "at least 8 characters") {
-			t.Fatalf("expected length error, got %v", err)
-		}
-		if err := ChangeAdminPassword(context.Background(), &domain.AdminUser{ID: "admin-1"}, "current-password", "next-password", "different"); err == nil || !strings.Contains(err.Error(), "does not match") {
-			t.Fatalf("expected confirmation error, got %v", err)
-		}
-		if err := ChangeAdminPassword(context.Background(), &domain.AdminUser{ID: "admin-1"}, "current-password", "current-password", "current-password"); err == nil || !strings.Contains(err.Error(), "must be different") {
-			t.Fatalf("expected same password error, got %v", err)
-		}
+		testassert.ErrorContains(t, ChangeAdminPassword(context.Background(), nil, "current-password", "next-password", "next-password"), adminAuthRequiredMessage)
+		testassert.ErrorContains(t, ChangeAdminPassword(context.Background(), &domain.AdminUser{ID: "admin-1"}, "current-password", "short", "short"), "at least 8 characters")
+		testassert.ErrorContains(t, ChangeAdminPassword(context.Background(), &domain.AdminUser{ID: "admin-1"}, "current-password", "next-password", "different"), "does not match")
+		testassert.ErrorContains(t, ChangeAdminPassword(context.Background(), &domain.AdminUser{ID: "admin-1"}, "current-password", "current-password", "current-password"), "must be different")
 	})
 }
 
@@ -971,9 +955,8 @@ func TestAdminAuthHelperAndSessionErrorPaths(t *testing.T) {
 			adminUsersRepository = previousUsersRepo
 		})
 
-		if _, err := LoginAdmin(context.Background(), "admin@example.com", "password", false, AdminSessionMetadata{}); err == nil || !strings.Contains(err.Error(), "admin jwt is not configured") {
-			t.Fatalf("expected jwt config error, got %v", err)
-		}
+		_, configErr := LoginAdmin(context.Background(), "admin@example.com", "password", false, AdminSessionMetadata{})
+		testassert.ErrorContains(t, configErr, "admin jwt is not configured")
 
 		t.Setenv("JWT_SECRET", "admin-secret")
 		adminUsersRepository = &adminAuthSessionStubUserRepository{
@@ -982,9 +965,8 @@ func TestAdminAuthHelperAndSessionErrorPaths(t *testing.T) {
 				return nil, errors.New("db down")
 			},
 		}
-		if _, err := LoginAdmin(context.Background(), "admin@example.com", "password", false, AdminSessionMetadata{}); err == nil || !strings.Contains(err.Error(), adminLoadAdminUserMessage) {
-			t.Fatalf("expected load admin user error, got %v", err)
-		}
+		_, loadErr := LoginAdmin(context.Background(), "admin@example.com", "password", false, AdminSessionMetadata{})
+		testassert.ErrorContains(t, loadErr, adminLoadAdminUserMessage)
 	})
 
 	t.Run("refresh session maps repository and user validation failures", func(t *testing.T) {
@@ -1007,9 +989,7 @@ func TestAdminAuthHelperAndSessionErrorPaths(t *testing.T) {
 				IssuedAt:        time.Now().Add(-time.Minute).Unix(),
 				ExpiresAt:       time.Now().Add(time.Hour).Unix(),
 			}, "admin-secret")
-			if err != nil {
-				t.Fatalf("IssueHS256JWT returned error: %v", err)
-			}
+			testassert.NoError(t, err, "IssueHS256JWT")
 			return token
 		}
 
@@ -1060,24 +1040,18 @@ func TestAdminAuthHelperAndSessionErrorPaths(t *testing.T) {
 			},
 		}
 
-		if _, err := RefreshAdminSession(context.Background(), makeToken("repo-error", 3), AdminSessionMetadata{}); err == nil || !strings.Contains(err.Error(), "admin session storage is unavailable") {
-			t.Fatalf("expected session storage error, got %v", err)
-		}
-		if _, err := RefreshAdminSession(context.Background(), makeToken("empty-user", 3), AdminSessionMetadata{}); err == nil || !strings.Contains(err.Error(), "invalid admin session") {
-			t.Fatalf("expected invalid session for empty user id, got %v", err)
-		}
-		if _, err := RefreshAdminSession(context.Background(), makeToken("user-error", 3), AdminSessionMetadata{}); err == nil || !strings.Contains(err.Error(), adminLoadAdminUserMessage) {
-			t.Fatalf("expected load admin user error, got %v", err)
-		}
-		if _, err := RefreshAdminSession(context.Background(), makeToken("user-missing", 3), AdminSessionMetadata{}); err == nil || !strings.Contains(err.Error(), "invalid admin session") {
-			t.Fatalf("expected invalid session for missing user, got %v", err)
-		}
-		if _, err := RefreshAdminSession(context.Background(), makeToken("password-mismatch", 3), AdminSessionMetadata{}); err == nil || !strings.Contains(err.Error(), "invalid admin session") {
-			t.Fatalf("expected invalid session for password mismatch, got %v", err)
-		}
-		if _, err := RefreshAdminSession(context.Background(), makeToken("userid-mismatch", 3), AdminSessionMetadata{}); err == nil || !strings.Contains(err.Error(), "invalid admin session") {
-			t.Fatalf("expected invalid session for user id mismatch, got %v", err)
-		}
+		_, err := RefreshAdminSession(context.Background(), makeToken("repo-error", 3), AdminSessionMetadata{})
+		testassert.ErrorContains(t, err, "admin session storage is unavailable")
+		_, err = RefreshAdminSession(context.Background(), makeToken("empty-user", 3), AdminSessionMetadata{})
+		testassert.ErrorContains(t, err, "invalid admin session")
+		_, err = RefreshAdminSession(context.Background(), makeToken("user-error", 3), AdminSessionMetadata{})
+		testassert.ErrorContains(t, err, adminLoadAdminUserMessage)
+		_, err = RefreshAdminSession(context.Background(), makeToken("user-missing", 3), AdminSessionMetadata{})
+		testassert.ErrorContains(t, err, "invalid admin session")
+		_, err = RefreshAdminSession(context.Background(), makeToken("password-mismatch", 3), AdminSessionMetadata{})
+		testassert.ErrorContains(t, err, "invalid admin session")
+		_, err = RefreshAdminSession(context.Background(), makeToken("userid-mismatch", 3), AdminSessionMetadata{})
+		testassert.ErrorContains(t, err, "invalid admin session")
 	})
 
 	t.Run("logout and session helpers map repository failures", func(t *testing.T) {
@@ -1095,9 +1069,7 @@ func TestAdminAuthHelperAndSessionErrorPaths(t *testing.T) {
 			IssuedAt:  time.Now().Add(-time.Minute).Unix(),
 			ExpiresAt: time.Now().Add(time.Hour).Unix(),
 		}, "admin-secret")
-		if err != nil {
-			t.Fatalf("IssueHS256JWT returned error: %v", err)
-		}
+		testassert.NoError(t, err, "IssueHS256JWT")
 
 		adminRefreshTokensRepository = adminAuthSessionStubRefreshRepository{
 			revokeByJTI: func(context.Context, string, time.Time) error {
@@ -1114,28 +1086,19 @@ func TestAdminAuthHelperAndSessionErrorPaths(t *testing.T) {
 			},
 		}
 
-		if err := LogoutAdmin(context.Background(), refreshToken); err == nil || !strings.Contains(err.Error(), "admin session storage is unavailable") {
-			t.Fatalf("expected logout storage error, got %v", err)
-		}
-		if _, err := ListActiveAdminSessions(context.Background(), &domain.AdminUser{ID: "admin-1"}); err == nil || !strings.Contains(err.Error(), "admin session storage is unavailable") {
-			t.Fatalf("expected list sessions storage error, got %v", err)
-		}
-		if _, err := RevokeAdminSession(context.Background(), &domain.AdminUser{ID: "admin-1"}, " "); err == nil || !strings.Contains(err.Error(), "session id is required") {
-			t.Fatalf("expected session id required error, got %v", err)
-		}
-		if _, err := RevokeAdminSession(context.Background(), &domain.AdminUser{ID: "admin-1"}, "session-1"); err == nil || !strings.Contains(err.Error(), "admin session storage is unavailable") {
-			t.Fatalf("expected revoke session storage error, got %v", err)
-		}
-		if err := RevokeAllAdminSessions(context.Background(), &domain.AdminUser{ID: "admin-1"}); err == nil || !strings.Contains(err.Error(), "admin session storage is unavailable") {
-			t.Fatalf("expected revoke all storage error, got %v", err)
-		}
+		testassert.ErrorContains(t, LogoutAdmin(context.Background(), refreshToken), "admin session storage is unavailable")
+		_, err = ListActiveAdminSessions(context.Background(), &domain.AdminUser{ID: "admin-1"})
+		testassert.ErrorContains(t, err, "admin session storage is unavailable")
+		_, err = RevokeAdminSession(context.Background(), &domain.AdminUser{ID: "admin-1"}, " ")
+		testassert.ErrorContains(t, err, "session id is required")
+		_, err = RevokeAdminSession(context.Background(), &domain.AdminUser{ID: "admin-1"}, "session-1")
+		testassert.ErrorContains(t, err, "admin session storage is unavailable")
+		testassert.ErrorContains(t, RevokeAllAdminSessions(context.Background(), &domain.AdminUser{ID: "admin-1"}), "admin session storage is unavailable")
 	})
 
 	t.Run("helper functions map user and password failures", func(t *testing.T) {
 		passwordHashBytes, err := bcrypt.GenerateFromPassword([]byte("current-password"), bcrypt.DefaultCost)
-		if err != nil {
-			t.Fatalf("GenerateFromPassword returned error: %v", err)
-		}
+		testassert.NoError(t, err, "GenerateFromPassword")
 
 		previousUsersRepo := adminUsersRepository
 		t.Cleanup(func() {
@@ -1159,21 +1122,14 @@ func TestAdminAuthHelperAndSessionErrorPaths(t *testing.T) {
 			},
 		}
 
-		if _, err := loadAdminUserRecord(context.Background(), "error"); err == nil || !strings.Contains(err.Error(), adminLoadAdminUserMessage) {
-			t.Fatalf("expected load user error, got %v", err)
-		}
-		if _, err := loadAdminUserRecord(context.Background(), "missing"); err == nil || !strings.Contains(err.Error(), adminAuthRequiredMessage) {
-			t.Fatalf("expected auth required from missing user, got %v", err)
-		}
-		if _, err := reloadAdminUser(context.Background(), "error"); err == nil || !strings.Contains(err.Error(), adminLoadAdminUserMessage) {
-			t.Fatalf("expected reload user error, got %v", err)
-		}
-		if err := validateAdminCurrentPassword(&domain.AdminUserRecord{PasswordHash: string(passwordHashBytes)}, "wrong-password"); err == nil || !strings.Contains(err.Error(), adminCurrentPasswordIncorrectMessage) {
-			t.Fatalf("expected current password validation error, got %v", err)
-		}
-		if err := validateAdminCurrentPassword(&domain.AdminUserRecord{PasswordHash: string(passwordHashBytes)}, "current-password"); err != nil {
-			t.Fatalf("expected valid current password, got %v", err)
-		}
+		_, err = loadAdminUserRecord(context.Background(), "error")
+		testassert.ErrorContains(t, err, adminLoadAdminUserMessage)
+		_, err = loadAdminUserRecord(context.Background(), "missing")
+		testassert.ErrorContains(t, err, adminAuthRequiredMessage)
+		_, err = reloadAdminUser(context.Background(), "error")
+		testassert.ErrorContains(t, err, adminLoadAdminUserMessage)
+		testassert.ErrorContains(t, validateAdminCurrentPassword(&domain.AdminUserRecord{PasswordHash: string(passwordHashBytes)}, "wrong-password"), adminCurrentPasswordIncorrectMessage)
+		testassert.NoError(t, validateAdminCurrentPassword(&domain.AdminUserRecord{PasswordHash: string(passwordHashBytes)}, "current-password"), "valid current password")
 	})
 
 	t.Run("change name delete account and issue tokens error paths", func(t *testing.T) {
@@ -1187,9 +1143,7 @@ func TestAdminAuthHelperAndSessionErrorPaths(t *testing.T) {
 		})
 
 		passwordHashBytes, err := bcrypt.GenerateFromPassword([]byte("current-password"), bcrypt.DefaultCost)
-		if err != nil {
-			t.Fatalf("GenerateFromPassword returned error: %v", err)
-		}
+		testassert.NoError(t, err, "GenerateFromPassword")
 
 		adminUsersRepository = &adminAuthSessionStubUserRepository{
 			adminAuthEmailChangeStubUserRepository: newAdminAuthEmailChangeStubUserRepository(&domain.AdminUserRecord{
@@ -1220,40 +1174,33 @@ func TestAdminAuthHelperAndSessionErrorPaths(t *testing.T) {
 			},
 		}
 
-		if _, err := ChangeAdminName(context.Background(), &domain.AdminUser{ID: "admin-1"}, "Valid Name"); err == nil || !strings.Contains(err.Error(), adminAuthRequiredMessage) {
-			t.Fatalf("expected unauthorized from change name update, got %v", err)
-		}
-		if err := DeleteAdminAccount(context.Background(), &domain.AdminUser{ID: "admin-1"}, "current-password"); err == nil || !strings.Contains(err.Error(), adminAuthRequiredMessage) {
-			t.Fatalf("expected unauthorized from disable not found, got %v", err)
-		}
+		_, err = ChangeAdminName(context.Background(), &domain.AdminUser{ID: "admin-1"}, "Valid Name")
+		testassert.ErrorContains(t, err, adminAuthRequiredMessage)
+		testassert.ErrorContains(t, DeleteAdminAccount(context.Background(), &domain.AdminUser{ID: "admin-1"}, "current-password"), adminAuthRequiredMessage)
 
 		config := appconfig.ResolveAdminConfig()
-		if _, err := issueAdminTokens(context.Background(), config, &domain.AdminUserRecord{}, "", false, AdminSessionMetadata{}); err == nil || !strings.Contains(err.Error(), "admin id is not configured") {
-			t.Fatalf("expected admin id config error, got %v", err)
-		}
-		if _, err := issueAdminTokens(context.Background(), config, &domain.AdminUserRecord{
+		_, tokenErr := issueAdminTokens(context.Background(), config, &domain.AdminUserRecord{}, "", false, AdminSessionMetadata{})
+		testassert.ErrorContains(t, tokenErr, "admin id is not configured")
+		_, tokenErr = issueAdminTokens(context.Background(), config, &domain.AdminUserRecord{
 			AdminUser:       domain.AdminUser{ID: "admin-1", Email: "admin@example.com"},
 			PasswordVersion: 2,
-		}, "", false, AdminSessionMetadata{}); err == nil || !strings.Contains(err.Error(), "admin session storage is unavailable") {
-			t.Fatalf("expected token create storage error, got %v", err)
-		}
-		if _, err := issueAdminTokens(context.Background(), config, &domain.AdminUserRecord{
+		}, "", false, AdminSessionMetadata{})
+		testassert.ErrorContains(t, tokenErr, "admin session storage is unavailable")
+		_, tokenErr = issueAdminTokens(context.Background(), config, &domain.AdminUserRecord{
 			AdminUser:       domain.AdminUser{ID: "admin-1", Email: "admin@example.com"},
 			PasswordVersion: 2,
-		}, "current-jti", true, AdminSessionMetadata{}); err == nil || !strings.Contains(err.Error(), "invalid admin session") {
-			t.Fatalf("expected rotate invalid session error, got %v", err)
-		}
+		}, "current-jti", true, AdminSessionMetadata{})
+		testassert.ErrorContains(t, tokenErr, "invalid admin session")
 
 		adminRefreshTokensRepository = adminAuthSessionStubRefreshRepository{
 			rotate: func(context.Context, string, domain.AdminRefreshTokenRecord, time.Time) error {
 				return repository.ErrAdminRefreshTokenRepositoryUnavailable
 			},
 		}
-		if _, err := issueAdminTokens(context.Background(), config, &domain.AdminUserRecord{
+		_, tokenErr = issueAdminTokens(context.Background(), config, &domain.AdminUserRecord{
 			AdminUser:       domain.AdminUser{ID: "admin-1", Email: "admin@example.com"},
 			PasswordVersion: 2,
-		}, "current-jti", true, AdminSessionMetadata{}); err == nil || !strings.Contains(err.Error(), "admin session storage is unavailable") {
-			t.Fatalf("expected rotate storage error, got %v", err)
-		}
+		}, "current-jti", true, AdminSessionMetadata{})
+		testassert.ErrorContains(t, tokenErr, "admin session storage is unavailable")
 	})
 }

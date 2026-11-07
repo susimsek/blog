@@ -596,16 +596,18 @@ export default function AdminContentPostMetadataTab({
             </Alert>
           ) : null}
 
-          {isPostRevisionsLoading ? (
+          {isPostRevisionsLoading && (
             <div className="d-flex align-items-center gap-2 theme-text-muted small py-2">
               <Spinner animation="border" size="sm" />
               <span>{t('adminAccount.content.modals.post.revisions.loading', { ns: 'admin-account' })}</span>
             </div>
-          ) : postRevisions.length === 0 ? (
+          )}
+          {!isPostRevisionsLoading && postRevisions.length === 0 && (
             <p className="small theme-text-muted mb-0">
               {t('adminAccount.content.modals.post.revisions.empty', { ns: 'admin-account' })}
             </p>
-          ) : (
+          )}
+          {!isPostRevisionsLoading && postRevisions.length !== 0 && (
             <div className="d-grid gap-3">
               {postRevisions.map(revision => (
                 <div key={revision.id} className="border rounded-3 p-3">

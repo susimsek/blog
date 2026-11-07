@@ -30,6 +30,149 @@ type CommentFormProps = {
   variant?: 'composer' | 'reply';
 };
 
+type CommentFormTranslate = ReturnType<typeof useTranslation>['t'];
+
+const CommentReplyBanner = ({
+  replyToName,
+  onCancel,
+  cancelLabel,
+  isSubmitting,
+  t,
+}: {
+  replyToName?: string;
+  onCancel?: () => void;
+  cancelLabel?: string;
+  isSubmitting: boolean;
+  t: CommentFormTranslate;
+}) => {
+  if (!replyToName) {
+    return null;
+  }
+
+  return (
+    <div className="post-comment-reply-banner">
+      <span className="post-comment-reply-banner-label">
+        <FontAwesomeIcon icon="comments" className="me-2" />
+        {t('post.comments.form.replyingTo', { name: replyToName })}
+      </span>
+      {onCancel && cancelLabel ? (
+        <Button
+          type="button"
+          variant="link"
+          onClick={onCancel}
+          disabled={isSubmitting}
+          className="post-comment-reply-banner-close"
+        >
+          {cancelLabel}
+        </Button>
+      ) : null}
+    </div>
+  );
+};
+
+const CommentGuestIdentityFields = ({
+  requiresGuestIdentity,
+  variant,
+  parentId,
+  formState,
+  viewer,
+  handleChange,
+  showFieldError,
+  validationErrors,
+  t,
+}: {
+  requiresGuestIdentity: boolean;
+  variant: 'composer' | 'reply';
+  parentId?: string;
+  formState: typeof INITIAL_FORM_STATE;
+  viewer?: CommentViewer | null;
+  handleChange: (field: CommentFormField) => React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+  showFieldError: (field: CommentFormField) => boolean;
+  validationErrors: ReturnType<typeof validateCommentForm>;
+  t: CommentFormTranslate;
+}) =>
+  requiresGuestIdentity ? (
+    <div className={`row ${variant === 'reply' ? 'g-2' : 'g-3'}`}>
+      <div className="col-12">
+        <Form.Group controlId={parentId ? `comment-reply-name-${parentId}` : 'comment-name'}>
+          <Form.Label className="post-comment-form-label">{t('post.comments.form.nameLabel')}</Form.Label>
+          <Form.Control
+            type="text"
+            value={formState.authorName}
+            onChange={handleChange('authorName')}
+            placeholder={t('post.comments.form.namePlaceholder')}
+            maxLength={80}
+            required
+            isInvalid={showFieldError('authorName')}
+            className="post-comment-form-control"
+          />
+          <Form.Control.Feedback type="invalid">{validationErrors.authorName}</Form.Control.Feedback>
+        </Form.Group>
+      </div>
+      <div className="col-12">
+        <Form.Group controlId={parentId ? `comment-reply-email-${parentId}` : 'comment-email'}>
+          <Form.Label className="post-comment-form-label">{t('post.comments.form.emailLabel')}</Form.Label>
+          <Form.Control
+            type="email"
+            value={formState.authorEmail}
+            onChange={handleChange('authorEmail')}
+            placeholder={t('post.comments.form.emailPlaceholder')}
+            maxLength={160}
+            required
+            isInvalid={showFieldError('authorEmail')}
+            className="post-comment-form-control"
+          />
+          <Form.Control.Feedback type="invalid">{validationErrors.authorEmail}</Form.Control.Feedback>
+        </Form.Group>
+      </div>
+    </div>
+  ) : (
+    <div className="post-comment-form-viewer-note">
+      <FontAwesomeIcon icon="circle-check" />
+      <span>{t('post.comments.form.viewerHelper', { name: viewer?.name ?? '' })}</span>
+    </div>
+  );
+
+const CommentFormActions = ({
+  isSubmitting,
+  submitLabel,
+  onCancel,
+  cancelLabel,
+  variant,
+  t,
+}: {
+  isSubmitting: boolean;
+  submitLabel: string;
+  onCancel?: () => void;
+  cancelLabel?: string;
+  variant: 'composer' | 'reply';
+  t: CommentFormTranslate;
+}) => (
+  <div className="post-comment-form-actions">
+    <Button type="submit" disabled={isSubmitting} className="post-comment-submit-button">
+      {isSubmitting ? (
+        <span className="d-inline-flex align-items-center gap-2">
+          <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+          <span>{t('post.comments.form.submitting')}</span>
+        </span>
+      ) : (
+        submitLabel
+      )}
+    </Button>
+    {onCancel && cancelLabel && variant !== 'reply' ? (
+      <Button
+        type="button"
+        variant="outline-secondary"
+        onClick={onCancel}
+        disabled={isSubmitting}
+        className="post-comment-cancel-button"
+      >
+        {cancelLabel}
+      </Button>
+    ) : null}
+  </div>
+);
+
 export default function CommentForm({
   // NOSONAR
   postId,
@@ -116,67 +259,27 @@ export default function CommentForm({
 
   return (
     <Form onSubmit={handleSubmit} className={`post-comment-form post-comment-form--${variant}`} noValidate>
-      {variant === 'reply' && replyToName ? (
-        <div className="post-comment-reply-banner">
-          <span className="post-comment-reply-banner-label">
-            <FontAwesomeIcon icon="comments" className="me-2" />
-            {t('post.comments.form.replyingTo', { name: replyToName })}
-          </span>
-          {onCancel && cancelLabel ? (
-            <Button
-              type="button"
-              variant="link"
-              onClick={onCancel}
-              disabled={isSubmitting}
-              className="post-comment-reply-banner-close"
-            >
-              {cancelLabel}
-            </Button>
-          ) : null}
-        </div>
+      {variant === 'reply' ? (
+        <CommentReplyBanner
+          replyToName={replyToName}
+          onCancel={onCancel}
+          cancelLabel={cancelLabel}
+          isSubmitting={isSubmitting}
+          t={t}
+        />
       ) : null}
 
-      {requiresGuestIdentity ? (
-        <div className={`row ${variant === 'reply' ? 'g-2' : 'g-3'}`}>
-          <div className="col-12">
-            <Form.Group controlId={parentId ? `comment-reply-name-${parentId}` : 'comment-name'}>
-              <Form.Label className="post-comment-form-label">{t('post.comments.form.nameLabel')}</Form.Label>
-              <Form.Control
-                type="text"
-                value={formState.authorName}
-                onChange={handleChange('authorName')}
-                placeholder={t('post.comments.form.namePlaceholder')}
-                maxLength={80}
-                required
-                isInvalid={showFieldError('authorName')}
-                className="post-comment-form-control"
-              />
-              <Form.Control.Feedback type="invalid">{validationErrors.authorName}</Form.Control.Feedback>
-            </Form.Group>
-          </div>
-          <div className="col-12">
-            <Form.Group controlId={parentId ? `comment-reply-email-${parentId}` : 'comment-email'}>
-              <Form.Label className="post-comment-form-label">{t('post.comments.form.emailLabel')}</Form.Label>
-              <Form.Control
-                type="email"
-                value={formState.authorEmail}
-                onChange={handleChange('authorEmail')}
-                placeholder={t('post.comments.form.emailPlaceholder')}
-                maxLength={160}
-                required
-                isInvalid={showFieldError('authorEmail')}
-                className="post-comment-form-control"
-              />
-              <Form.Control.Feedback type="invalid">{validationErrors.authorEmail}</Form.Control.Feedback>
-            </Form.Group>
-          </div>
-        </div>
-      ) : (
-        <div className="post-comment-form-viewer-note">
-          <FontAwesomeIcon icon="circle-check" />
-          <span>{t('post.comments.form.viewerHelper', { name: viewer.name })}</span>
-        </div>
-      )}
+      <CommentGuestIdentityFields
+        requiresGuestIdentity={requiresGuestIdentity}
+        variant={variant}
+        parentId={parentId}
+        formState={formState}
+        viewer={viewer}
+        handleChange={handleChange}
+        showFieldError={showFieldError}
+        validationErrors={validationErrors}
+        t={t}
+      />
 
       <Form.Group controlId={parentId ? `comment-reply-content-${parentId}` : 'comment-content'}>
         <Form.Label className="post-comment-form-label">{t('post.comments.form.contentLabel')}</Form.Label>
@@ -207,29 +310,14 @@ export default function CommentForm({
         </Alert>
       ) : null}
 
-      <div className="post-comment-form-actions">
-        <Button type="submit" disabled={isSubmitting} className="post-comment-submit-button">
-          {isSubmitting ? (
-            <span className="d-inline-flex align-items-center gap-2">
-              <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
-              <span>{t('post.comments.form.submitting')}</span>
-            </span>
-          ) : (
-            submitLabel
-          )}
-        </Button>
-        {onCancel && cancelLabel && variant !== 'reply' ? (
-          <Button
-            type="button"
-            variant="outline-secondary"
-            onClick={onCancel}
-            disabled={isSubmitting}
-            className="post-comment-cancel-button"
-          >
-            {cancelLabel}
-          </Button>
-        ) : null}
-      </div>
+      <CommentFormActions
+        isSubmitting={isSubmitting}
+        submitLabel={submitLabel}
+        onCancel={onCancel}
+        cancelLabel={cancelLabel}
+        variant={variant}
+        t={t}
+      />
     </Form>
   );
 }

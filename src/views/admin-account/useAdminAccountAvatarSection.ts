@@ -395,7 +395,7 @@ export default function useAdminAccountAvatarSection({
       }
 
       const activeDrag = avatarCropDragRef.current;
-      if (!activeDrag || activeDrag.pointerId !== event.pointerId) {
+      if (activeDrag?.pointerId !== event.pointerId) {
         return;
       }
 
@@ -412,7 +412,7 @@ export default function useAdminAccountAvatarSection({
 
   const endAvatarCropDrag = React.useCallback((event: React.PointerEvent<HTMLDivElement>) => {
     const activeDrag = avatarCropDragRef.current;
-    if (!activeDrag || activeDrag.pointerId !== event.pointerId) {
+    if (activeDrag?.pointerId !== event.pointerId) {
       return;
     }
 
@@ -468,7 +468,7 @@ export default function useAdminAccountAvatarSection({
 
     const handlePointerMove = (event: PointerEvent) => {
       const activeResize = avatarCropResizeRef.current;
-      if (!activeResize || activeResize.pointerID !== event.pointerId) {
+      if (activeResize?.pointerID !== event.pointerId) {
         return;
       }
 
@@ -486,7 +486,7 @@ export default function useAdminAccountAvatarSection({
 
     const handlePointerUp = (event: PointerEvent) => {
       const activeResize = avatarCropResizeRef.current;
-      if (!activeResize || activeResize.pointerID !== event.pointerId) {
+      if (activeResize?.pointerID !== event.pointerId) {
         return;
       }
 

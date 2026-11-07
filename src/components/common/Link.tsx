@@ -1,8 +1,7 @@
 import React, { ReactNode, MouseEvent, forwardRef } from 'react';
 import NextLink, { LinkProps } from 'next/link';
 import { useParams } from 'next/navigation';
-import i18nextConfig from '@/i18n/settings';
-import { defaultLocale, isSupportedLocale } from '@/i18n/settings';
+import i18nextConfig, { defaultLocale, isSupportedLocale } from '@/i18n/settings';
 
 interface LinkComponentProps extends Omit<LinkProps, 'href' | 'locale'> {
   children: ReactNode;
