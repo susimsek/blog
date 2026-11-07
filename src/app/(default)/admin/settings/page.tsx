@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: AdminSettingsPageProps): Prom
   });
 }
 
-export default async function AdminSettingsRoute({ params }: Readonly<AdminSettingsPageProps>) {
+export default function AdminSettingsRoute() {
   const locale = defaultLocale;
   redirect(withAdminLocalePath(locale, ADMIN_ROUTES.settings.profile));
 }

@@ -11,8 +11,8 @@ import useAutoClearValue from '@/hooks/useAutoClearValue';
 import { useLocale } from '@/i18n/useLocale';
 import { ADMIN_ROUTES, withAdminLocalePath } from '@/lib/adminRoutes';
 import { requestAdminPasswordReset, resolveAdminPasswordResetError } from '@/lib/adminPasswordResetApi';
+import { isValidEmail } from '@/lib/emailValidation';
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SUCCESS_MESSAGE_AUTO_HIDE_MS = 3500;
 
 const resolveEmailError = (email: string, t: ReturnType<typeof useTranslation>['t']) => {
@@ -20,7 +20,7 @@ const resolveEmailError = (email: string, t: ReturnType<typeof useTranslation>['
     return t('adminPasswordReset.request.validation.emailRequired');
   }
 
-  if (EMAIL_PATTERN.test(email) === false) {
+  if (isValidEmail(email) === false) {
     return t('adminPasswordReset.request.validation.emailInvalid');
   }
 

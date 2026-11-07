@@ -2,6 +2,7 @@
 
 import type { TFunction } from 'i18next';
 import type { AdminSessionProfile } from '@/lib/adminSessionProfileCache';
+import { isValidEmail } from '@/lib/emailValidation';
 
 export type AdminIdentity = AdminSessionProfile | null;
 export type AdminEmailErrorField = 'currentPassword' | 'newEmail' | 'generic';
@@ -23,13 +24,11 @@ export const MIN_USERNAME_LENGTH = 3;
 export const MAX_USERNAME_LENGTH = 32;
 export const DELETE_CONFIRMATION_VALUE = 'DELETE';
 export const USERNAME_PATTERN = /^[A-Za-z0-9._-]+$/;
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 export const resolveEmailValidationError = (email: string, profileEmail: string, translate: TFunction) => {
   if (email === '') {
     return translate('adminAccount.validation.emailRequired', { ns: 'admin-account' });
   }
-  if (!EMAIL_PATTERN.test(email)) {
+  if (!isValidEmail(email)) {
     return translate('adminAccount.validation.emailInvalid', { ns: 'admin-account' });
   }
   if (profileEmail === email) {

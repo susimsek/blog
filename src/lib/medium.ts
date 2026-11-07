@@ -11,7 +11,7 @@ type MediumItem = Parser.Item & {
 };
 
 const fsPromises = fs.promises;
-const fileExists = async (filePath: string) => fs.existsSync(filePath);
+const fileExists = (filePath: string) => fs.existsSync(filePath);
 
 const FEED_JSON_PATH = path.join(process.cwd(), 'content', 'external', 'medium-feed.json');
 
@@ -139,7 +139,7 @@ function getColorForTopic(topic: string): (typeof TOPIC_COLORS)[number] {
 
 export async function fetchRssSummaries(locale: string): Promise<PostSummary[]> {
   void locale;
-  if (!(await fileExists(FEED_JSON_PATH))) {
+  if (!fileExists(FEED_JSON_PATH)) {
     console.error(`Medium feed file not found: ${FEED_JSON_PATH}`);
     return [];
   }

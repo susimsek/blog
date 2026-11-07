@@ -1,5 +1,6 @@
-const normalizeBasePath = () =>
-  (process.env.NEXT_PUBLIC_BASE_PATH ?? '').replaceAll(/^\/+/g, '').replaceAll(/\/+$/g, '');
+import { stripLeadingSlashes, stripTrailingSlashes } from '@/lib/urlPath';
+
+const normalizeBasePath = () => stripTrailingSlashes(stripLeadingSlashes(process.env.NEXT_PUBLIC_BASE_PATH ?? ''));
 
 export const getBasePathPrefix = () => {
   const basePath = normalizeBasePath();

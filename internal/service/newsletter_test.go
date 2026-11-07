@@ -71,7 +71,10 @@ func TestHelpersAndRateLimiter(t *testing.T) {
 	}
 
 	limiter := newRateLimiter(2, time.Hour)
-	if !limiter.allow("127.0.0.1") || !limiter.allow("127.0.0.1") || limiter.allow("127.0.0.1") {
+	firstRequestAllowed := limiter.allow("127.0.0.1")
+	secondRequestAllowed := limiter.allow("127.0.0.1")
+	thirdRequestAllowed := limiter.allow("127.0.0.1")
+	if !firstRequestAllowed || !secondRequestAllowed || thirdRequestAllowed {
 		t.Fatal("unexpected rate limiter result")
 	}
 	if !limiter.allow("") {

@@ -23,8 +23,7 @@ import { useAppSelector } from '@/config/store';
 import AdminLoadingState from '@/components/admin/AdminLoadingState';
 import { ADMIN_ROUTES, withAdminLocalePath } from '@/lib/adminRoutes';
 import { writeAdminSessionProfileCache } from '@/lib/adminSessionProfileCache';
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { isValidEmail } from '@/lib/emailValidation';
 
 export default function AdminLoginPage() {
   // NOSONAR
@@ -56,7 +55,7 @@ export default function AdminLoginPage() {
   const emailError =
     trimmedEmail === ''
       ? t('adminLogin.validation.emailRequired', { ns: 'admin-login' })
-      : !EMAIL_PATTERN.test(trimmedEmail)
+      : !isValidEmail(trimmedEmail)
         ? t('adminLogin.validation.emailInvalid', { ns: 'admin-login' })
         : '';
   const passwordError =

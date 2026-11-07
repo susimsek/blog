@@ -3,6 +3,7 @@ import {
   resendNewsletterConfirmation as resendNewsletterConfirmationMutation,
   subscribeNewsletter as subscribeNewsletterMutation,
 } from '@/lib/newsletterApi';
+import { isValidEmail } from '@/lib/emailValidation';
 
 export type NewsletterErrorStatus = 'invalid-email' | 'rate-limited' | 'unknown-error' | 'unreachable-server';
 export type NewsletterClientErrorStatus = 'required' | 'invalid-email';
@@ -10,7 +11,6 @@ export type SubscriptionStatus = 'idle' | 'success' | 'resent' | 'error';
 
 const NEWSLETTER_FORM_NAME = 'preFooterNewsletter';
 const NEWSLETTER_TAGS = ['preFooterNewsletter'];
-const NEWSLETTER_EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const NEWSLETTER_REQUEST_TIMEOUT_MS = 8000;
 
 const mapNewsletterErrorStatus = (status: string | undefined): NewsletterErrorStatus => {
@@ -33,7 +33,7 @@ const getNewsletterClientError = (email: string): NewsletterClientErrorStatus | 
     return 'required';
   }
 
-  if (normalized.length > 254 || !NEWSLETTER_EMAIL_PATTERN.test(normalized)) {
+  if (normalized.length > 254 || !isValidEmail(normalized, 2)) {
     return 'invalid-email';
   }
 

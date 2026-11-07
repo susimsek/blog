@@ -34,6 +34,10 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
 }));
 
 describe('CodeBlock Component', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('renders syntax highlighted code when language is provided', () => {
     render(
       <CodeBlock
@@ -109,8 +113,29 @@ describe('CodeBlock Component', () => {
 
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith("console.log('Copy Test');");
 
-    const checkIcon = screen.getByTestId('font-awesome-icon-check');
-    expect(checkIcon).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('font-awesome-icon-check')).toBeInTheDocument();
+    });
+  });
+
+  it('keeps the copy state unchanged when the clipboard promise rejects', async () => {
+    const writeTextMock = navigator.clipboard.writeText as jest.Mock;
+    const clipboardError = new Error('Clipboard access denied');
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    writeTextMock.mockRejectedValueOnce(clipboardError);
+
+    render(
+      <CodeBlock theme="light" t={mockTranslation} className="language-text">
+        {'copy me'}
+      </CodeBlock>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'common.codeBlock.copy' }));
+
+    await waitFor(() => {
+      expect(consoleError).toHaveBeenCalledWith('Unable to copy code snippet', clipboardError);
+    });
+    expect(screen.queryByTestId('font-awesome-icon-check')).not.toBeInTheDocument();
+    consoleError.mockRestore();
   });
 
   it('shows language badge and toggles line numbers for multiline code', () => {
@@ -195,7 +220,7 @@ describe('CodeBlock Component', () => {
     expect(screen.getByRole('code')).toHaveTextContent("const theme = 'forest';");
   });
 
-  it('normalizes complex children before copy and skips empty copy payloads', () => {
+  it('normalizes complex children before copy and skips empty copy payloads', async () => {
     render(
       <CodeBlock theme="light" t={mockTranslation} className="language-javascript">
         {['line ', 1, '\n', <span key="x">ignored</span>]}
@@ -204,6 +229,9 @@ describe('CodeBlock Component', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'common.codeBlock.copy' }));
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith('line 1');
+    await waitFor(() => {
+      expect(screen.getByTestId('font-awesome-icon-check')).toBeInTheDocument();
+    });
 
     render(
       <CodeBlock theme="light" t={mockTranslation} className="language-javascript">

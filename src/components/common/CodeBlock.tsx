@@ -209,6 +209,22 @@ export const extractCodeFileName = (meta: string | null): string | null => {
   return null;
 };
 
+const hasTerminalPrompt = (line: string): boolean => {
+  const prompt = line.trimStart();
+  if (prompt.startsWith('$') || (prompt.startsWith('PS ') && prompt.includes('>'))) {
+    return true;
+  }
+
+  const firstCharacter = prompt.codePointAt(0) ?? 0;
+  return (
+    firstCharacter >= 65 &&
+    firstCharacter <= 90 &&
+    prompt[1] === ':' &&
+    prompt[2] === '\\' &&
+    prompt.indexOf('>', 3) !== -1
+  );
+};
+
 export const isTerminalSnippet = (
   language: string | undefined,
   resolvedLanguage: string | null,
@@ -216,7 +232,7 @@ export const isTerminalSnippet = (
 ): boolean => {
   const normalized = (resolvedLanguage ?? language ?? '').toLowerCase();
   if (TERMINAL_LANGUAGES.has(normalized)) return true;
-  return /(^|\n)\s*(\$|PS [^\n>]*>|[A-Z]:\\[^>\n]*>)/.test(codeText);
+  return codeText.split('\n').some(hasTerminalPrompt);
 };
 
 export const toCodeText = (node: React.ReactNode): string => {
@@ -277,22 +293,33 @@ const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({
     }
 
     let isMounted = true;
-    loadSyntaxAssets().then(assets => {
-      if (isMounted) {
-        setSyntaxAssets(assets);
-      }
-    });
+    void loadSyntaxAssets()
+      .then(assets => {
+        if (isMounted) {
+          setSyntaxAssets(assets);
+        }
+      })
+      .catch(error => {
+        console.error('Unable to load syntax highlighting assets', error);
+      });
 
     return () => {
       isMounted = false;
     };
   }, [inline, hasLanguage]);
 
-  const copyToClipboard = () => {
-    if (codeText) {
-      navigator.clipboard?.writeText?.(codeText);
+  const copyToClipboard = async () => {
+    const clipboard = navigator.clipboard;
+    if (!codeText || !clipboard?.writeText) {
+      return;
+    }
+
+    try {
+      await clipboard.writeText(codeText);
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
+    } catch (error) {
+      console.error('Unable to copy code snippet', error);
     }
   };
 

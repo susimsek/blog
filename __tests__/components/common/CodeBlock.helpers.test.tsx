@@ -53,6 +53,8 @@ describe('CodeBlock helpers', () => {
     expect(isTerminalSnippet('bash', 'bash', 'pnpm test')).toBe(true);
     expect(isTerminalSnippet('text', null, '$ pnpm lint')).toBe(true);
     expect(isTerminalSnippet('text', null, 'PS C:\\Users> pnpm build')).toBe(true);
+    expect(isTerminalSnippet('text', null, 'C:\\work>pnpm test')).toBe(true);
+    expect(isTerminalSnippet('text', null, 'c:\\work>pnpm test')).toBe(false);
     expect(isTerminalSnippet('json', 'json', '{"ok":true}')).toBe(false);
   });
 
