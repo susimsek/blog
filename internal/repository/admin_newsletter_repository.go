@@ -581,7 +581,7 @@ func extractAdminNewsletterPostIDFromLink(value string) string {
 	parsed, err := url.Parse(trimmed)
 	pathValue := trimmed
 	if err == nil {
-		pathValue = parsed.Path
+		pathValue = parsed.EscapedPath()
 	}
 
 	segments := strings.Split(strings.Trim(pathValue, "/"), "/")

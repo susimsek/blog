@@ -164,6 +164,40 @@ describe('MarkdownRenderer Component', () => {
     expect(container.querySelectorAll('a').length).toBeGreaterThanOrEqual(8);
   });
 
+  it('renders heading components with mapped, fallback, and empty ids', () => {
+    render(<MarkdownRenderer content="# Known Heading" />);
+
+    const reactMarkdownMock = jest.requireMock('react-markdown') as jest.Mock;
+    const firstCallProps = reactMarkdownMock.mock.calls.at(-1)?.[0] as {
+      components: Record<
+        string,
+        React.ComponentType<{
+          children?: React.ReactNode;
+          node?: { position?: { start?: { line?: number } } };
+        }>
+      >;
+    };
+    const { h1, h2, h3, h4, h5, h6 } = firstCallProps.components;
+    const headingProps = (line?: number) => ({
+      node: line === undefined ? undefined : { position: { start: { line } } },
+    });
+    const { container } = render(
+      <>
+        {React.createElement(h1!, { node: { position: { start: { line: 1 } } } }, 'Known Heading')}
+        {React.createElement(h2!, headingProps(999), 'Fallback Heading')}
+        {React.createElement(h3!, {}, '   ')}
+        {React.createElement(h4!, headingProps(), 'Heading Four')}
+        {React.createElement(h5!, headingProps(), 'Heading Five')}
+        {React.createElement(h6!, headingProps(), 'Heading Six')}
+      </>,
+    );
+
+    expect(container.querySelector('#known-heading')).toBeInTheDocument();
+    expect(container.querySelector('#fallback-heading')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3 })).not.toHaveAttribute('id');
+    expect(screen.getByRole('heading', { level: 4 })).toHaveAttribute('id', 'heading-four');
+  });
+
   it('builds stable heading ids and flattens nested heading content', () => {
     const headingIdMap = buildHeadingIdMap('## Overview\n## Overview\n### Nested **Title**');
 

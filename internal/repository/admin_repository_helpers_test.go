@@ -241,6 +241,32 @@ func TestDecodeAdminNewsletterDeliveryFailureAndOptionalTime(t *testing.T) {
 	}
 }
 
+func TestAdminNewsletterPostIDHelpers(t *testing.T) {
+	tests := []struct {
+		value string
+		want  string
+	}{
+		{value: "https://example.com/en/posts/Alpha-Post", want: "alpha-post"},
+		{value: "/tr/posts/%61lpha-post", want: "alpha-post"},
+		{value: "/posts/invalid%2Fid"},
+		{value: "http://["},
+		{value: "/topics/alpha-post"},
+	}
+	for _, test := range tests {
+		if got := extractAdminNewsletterPostIDFromLink(test.value); got != test.want {
+			t.Errorf("extractAdminNewsletterPostIDFromLink(%q) = %q, want %q", test.value, got, test.want)
+		}
+	}
+
+	ids := uniqueAdminNewsletterPostIDs([]string{" Alpha-Post ", "alpha-post", "bad/id", "beta-post", ""})
+	if len(ids) != 2 || ids[0] != "alpha-post" || ids[1] != "beta-post" {
+		t.Fatalf("uniqueAdminNewsletterPostIDs() = %#v", ids)
+	}
+	if uniqueAdminNewsletterPostIDs(nil) != nil {
+		t.Fatal("empty post IDs should return nil")
+	}
+}
+
 func mongoCursorFromDocs(docs []any) (*mongo.Cursor, error) {
 	return mongo.NewCursorFromDocuments(docs, nil, nil)
 }

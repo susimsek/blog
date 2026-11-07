@@ -30,7 +30,12 @@ jest.mock('next/navigation', () => ({
 }));
 
 jest.mock('@/components/common/MarkdownRenderer', () => {
-  return jest.fn(({ content }: { content: string }) => <div data-testid="markdown-renderer">{content}</div>);
+  return jest.fn(({ content }: { content: string }) => (
+    <div data-testid="markdown-renderer">
+      {content}
+      {content.includes('Jump target') ? <h2 id="jump-target">Jump target</h2> : null}
+    </div>
+  ));
 });
 
 jest.mock('@/components/posts/PostHit', () => ({
@@ -379,5 +384,38 @@ describe('PostDetail Component', () => {
         }),
       );
     });
+  });
+
+  it('keeps the copy action idle when the clipboard is unavailable or rejects', async () => {
+    Object.assign(navigator, { clipboard: undefined });
+    const unavailable = setup();
+    fireEvent.click(screen.getByRole('button', { name: 'post.share.copyLink' }));
+    expect(screen.getByRole('button', { name: 'post.share.copyLink' })).toBeInTheDocument();
+    unavailable.unmount();
+
+    Object.assign(navigator, { clipboard: { writeText: jest.fn().mockRejectedValue(new Error('denied')) } });
+    setup();
+    fireEvent.click(screen.getByRole('button', { name: 'post.share.copyLink' }));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'post.share.copyLink' })).toBeInTheDocument());
+  });
+
+  it('scrolls to an in-article hash target and ignores malformed or missing targets', async () => {
+    const scrollIntoView = jest.fn();
+    HTMLElement.prototype.scrollIntoView = scrollIntoView;
+    window.history.replaceState({}, '', '/posts/1#jump-target');
+    const validTarget = setup({ ...mockPost, contentHtml: '## Jump target\nBody' });
+    await waitFor(() => expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'auto', block: 'start' }));
+    validTarget.unmount();
+
+    scrollIntoView.mockClear();
+    window.history.replaceState({}, '', '/posts/1#%E0%A4%A');
+    const malformedHashView = setup();
+    expect(scrollIntoView).not.toHaveBeenCalled();
+    malformedHashView.unmount();
+
+    window.history.replaceState({}, '', '/posts/1#missing-target');
+    const missingTargetView = setup();
+    expect(scrollIntoView).not.toHaveBeenCalled();
+    missingTargetView.unmount();
   });
 });

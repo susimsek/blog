@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"sync"
 	"testing"
 	"time"
@@ -217,6 +218,11 @@ func TestAdminNewsletterRepositoryCampaignAndFailureListsWithMockData(t *testing
 					{Key: "updatedAt", Value: now},
 					{Key: "createdAt", Value: now.Add(-time.Hour)},
 				},
+				bson.D{
+					{Key: "locale", Value: "en"},
+					{Key: "itemKey", Value: "post:missing-email"},
+					{Key: "email", Value: " "},
+				},
 			),
 		)
 
@@ -244,6 +250,35 @@ func TestAdminNewsletterRepositoryCampaignAndFailureListsWithMockData(t *testing
 		}
 		if failures.Total != 1 || len(failures.Items) != 1 || failures.Items[0].Email != "reader@example.com" || failures.Items[0].Status != "failed" {
 			t.Fatalf("ListDeliveryFailures() = %#v", failures)
+		}
+	})
+}
+
+func TestAdminNewsletterRepositoryDeletesSubscriberByNormalizedEmail(t *testing.T) {
+	mt := mtest.New(t, mtest.NewOptions().CreateClient(false))
+	mt.RunOpts("delete newsletter subscriber", mtest.NewOptions().
+		ClientType(mtest.Mock).
+		DatabaseName("blog_test").
+		CreateCollection(false), func(mt *mtest.T) {
+		resetNewsletterRepositoryState()
+		t.Cleanup(resetNewsletterRepositoryState)
+		configureRepositoryMockDatabase(t, "blog_test")
+		useMockNewsletterClient(mt)
+		mt.AddMockResponses(
+			mtest.CreateSuccessResponse(bson.E{Key: "n", Value: int32(1)}),
+			mtest.CreateSuccessResponse(bson.E{Key: "n", Value: int32(0)}),
+		)
+
+		repository := NewAdminNewsletterRepository()
+		ctx := context.Background()
+		if _, err := repository.DeleteSubscriberByEmail(ctx, " "); err == nil || err.Error() != "invalid subscriber email" {
+			t.Fatalf("DeleteSubscriberByEmail(blank) error = %v", err)
+		}
+		if deleted, err := repository.DeleteSubscriberByEmail(ctx, " Reader@example.com "); err != nil || !deleted {
+			t.Fatalf("DeleteSubscriberByEmail(existing) = %t, %v", deleted, err)
+		}
+		if deleted, err := repository.DeleteSubscriberByEmail(ctx, "missing@example.com"); err != nil || deleted {
+			t.Fatalf("DeleteSubscriberByEmail(missing) = %t, %v", deleted, err)
 		}
 	})
 }
@@ -391,6 +426,107 @@ func TestAdminUserRepositoryWithMockData(t *testing.T) {
 			t.Fatalf("DisableByID() error = %v", err)
 		}
 	})
+}
+
+func TestAdminUserRepositoryHandlesMissingRecords(t *testing.T) {
+	mt := mtest.New(t, mtest.NewOptions().CreateClient(false))
+	mt.RunOpts("admin user lookups and updates for missing records", mtest.NewOptions().
+		ClientType(mtest.Mock).
+		DatabaseName("blog_test").
+		CreateCollection(false), func(mt *mtest.T) {
+		resetAdminRepositoryState()
+		t.Cleanup(resetAdminRepositoryState)
+		configureRepositoryMockDatabase(t, "blog_test")
+		useMockAdminClient(mt)
+
+		responses := make([]bson.D, 0, 23)
+		for range 7 {
+			responses = append(responses, mockFindResponse("blog_test."+adminUsersCollectionName))
+		}
+		responses = append(responses,
+			mockCountDocumentsResponse("blog_test."+adminUsersCollectionName, 0),
+			mockCountDocumentsResponse("blog_test."+adminUsersCollectionName, 0),
+		)
+		for range 14 {
+			responses = append(responses, mockUpdateResponse(0, 0))
+		}
+		mt.AddMockResponses(responses...)
+
+		repository := NewAdminUserRepository()
+		assertAdminUserRepositoryMissingLookups(context.Background(), t, repository)
+		assertAdminUserRepositoryMissingUpdates(context.Background(), t, repository, time.Now().UTC())
+	})
+}
+
+func assertAdminUserRepositoryMissingLookups(ctx context.Context, t *testing.T, repository AdminUserRepository) {
+	t.Helper()
+	lookups := []struct {
+		name string
+		run  func() (*domain.AdminUserRecord, error)
+	}{
+		{name: "email", run: func() (*domain.AdminUserRecord, error) { return repository.FindByEmail(ctx, "admin@example.com") }},
+		{name: "id", run: func() (*domain.AdminUserRecord, error) { return repository.FindByID(ctx, "admin-1") }},
+		{name: "username", run: func() (*domain.AdminUserRecord, error) { return repository.FindByUsername(ctx, "admin") }},
+		{name: "google subject", run: func() (*domain.AdminUserRecord, error) { return repository.FindByGoogleSubject(ctx, "google-1") }},
+		{name: "github subject", run: func() (*domain.AdminUserRecord, error) { return repository.FindByGithubSubject(ctx, "github-1") }},
+		{name: "pending email token", run: func() (*domain.AdminUserRecord, error) {
+			return repository.FindByPendingEmailChangeTokenHash(ctx, "email-token")
+		}},
+		{name: "pending password token", run: func() (*domain.AdminUserRecord, error) {
+			return repository.FindByPendingPasswordResetTokenHash(ctx, "reset-token")
+		}},
+	}
+	for _, lookup := range lookups {
+		t.Run("lookup/"+lookup.name, func(t *testing.T) {
+			if record, err := lookup.run(); err != nil || record != nil {
+				t.Fatalf("lookup result = %#v, %v; want nil, nil", record, err)
+			}
+		})
+	}
+	if found, err := repository.HasAnyGoogleLink(ctx); err != nil || found {
+		t.Fatalf("HasAnyGoogleLink() = %t, %v; want false, nil", found, err)
+	}
+	if found, err := repository.HasAnyGithubLink(ctx); err != nil || found {
+		t.Fatalf("HasAnyGithubLink() = %t, %v; want false, nil", found, err)
+	}
+}
+
+func assertAdminUserRepositoryMissingUpdates(ctx context.Context, t *testing.T, repository AdminUserRepository, now time.Time) {
+	t.Helper()
+	updates := []struct {
+		name string
+		run  func() error
+	}{
+		{name: "password", run: func() error { return repository.UpdatePasswordHashByID(ctx, "admin-1", "hash") }},
+		{name: "name", run: func() error { return repository.UpdateNameByID(ctx, "admin-1", "Admin") }},
+		{name: "username", run: func() error { return repository.UpdateUsernameByID(ctx, "admin-1", "admin") }},
+		{name: "pending email", run: func() error {
+			return repository.SetPendingEmailChangeByID(ctx, "admin-1", domain.AdminPendingEmailChange{RequestedAt: now})
+		}},
+		{name: "clear pending email", run: func() error { return repository.ClearPendingEmailChangeByID(ctx, "admin-1") }},
+		{name: "pending password", run: func() error {
+			return repository.SetPendingPasswordResetByID(ctx, "admin-1", domain.AdminPendingPasswordReset{RequestedAt: now})
+		}},
+		{name: "clear pending password", run: func() error { return repository.ClearPendingPasswordResetByID(ctx, "admin-1") }},
+		{name: "email", run: func() error { return repository.UpdateEmailByID(ctx, "admin-1", "next@example.com") }},
+		{name: "google link", run: func() error {
+			return repository.UpdateGoogleLinkByID(ctx, "admin-1", "google-1", "admin@example.com", now)
+		}},
+		{name: "clear google link", run: func() error { return repository.ClearGoogleLinkByID(ctx, "admin-1") }},
+		{name: "github link", run: func() error {
+			return repository.UpdateGithubLinkByID(ctx, "admin-1", "github-1", "admin@example.com", now)
+		}},
+		{name: "clear github link", run: func() error { return repository.ClearGithubLinkByID(ctx, "admin-1") }},
+		{name: "avatar", run: func() error { return repository.UpdateAvatarByID(ctx, "admin-1", "/avatar", "digest", 1) }},
+		{name: "disable", run: func() error { return repository.DisableByID(ctx, "admin-1") }},
+	}
+	for _, update := range updates {
+		t.Run("update/"+update.name, func(t *testing.T) {
+			if err := update.run(); !errors.Is(err, ErrAdminUserNotFound) {
+				t.Fatalf("update error = %v; want admin user not found", err)
+			}
+		})
+	}
 }
 
 func TestAdminContentRepositoryWithMockData(t *testing.T) {
@@ -1144,11 +1280,15 @@ func useMockPostClient(mt *mtest.T) {
 	postLikesIndexesErr = nil
 	postHitsIndexesErr = nil
 	postContentIndexesErr = nil
+	postMediaAssetIndexesErr = nil
+	postRevisionIndexesErr = nil
 	postTopicIndexesErr = nil
 	postCategoryIndexesErr = nil
 	markOnceDone(&postLikesIndexesOnce)
 	markOnceDone(&postHitsIndexesOnce)
 	markOnceDone(&postContentIndexesOnce)
+	markOnceDone(&postMediaAssetIndexesOnce)
+	markOnceDone(&postRevisionIndexesOnce)
 	markOnceDone(&postTopicIndexesOnce)
 	markOnceDone(&postCategoryIndexesOnce)
 }

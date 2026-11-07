@@ -117,6 +117,37 @@ describe('contentApi', () => {
     await expect(fetchPosts('en')).resolves.toBeNull();
   });
 
+  it('omits invalid query inputs and unknown optional response metadata', async () => {
+    queryGraphQLMock.mockResolvedValue({
+      posts: {
+        status: 'unexpected',
+        locale: 'fr',
+        sort: 'sideways',
+        nodes: [],
+        engagement: [],
+      },
+    });
+
+    await expect(
+      fetchPosts('en', {
+        page: 0,
+        size: Number.POSITIVE_INFINITY,
+        sort: 'sideways' as 'asc',
+        scopeIds: [' ', ''],
+      }),
+    ).resolves.toEqual({
+      status: 'unexpected',
+      posts: [],
+      likesByPostId: {},
+      hitsByPostId: {},
+      commentsByPostId: {},
+      total: undefined,
+      page: undefined,
+      size: undefined,
+    });
+    expect(queryGraphQLMock).toHaveBeenCalledWith(PostsQueryDocument, { locale: 'en', input: undefined }, {});
+  });
+
   it('maps a post payload and trims invalid metrics', async () => {
     queryGraphQLMock.mockResolvedValue({
       post: {
@@ -166,6 +197,19 @@ describe('contentApi', () => {
     queryGraphQLMock.mockResolvedValue({ post: null });
 
     await expect(fetchPost('en', 'post-1')).resolves.toBeNull();
+  });
+
+  it('omits unknown post metadata and invalid engagement values', async () => {
+    queryGraphQLMock.mockResolvedValue({
+      post: {
+        status: 'unknown',
+        locale: 'fr',
+        node: null,
+        engagement: { likes: Number.POSITIVE_INFINITY, hits: '2', comments: Number.NaN },
+      },
+    });
+
+    await expect(fetchPost('en', 'post-1')).resolves.toEqual({ status: 'unknown', post: null });
   });
 
   it('returns likes for requested post ids and skips invalid numbers', async () => {
@@ -304,6 +348,27 @@ describe('contentApi', () => {
       },
       {},
     );
+  });
+
+  it('returns null for incomplete runtime payloads and omits invalid runtime metrics', async () => {
+    await expect(fetchPostRuntime('fr', 'post-1')).resolves.toBeNull();
+    await expect(fetchPostRuntime('en', '  ')).resolves.toBeNull();
+
+    queryGraphQLMock.mockResolvedValueOnce({ comments: { status: 'success' } });
+    await expect(fetchPostRuntime('en', 'post-1')).resolves.toBeNull();
+    queryGraphQLMock.mockResolvedValueOnce({ post: {} });
+    await expect(fetchPostRuntime('en', 'post-1')).resolves.toBeNull();
+
+    queryGraphQLMock.mockResolvedValueOnce({
+      post: { status: 'unknown', engagement: { likes: 'many', hits: Number.NaN } },
+      comments: { status: 'unknown', total: Number.POSITIVE_INFINITY },
+    });
+    await expect(fetchPostRuntime('en', 'post-1')).resolves.toEqual({
+      postStatus: 'unknown',
+      commentsStatus: 'unknown',
+      commentsTotal: 0,
+      commentsThreads: [],
+    });
   });
 
   it('increments post metrics only for successful numeric payloads', async () => {

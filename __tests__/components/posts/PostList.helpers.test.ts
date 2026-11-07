@@ -8,10 +8,17 @@ import {
   matchesReadingTimeRange,
   matchesSearchQuery,
   matchesSelectedTopics,
+  mergeLoadedCommentCountsByPostId,
   matchesSourceFilter,
   mergeLoadedLikesByPostId,
+  normalizeDateQueryValue,
+  parseReadingTimeQueryValue,
   parsePostListQueryState,
+  parseSortOrderQueryValue,
+  parseSourceQueryValue,
+  parseTopicsQueryValue,
   resolveEffectiveSourceFilter,
+  serializeTopicsQueryValue,
   sortPostsByPublishedDate,
 } from '@/components/posts/PostList';
 import { mockPostSummaries } from '@tests/__mocks__/mockPostData';
@@ -121,6 +128,31 @@ describe('PostList helpers', () => {
     expect(isTrackablePostId('post-123')).toBe(true);
     expect(isTrackablePostId('a')).toBe(false);
     expect(isTrackablePostId('Post_123')).toBe(false);
+  });
+
+  it('normalizes individual managed query values and loaded comment counts', () => {
+    expect(normalizeDateQueryValue(' 2026-03-21 ')).toBe('2026-03-21');
+    expect(normalizeDateQueryValue('2026-2-1')).toBeUndefined();
+    expect(normalizeDateQueryValue(null)).toBeUndefined();
+    expect(parseTopicsQueryValue(' react, ,nextjs ')).toEqual(['react', 'nextjs']);
+    expect(parseTopicsQueryValue(null)).toEqual([]);
+    expect(serializeTopicsQueryValue([])).toBe('');
+    expect(serializeTopicsQueryValue(['react', 'nextjs'])).toBe('react,nextjs');
+    expect(parseSortOrderQueryValue('asc')).toBe('asc');
+    expect(parseSortOrderQueryValue('unexpected')).toBe('desc');
+    expect(parseReadingTimeQueryValue('3-7')).toBe('3-7');
+    expect(parseReadingTimeQueryValue('unknown')).toBe('any');
+    expect(parseSourceQueryValue('blog')).toBe('blog');
+    expect(parseSourceQueryValue('unknown')).toBe('all');
+
+    expect(mergeLoadedCommentCountsByPostId({ existing: 2 }, ['post-1'], null)).toEqual({
+      existing: 2,
+      'post-1': null,
+    });
+    expect(mergeLoadedCommentCountsByPostId({}, ['post-1', 'post-2'], { 'post-1': 4, 'post-2': Number.NaN })).toEqual({
+      'post-1': 4,
+      'post-2': 0,
+    });
   });
 
   it('parses managed filter state from query params', () => {

@@ -95,4 +95,46 @@ describe('adminEmailChangeApi', () => {
       message: 'temporary failure',
     });
   });
+
+  it('uses safe defaults for malformed and incomplete error responses', async () => {
+    const { confirmAdminEmailChange, resolveAdminEmailChangeError } = await import('@/lib/adminEmailChangeApi');
+    const fetchMock = jest.mocked(global.fetch);
+    fetchMock
+      .mockResolvedValueOnce({
+        ok: false,
+        json: async () => Promise.reject(new Error('invalid json')),
+      } as unknown as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => Promise.reject(new Error('invalid json')),
+      } as unknown as Response)
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ data: null }) } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ errors: [{ message: '  denied  ', extensions: { code: ' forbidden ' } }] }),
+      } as Response);
+
+    await expect(confirmAdminEmailChange('token', 'en')).rejects.toMatchObject({
+      code: 'ADMIN_EMAIL_CHANGE_FAILED',
+      message: 'Admin email change confirmation failed.',
+    });
+    await expect(confirmAdminEmailChange('token', 'en')).rejects.toMatchObject({
+      code: 'ADMIN_EMAIL_CHANGE_FAILED',
+      message: 'Admin email change confirmation failed.',
+    });
+    await expect(confirmAdminEmailChange('token', 'en')).rejects.toMatchObject({
+      code: 'ADMIN_EMAIL_CHANGE_FAILED',
+      message: 'Admin email change confirmation failed.',
+    });
+    await expect(confirmAdminEmailChange('token', 'en')).rejects.toMatchObject({
+      code: 'FORBIDDEN',
+      message: 'denied',
+    });
+
+    expect(resolveAdminEmailChangeError(new Error('unrecognized'))).toEqual({
+      kind: 'api',
+      code: 'ADMIN_EMAIL_CHANGE_FAILED',
+      message: 'Admin email change confirmation failed.',
+    });
+  });
 });

@@ -311,6 +311,52 @@ describe('StroopTestTrainer', () => {
     });
   });
 
+  it('completes a timed run from the clock interval and persists its result', () => {
+    jest.useFakeTimers();
+    jest.spyOn(Date, 'now').mockImplementation(() => nowMs);
+
+    try {
+      render(<StroopTestTrainer />);
+      fireEvent.click(screen.getByRole('radio', { name: /Timed/i }));
+      answerCurrentTask({ deltaMs: 200 });
+
+      nowMs = 60200;
+      act(() => {
+        jest.advanceTimersByTime(100);
+      });
+
+      expect(screen.getByText(/^complete:/)).toBeInTheDocument();
+      expect(JSON.parse(window.localStorage.getItem('stroop-test-recent-runs-v1') ?? '[]')[0]).toMatchObject({
+        mode: 'timed',
+        durationMs: 60000,
+        completedRounds: 1,
+      });
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('persists hint changes and closes mobile controls after switching to desktop', () => {
+    setResponsiveState({ mobile: true, compact: true });
+    const view = render(<StroopTestTrainer />);
+
+    fireEvent.click(screen.getByRole('button', { name: /games\.stroop\.trainer\.controls/i }));
+    expect(document.querySelector('.offcanvas-bottom')).toBeInTheDocument();
+
+    const hintSwitch = screen.getByLabelText('games.stroop.trainer.showHint');
+    fireEvent.click(hintSwitch);
+    expect(window.localStorage.getItem('stroop-test-show-hint-v1')).toBe('false');
+
+    setResponsiveState({});
+    view.rerender(<StroopTestTrainer />);
+
+    expect(document.querySelector('.stroop-trainer-sidebar')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /games\.stroop\.trainer\.controls/i })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
+  });
+
   it('renders mobile controls in an offcanvas and closes them after choosing a mode', () => {
     setResponsiveState({ mobile: true });
 
