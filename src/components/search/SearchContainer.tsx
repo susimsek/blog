@@ -392,14 +392,14 @@ export default function SearchContainer({ shortcutHint }: Readonly<SearchContain
     );
   } else if (isWaitingForResults) {
     resultsContent = (
-      <ListGroup.Item className="text-center text-muted py-3 search-no-results">
+      <ListGroup.Item className="text-center theme-text-muted py-3 search-no-results">
         <span className="spinner-border spinner-border-sm" aria-hidden="true" />
         <output className="visually-hidden">{t('common.sidebar.loading')}</output>
       </ListGroup.Item>
     );
   } else {
     resultsContent = (
-      <ListGroup.Item className="text-center text-muted py-3 search-no-results">
+      <ListGroup.Item className="text-center theme-text-muted py-3 search-no-results">
         <FontAwesomeIcon icon="exclamation-circle" className="me-2" />
         {t('common.noResults')}
       </ListGroup.Item>

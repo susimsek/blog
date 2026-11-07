@@ -19,7 +19,7 @@
     svg,
     i,
     span {
-      color: $text-color !important;
+      color: inherit;
       @include transition(color);
     }
 
@@ -32,39 +32,35 @@
 
 @mixin link-variant($name, $color, $hover-color, $active-color) {
   &.link-#{'#{$name}'} {
-    color: $color !important;
+    color: $color;
     text-decoration: none;
 
     svg,
     i,
     span {
-      color: $color !important;
+      color: inherit;
       @include transition(color);
-
-      &:hover {
-        color: $hover-color !important;
-      }
     }
 
     &:hover {
-      color: $hover-color !important;
+      color: $hover-color;
     }
 
     &:active {
-      color: $active-color !important;
+      color: $active-color;
     }
   }
 }
 
 @mixin text-variant($name, $color-var) {
-  .text-#{'#{$name}'} {
-    color: $color-var !important;
+  .theme-text-#{'#{$name}'} {
+    color: $color-var;
   }
 }
 
 @mixin background-variant($name, $bg-color) {
-  &.bg-#{'#{$name}'} {
-    background-color: $bg-color !important;
+  &.background-#{'#{$name}'} {
+    background-color: $bg-color;
   }
 }
 
@@ -76,8 +72,9 @@
     box-shadow: var(--box-shadow-sm);
 
     svg,
-    i {
-      color: $text-color !important;
+    i,
+    span {
+      color: inherit;
       @include transition(color);
     }
 
@@ -94,12 +91,6 @@
     background-color: $bg-color;
     color: $text-color;
     border-color: $border-color;
-
-    svg,
-    i {
-      color: $text-color !important;
-      @include transition(color);
-    }
 
     &:hover {
       background-color: $hover-bg;
@@ -130,7 +121,7 @@
     svg,
     i,
     span {
-      color: $text-color !important;
+      color: inherit;
       @include transition(color);
     }
 

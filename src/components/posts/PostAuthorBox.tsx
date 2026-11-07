@@ -13,11 +13,11 @@ export default function PostAuthorBox() {
       </div>
 
       <div className="post-author-content">
-        <p className="post-author-eyebrow text-muted mb-1">{t('post.authorBox.title')}</p>
+        <p className="post-author-eyebrow theme-text-muted mb-1">{t('post.authorBox.title')}</p>
         <h2 className="h5 fw-bold mb-2">{AUTHOR_NAME}</h2>
         <p className="mb-3">{t('post.authorBox.bio')}</p>
 
-        <p className="post-author-meta-label text-muted mb-2">{t('post.authorBox.expertiseTitle')}</p>
+        <p className="post-author-meta-label theme-text-muted mb-2">{t('post.authorBox.expertiseTitle')}</p>
         <ul className="post-author-expertise list-unstyled d-flex flex-wrap gap-2 mb-3">
           <li className="post-author-skill">{t('post.authorBox.expertise.spring')}</li>
           <li className="post-author-skill">{t('post.authorBox.expertise.go')}</li>
@@ -26,7 +26,7 @@ export default function PostAuthorBox() {
           <li className="post-author-skill">{t('post.authorBox.expertise.cloud')}</li>
         </ul>
 
-        <p className="post-author-meta-label text-muted mb-2">{t('post.authorBox.connectTitle')}</p>
+        <p className="post-author-meta-label theme-text-muted mb-2">{t('post.authorBox.connectTitle')}</p>
         <div className="post-author-links d-flex flex-wrap gap-3">
           <a href={CONTACT_LINKS.github} target="_blank" rel="noopener noreferrer" className="post-author-link">
             <FontAwesomeIcon icon={['fab', 'github']} />

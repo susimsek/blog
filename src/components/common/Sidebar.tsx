@@ -40,7 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({ topics = [], isLoading = false, isMob
   const renderTopics = useMemo(() => {
     if (isLoading) {
       return (
-        <div className="text-muted px-4 py-2 d-flex align-items-center">
+        <div className="theme-text-muted px-4 py-2 d-flex align-items-center">
           <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
           <output className="visually-hidden">Loading</output>
         </div>
@@ -62,7 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({ topics = [], isLoading = false, isMob
     }
 
     return (
-      <div className="text-muted px-4 py-2">
+      <div className="theme-text-muted px-4 py-2">
         <FontAwesomeIcon icon="exclamation-circle" className="me-2" />
         {t('topic:topic.noTopicFound')}
       </div>

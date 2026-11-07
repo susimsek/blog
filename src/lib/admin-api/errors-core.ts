@@ -152,12 +152,9 @@ export const toAdminRequestError = (error: unknown): AdminGraphQLRequestError =>
   if (CombinedGraphQLErrors.is(error)) {
     const primary = error.errors[0];
     const extensions = isRecord(primary?.extensions) ? primary.extensions : null;
-    const statusFromExtensions =
-      typeof extensions?.httpStatus === 'number'
-        ? extensions.httpStatus
-        : typeof extensions?.http_status === 'number'
-          ? extensions.http_status
-          : undefined;
+    const statusFromExtensions = [extensions?.httpStatus, extensions?.http_status].find(
+      (status): status is number => typeof status === 'number',
+    );
     const descriptor = normalizeAdminErrorDescriptor({
       message: normalizeString(primary?.message) || ADMIN_ERROR_FALLBACK_MESSAGE,
       code: normalizeString(extensions?.code) || undefined,

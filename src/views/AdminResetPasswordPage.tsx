@@ -263,7 +263,7 @@ export default function AdminResetPasswordPage() {
         <div className="col-12 col-lg-8 col-xl-7 mx-auto">
           <div className="post-card d-flex align-items-center post-summary-card admin-login-card">
             <div className="post-card-content flex-grow-1">
-              <div className="admin-login-eyebrow d-flex align-items-center gap-2 text-uppercase small fw-semibold text-muted mb-3">
+              <div className="admin-login-eyebrow d-flex align-items-center gap-2 text-uppercase small fw-semibold theme-text-muted mb-3">
                 <FontAwesomeIcon icon="lock" />
                 <span>{t('adminPasswordReset.reset.eyebrow')}</span>
               </div>
@@ -342,7 +342,7 @@ export default function AdminResetPasswordPage() {
                         ))}
                       </div>
                     </div>
-                    <Form.Text className="text-muted">
+                    <Form.Text className="theme-text-muted">
                       {t('adminAccount.form.passwordHint', {
                         ns: 'admin-account',
                         count: MIN_PASSWORD_LENGTH,

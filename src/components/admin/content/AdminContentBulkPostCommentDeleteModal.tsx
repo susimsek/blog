@@ -29,7 +29,7 @@ export default function AdminContentBulkPostCommentDeleteModal({
         <Modal.Title>{t('adminAccount.comments.bulk.deleteConfirmTitle', { ns: 'admin-account' })}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <p className="small text-muted mb-0">
+        <p className="small theme-text-muted mb-0">
           {t('adminAccount.comments.bulk.deleteConfirmCopy', {
             ns: 'admin-account',
             count: pendingBulkPostCommentDeleteIDs.length,

@@ -474,7 +474,7 @@ export default function PostDetail({
           </div>
         )}
         <nav className="post-share post-detail-share" aria-label={t('post.share.title')}>
-          <span className="post-share-prefix text-muted me-2" aria-hidden="true">
+          <span className="post-share-prefix theme-text-muted me-2" aria-hidden="true">
             <FontAwesomeIcon icon="share-nodes" />
           </span>
           <div className="post-share-actions">

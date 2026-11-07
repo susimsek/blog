@@ -151,7 +151,7 @@ function PreFooterNewsletterSection({
   return (
     <Col xs={12} lg={4}>
       <h3 className="pre-footer-title h5 fw-bold mb-2">{t('common.preFooter.subscribeTitle')}</h3>
-      <p className="text-muted mb-3">{t('common.preFooter.newsletter.description')}</p>
+      <p className="theme-text-muted mb-3">{t('common.preFooter.newsletter.description')}</p>
       <form className="pre-footer-newsletter-form mb-4" onSubmit={submitNewsletter} noValidate>
         <div className={`pre-footer-newsletter-shell${hasNewsletterError ? ' has-error' : ''}`}>
           <label htmlFor="pre-footer-newsletter-email" className="visually-hidden">
@@ -209,7 +209,7 @@ function PreFooterNewsletterSection({
         (subscriptionStatus === 'success' || subscriptionStatus === 'resent' ? (
           <output
             id="pre-footer-newsletter-feedback"
-            className="pre-footer-newsletter-feedback form-text text-success d-block mb-3"
+            className="pre-footer-newsletter-feedback form-text theme-text-success d-block mb-3"
             aria-live="polite"
           >
             {newsletterFeedbackMessage}
@@ -284,7 +284,7 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
         <Row className="g-4">
           <Col xs={12} lg={4}>
             <h3 className="pre-footer-title h5 fw-bold">{t('common.preFooter.aboutTitle')}</h3>
-            <p className="text-muted mb-3">{t('common.preFooter.aboutText')}</p>
+            <p className="theme-text-muted mb-3">{t('common.preFooter.aboutText')}</p>
             <div className="d-flex flex-wrap gap-2">
               <Link
                 href={buildLocalizedPath(currentLocale, 'contact')}

@@ -105,7 +105,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
     <DropdownButton
       id="topics-dropdown"
       variant="gray"
-      className="mb-2 topics-dropdown"
+      className="topics-dropdown"
       flip={false}
       align="start"
       title={
@@ -180,7 +180,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
         <>
           <Dropdown.Divider />
           <Dropdown.Item className="d-flex align-items-center">
-            <div className="text-muted">
+            <div className="theme-text-muted">
               <FontAwesomeIcon icon="exclamation-circle" className="me-2" />
               {t('topic:topic.noTopicFound')}
             </div>

@@ -77,12 +77,12 @@ const createMarkdownComponents = (
   td: ({ children }: { children?: React.ReactNode }) => <td>{children}</td>,
   a: ({ href, children }: { href?: string; children?: React.ReactNode }) => {
     if (!href) {
-      return <span className="text-decoration-none text-primary">{children}</span>;
+      return <span className="text-decoration-none theme-text-primary">{children}</span>;
     }
 
     if (href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) {
       return (
-        <a href={href} className="text-decoration-none text-primary">
+        <a href={href} className="text-decoration-none theme-text-primary">
           {children}
         </a>
       );
@@ -90,7 +90,7 @@ const createMarkdownComponents = (
 
     if (isExternalHttpUrl(href)) {
       return (
-        <a href={href} target="_blank" rel="noopener noreferrer" className="text-decoration-none text-primary">
+        <a href={href} target="_blank" rel="noopener noreferrer" className="text-decoration-none theme-text-primary">
           {children}
         </a>
       );
@@ -99,7 +99,7 @@ const createMarkdownComponents = (
     if (!href.startsWith('/')) {
       // Keep relative links as-is (same tab).
       return (
-        <a href={href} className="text-decoration-none text-primary">
+        <a href={href} className="text-decoration-none theme-text-primary">
           {children}
         </a>
       );
@@ -107,7 +107,7 @@ const createMarkdownComponents = (
 
     const localizedHref = localizeInternalPath(href, currentLocale);
     return (
-      <Link href={localizedHref} skipLocaleHandling className="text-decoration-none text-primary">
+      <Link href={localizedHref} skipLocaleHandling className="text-decoration-none theme-text-primary">
         {children}
       </Link>
     );

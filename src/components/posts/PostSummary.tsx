@@ -166,12 +166,12 @@ export default function PostSummary({
             <FontAwesomeIcon icon="calendar-alt" className="me-2" />
             <DateDisplay date={publishedDate} />
           </Link>
-          <span className="text-muted d-flex align-items-center">
+          <span className="theme-text-muted d-flex align-items-center">
             <FontAwesomeIcon icon="clock" className="me-2" />
             {formatReadingTime(readingTimeMin, t)}
           </span>
           {isEngagementLoading && (showLikes || showComments) && (
-            <span className="text-muted d-inline-flex align-items-center post-summary-like-meta">
+            <span className="theme-text-muted d-inline-flex align-items-center post-summary-like-meta">
               <output className="spinner-border spinner-border-sm" aria-label={t('post.like.loading')} />
             </span>
           )}
@@ -192,7 +192,7 @@ export default function PostSummary({
             </Link>
           )}
           {showSource && (
-            <span className="text-muted d-flex align-items-center">
+            <span className="theme-text-muted d-flex align-items-center">
               <FontAwesomeIcon icon={sourceIcon} className="me-2" />
               {sourceLabel}
             </span>

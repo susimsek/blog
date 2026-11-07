@@ -152,7 +152,7 @@ func UpdateAdminContentPostMetadata( // NOSONAR
 			now,
 		)
 		if revisionErr != nil {
-			return nil, toAdminContentError(revisionErr, "failed to create content post revision")
+			return nil, toAdminContentError(revisionErr, adminContentCreateRevisionFailed)
 		}
 		revisionStamp = &domain.AdminContentPostRevisionStamp{
 			Number:    savedRevision.RevisionNumber,
@@ -302,7 +302,7 @@ func UpdateAdminContentPostContent(
 			now,
 		)
 		if revisionErr != nil {
-			return nil, toAdminContentError(revisionErr, "failed to create content post revision")
+			return nil, toAdminContentError(revisionErr, adminContentCreateRevisionFailed)
 		}
 		revisionStamp = &domain.AdminContentPostRevisionStamp{
 			Number:    savedRevision.RevisionNumber,
@@ -381,7 +381,7 @@ func RestoreAdminContentPostRevision(
 	now := time.Now().UTC()
 	savedRevision, err := adminContentRepository.CreatePostRevision(ctx, *before, before.RevisionCount+1, now)
 	if err != nil {
-		return nil, toAdminContentError(err, "failed to create content post revision")
+		return nil, toAdminContentError(err, adminContentCreateRevisionFailed)
 	}
 
 	updated, err := adminContentRepository.RestorePostRevision(

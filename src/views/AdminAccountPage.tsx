@@ -76,7 +76,7 @@ const renderAsyncSectionContent = ({
     );
   }
   if (isEmpty) {
-    return <p className="small text-muted mb-0">{emptyMessage}</p>;
+    return <p className="small theme-text-muted mb-0">{emptyMessage}</p>;
   }
 
   return children;

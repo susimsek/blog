@@ -39,7 +39,7 @@ interface PostFiltersProps {
 
 const DateRangePicker = dynamic(() => import('@/components/common/DateRangePicker'), {
   ssr: false,
-  loading: () => <div className="post-filters-date-loading mb-2" />,
+  loading: () => <div className="post-filters-date-loading" />,
 });
 
 export function PostFilters({
@@ -63,7 +63,7 @@ export function PostFilters({
   );
 
   return (
-    <div className="post-filters-layout mb-3">
+    <div className="post-filters-layout">
       <div className="post-filters-main-grid">
         {showCategoryFilter && (
           <CategoryDropdown

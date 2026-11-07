@@ -123,7 +123,9 @@ export default function AdminContentTopicsTab({
               ariaLabel={t('adminAccount.content.loading.taxonomy', { ns: 'admin-account' })}
             />
           ) : topicTotal === 0 ? (
-            <p className="small text-muted mb-0">{t('adminAccount.content.empty.topics', { ns: 'admin-account' })}</p>
+            <p className="small theme-text-muted mb-0">
+              {t('adminAccount.content.empty.topics', { ns: 'admin-account' })}
+            </p>
           ) : (
             <div className="post-list-results post-list-results--editorial">
               {topicListItems.map(group => {
@@ -141,11 +143,11 @@ export default function AdminContentTopicsTab({
                       </div>
 
                       <p className="post-summary-meta mb-2">
-                        <span className="text-muted d-flex align-items-center">
+                        <span className="theme-text-muted d-flex align-items-center">
                           <FontAwesomeIcon icon="tags" className="me-2" />
                           {item.id}
                         </span>
-                        <span className="text-muted d-flex align-items-center">
+                        <span className="theme-text-muted d-flex align-items-center">
                           <FontAwesomeIcon icon="palette" className="me-2" />
                           {t('adminAccount.content.list.colorValue', {
                             ns: 'admin-account',
@@ -154,7 +156,7 @@ export default function AdminContentTopicsTab({
                         </span>
                       </p>
                       {item.updatedAt ? (
-                        <div className="post-summary-date text-muted d-flex align-items-center mb-3">
+                        <div className="post-summary-date theme-text-muted d-flex align-items-center mb-3">
                           <FontAwesomeIcon icon="calendar-alt" className="me-2" />
                           {t('adminAccount.content.list.updatedAt', {
                             ns: 'admin-account',

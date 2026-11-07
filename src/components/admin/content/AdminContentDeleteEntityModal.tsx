@@ -35,7 +35,7 @@ export default function AdminContentDeleteEntityModal({
         <Modal.Title>{title}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <p className="small text-muted mb-0">{body}</p>
+        <p className="small theme-text-muted mb-0">{body}</p>
       </Modal.Body>
       <Modal.Footer>
         <Button type="button" variant="secondary" disabled={isDeleting} onClick={onHide}>

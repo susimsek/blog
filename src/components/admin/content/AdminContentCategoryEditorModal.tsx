@@ -133,7 +133,7 @@ export default function AdminContentCategoryEditorModal({
                 }}
               />
               {isIDInvalid ? (
-                <Form.Text className="text-danger">
+                <Form.Text className="theme-text-danger">
                   {t('adminAccount.content.validation.id', { ns: 'admin-account' })}
                 </Form.Text>
               ) : null}

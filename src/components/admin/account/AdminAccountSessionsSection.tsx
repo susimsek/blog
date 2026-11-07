@@ -95,16 +95,18 @@ export default function AdminAccountSessionsSection({
         </Alert>
       ) : null}
 
-      {isSessionsLoading ? (
+      {isSessionsLoading && (
         <div className="admin-account-sessions-loading">
           <AdminLoadingState
             className="admin-loading-stack"
             ariaLabel={t('adminAccount.sessions.loading', { ns: 'admin-account' })}
           />
         </div>
-      ) : activeSessions.length === 0 ? (
-        <p className="small text-muted mb-0">{t('adminAccount.sessions.empty', { ns: 'admin-account' })}</p>
-      ) : (
+      )}
+      {!isSessionsLoading && activeSessions.length === 0 && (
+        <p className="small theme-text-muted mb-0">{t('adminAccount.sessions.empty', { ns: 'admin-account' })}</p>
+      )}
+      {!isSessionsLoading && activeSessions.length > 0 && (
         <div className="admin-session-list">
           {activeSessions.map(sessionItem => (
             <div key={sessionItem.id} className="admin-session-item">

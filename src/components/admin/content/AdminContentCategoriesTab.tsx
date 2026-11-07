@@ -123,7 +123,7 @@ export default function AdminContentCategoriesTab({
               ariaLabel={t('adminAccount.content.loading.taxonomy', { ns: 'admin-account' })}
             />
           ) : categoryTotal === 0 ? (
-            <p className="small text-muted mb-0">
+            <p className="small theme-text-muted mb-0">
               {t('adminAccount.content.empty.categories', { ns: 'admin-account' })}
             </p>
           ) : (
@@ -143,11 +143,11 @@ export default function AdminContentCategoriesTab({
                       </div>
 
                       <p className="post-summary-meta mb-2">
-                        <span className="text-muted d-flex align-items-center">
+                        <span className="theme-text-muted d-flex align-items-center">
                           <FontAwesomeIcon icon="tags" className="me-2" />
                           {item.id}
                         </span>
-                        <span className="text-muted d-flex align-items-center">
+                        <span className="theme-text-muted d-flex align-items-center">
                           <FontAwesomeIcon icon="palette" className="me-2" />
                           {t('adminAccount.content.list.colorValue', {
                             ns: 'admin-account',
@@ -155,7 +155,7 @@ export default function AdminContentCategoriesTab({
                           })}
                         </span>
                         {item.icon ? (
-                          <span className="text-muted d-flex align-items-center">
+                          <span className="theme-text-muted d-flex align-items-center">
                             <FontAwesomeIcon icon="tag" className="me-2" />
                             {t('adminAccount.content.list.iconValue', {
                               ns: 'admin-account',
@@ -166,7 +166,7 @@ export default function AdminContentCategoriesTab({
                       </p>
 
                       {item.updatedAt ? (
-                        <div className="post-summary-date text-muted d-flex align-items-center mb-3">
+                        <div className="post-summary-date theme-text-muted d-flex align-items-center mb-3">
                           <FontAwesomeIcon icon="calendar-alt" className="me-2" />
                           {t('adminAccount.content.list.updatedAt', {
                             ns: 'admin-account',

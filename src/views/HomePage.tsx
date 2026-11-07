@@ -65,7 +65,7 @@ export default function HomePage({ contentByLocale }: Readonly<HomePageProps>) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }} />
       <header className="page-header">
         <h1 className="page-header-title fw-bold">{t('home.header.title')}</h1>
-        <p className="page-header-subtitle text-muted fs-4">{t('home.header.subtitle')}</p>
+        <p className="page-header-subtitle theme-text-muted fs-4">{t('home.header.subtitle')}</p>
       </header>
       <PostCarousel posts={posts.slice(0, 3)} />
       <PostList posts={posts} topics={topics} showLikes />

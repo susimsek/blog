@@ -31,18 +31,18 @@ export default function AdminContentMediaDeleteModal({
         <Modal.Title>{t('adminAccount.content.media.deleteConfirm.title', { ns: 'admin-account' })}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <p className="small text-muted mb-3">
+        <p className="small theme-text-muted mb-3">
           {t('adminAccount.content.media.deleteConfirm.copy', {
             ns: 'admin-account',
             name: pendingMediaAssetDelete?.name ?? '',
           })}
         </p>
         <dl className="row gy-2 mb-0 small">
-          <dt className="col-sm-3 text-muted">
+          <dt className="col-sm-3 theme-text-muted">
             {t('adminAccount.content.media.deleteConfirm.labels.path', { ns: 'admin-account' })}
           </dt>
           <dd className="col-sm-9 mb-0 text-break">{pendingMediaAssetDelete?.value ?? ''}</dd>
-          <dt className="col-sm-3 text-muted">
+          <dt className="col-sm-3 theme-text-muted">
             {t('adminAccount.content.media.deleteConfirm.labels.usage', { ns: 'admin-account' })}
           </dt>
           <dd className="col-sm-9 mb-0 text-break">

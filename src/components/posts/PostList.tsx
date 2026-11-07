@@ -702,7 +702,7 @@ export default function PostList({
           ) : (
             <div className="post-card d-flex align-items-center post-list-empty">
               <div className="post-card-content flex-grow-1 text-center">
-                <div className="text-muted px-4 py-2">
+                <div className="theme-text-muted px-4 py-2">
                   <FontAwesomeIcon icon="exclamation-circle" className="me-2" />
                   {noPostsFoundMessage ?? t('post.noPostsFound')}
                 </div>

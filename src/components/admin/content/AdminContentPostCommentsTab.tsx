@@ -99,7 +99,7 @@ export default function AdminContentPostCommentsTab({
       <div className="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3">
         <div>
           <h5 className="mb-1">{t('adminAccount.content.modals.post.comments.title', { ns: 'admin-account' })}</h5>
-          <p className="small text-muted mb-0">
+          <p className="small theme-text-muted mb-0">
             {t('adminAccount.content.modals.post.comments.copy', { ns: 'admin-account' })}
           </p>
         </div>
@@ -328,7 +328,7 @@ export default function AdminContentPostCommentsTab({
               ariaLabel={t('adminAccount.comments.loading', { ns: 'admin-account' })}
             />
           ) : postCommentsTotal === 0 ? (
-            <p className="small text-muted mb-0">
+            <p className="small theme-text-muted mb-0">
               {t('adminAccount.content.modals.post.comments.empty', { ns: 'admin-account' })}
             </p>
           ) : (
@@ -371,13 +371,13 @@ export default function AdminContentPostCommentsTab({
                               : t('adminAccount.comments.list.rootLabel', { ns: 'admin-account' })}
                           </span>
                         </div>
-                        <div className="small text-muted d-flex align-items-center gap-2 flex-wrap">
+                        <div className="small theme-text-muted d-flex align-items-center gap-2 flex-wrap">
                           <span className="d-inline-flex align-items-center gap-2">
-                            <FontAwesomeIcon icon="envelope" className="text-muted" />
+                            <FontAwesomeIcon icon="envelope" className="theme-text-muted" />
                             <span>{item.authorEmail}</span>
                           </span>
                           <span className="d-inline-flex align-items-center gap-2">
-                            <FontAwesomeIcon icon="calendar-alt" className="text-muted" />
+                            <FontAwesomeIcon icon="calendar-alt" className="theme-text-muted" />
                             <span>
                               {t('adminAccount.comments.list.submittedAt', {
                                 ns: 'admin-account',
@@ -387,7 +387,7 @@ export default function AdminContentPostCommentsTab({
                           </span>
                           {item.updatedAt && item.updatedAt !== item.createdAt ? (
                             <span className="d-inline-flex align-items-center gap-2">
-                              <FontAwesomeIcon icon="clock" className="text-muted" />
+                              <FontAwesomeIcon icon="clock" className="theme-text-muted" />
                               <span>
                                 {t('adminAccount.comments.list.updatedAt', {
                                   ns: 'admin-account',

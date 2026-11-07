@@ -16,7 +16,6 @@ export function SortDropdown({ sortOrder, onChange }: Readonly<SortDropdownProps
     <DropdownButton
       id="sort-dropdown"
       variant="green"
-      className="mb-2"
       align="start"
       flip={false}
       title={

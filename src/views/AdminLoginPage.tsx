@@ -52,12 +52,12 @@ export default function AdminLoginPage() {
   });
 
   const trimmedEmail = email.trim();
-  const emailError =
-    trimmedEmail === ''
-      ? t('adminLogin.validation.emailRequired', { ns: 'admin-login' })
-      : !isValidEmail(trimmedEmail)
-        ? t('adminLogin.validation.emailInvalid', { ns: 'admin-login' })
-        : '';
+  let emailError = '';
+  if (trimmedEmail === '') {
+    emailError = t('adminLogin.validation.emailRequired', { ns: 'admin-login' });
+  } else if (!isValidEmail(trimmedEmail)) {
+    emailError = t('adminLogin.validation.emailInvalid', { ns: 'admin-login' });
+  }
   const passwordError =
     password.trim() === '' ? t('adminLogin.validation.passwordRequired', { ns: 'admin-login' }) : '';
   const showEmailError = hasSubmitted && emailError !== '';
@@ -301,7 +301,7 @@ export default function AdminLoginPage() {
         <div className="col-12 col-lg-8 col-xl-7 mx-auto">
           <div className="post-card d-flex align-items-center post-summary-card admin-login-card">
             <div className="post-card-content flex-grow-1">
-              <div className="admin-login-eyebrow d-flex align-items-center gap-2 text-uppercase small fw-semibold text-muted mb-3">
+              <div className="admin-login-eyebrow d-flex align-items-center gap-2 text-uppercase small fw-semibold theme-text-muted mb-3">
                 <FontAwesomeIcon icon="shield-halved" />
                 <span>{t('adminLogin.eyebrow', { ns: 'admin-login' })}</span>
               </div>
@@ -432,7 +432,7 @@ export default function AdminLoginPage() {
 
                 {hasSocialLogin ? (
                   <>
-                    <div className="d-flex align-items-center gap-3 text-muted small text-uppercase fw-semibold mb-4">
+                    <div className="d-flex align-items-center gap-3 theme-text-muted small text-uppercase fw-semibold mb-4">
                       <span className="flex-grow-1 border-top" />
                       <span>{t('adminLogin.google.or', { ns: 'admin-login' })}</span>
                       <span className="flex-grow-1 border-top" />
@@ -491,7 +491,7 @@ export default function AdminLoginPage() {
                   </>
                 ) : null}
 
-                <p className="small text-muted mb-0 mt-3">{t('adminLogin.help', { ns: 'admin-login' })}</p>
+                <p className="small theme-text-muted mb-0 mt-3">{t('adminLogin.help', { ns: 'admin-login' })}</p>
               </Form>
             </div>
           </div>

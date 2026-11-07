@@ -12,12 +12,12 @@ export default function LocaleNotFoundPage() {
   return (
     <Layout>
       <section className="text-center py-5">
-        <h1 className="display-1 fw-bold text-danger">
+        <h1 className="display-1 fw-bold theme-text-danger">
           <FontAwesomeIcon icon="exclamation-triangle" className="me-2" />
           {t('404.errorCode')}
         </h1>
         <h2 className="mb-4">{t('404.header')}</h2>
-        <p className="fs-5 text-muted mb-4">{t('404.description')}</p>
+        <p className="fs-5 theme-text-muted mb-4">{t('404.description')}</p>
         <Link href="/" className="btn btn-primary px-4">
           <FontAwesomeIcon icon="home" className="me-2" />
           {t('404.backToHome')}

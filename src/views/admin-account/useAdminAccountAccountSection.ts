@@ -49,20 +49,20 @@ export default function useAdminAccountAccountSection({
   const resolvedUsernameInput = usernameInput.trim();
   const profileUsername = adminUser?.username?.trim() ?? '';
   const isUsernameDirty = resolvedUsernameInput.toLowerCase() !== profileUsername.toLowerCase();
-  const usernameValidationError =
-    resolvedUsernameInput === ''
-      ? t('adminAccount.validation.usernameRequired', { ns: 'admin-account' })
-      : resolvedUsernameInput.length < MIN_USERNAME_LENGTH || resolvedUsernameInput.length > MAX_USERNAME_LENGTH
-        ? t('adminAccount.validation.usernameLength', {
-            ns: 'admin-account',
-            min: MIN_USERNAME_LENGTH,
-            max: MAX_USERNAME_LENGTH,
-          })
-        : !USERNAME_PATTERN.test(resolvedUsernameInput)
-          ? t('adminAccount.validation.usernamePattern', { ns: 'admin-account' })
-          : profileUsername.toLowerCase() === resolvedUsernameInput.toLowerCase()
-            ? t('adminAccount.validation.usernameDifferent', { ns: 'admin-account' })
-            : '';
+  let usernameValidationError = '';
+  if (resolvedUsernameInput === '') {
+    usernameValidationError = t('adminAccount.validation.usernameRequired', { ns: 'admin-account' });
+  } else if (resolvedUsernameInput.length < MIN_USERNAME_LENGTH || resolvedUsernameInput.length > MAX_USERNAME_LENGTH) {
+    usernameValidationError = t('adminAccount.validation.usernameLength', {
+      ns: 'admin-account',
+      min: MIN_USERNAME_LENGTH,
+      max: MAX_USERNAME_LENGTH,
+    });
+  } else if (!USERNAME_PATTERN.test(resolvedUsernameInput)) {
+    usernameValidationError = t('adminAccount.validation.usernamePattern', { ns: 'admin-account' });
+  } else if (profileUsername.toLowerCase() === resolvedUsernameInput.toLowerCase()) {
+    usernameValidationError = t('adminAccount.validation.usernameDifferent', { ns: 'admin-account' });
+  }
   const showUsernameValidationError = (usernameSubmitted || isUsernameDirty) && usernameValidationError !== '';
   const deletePasswordError =
     deleteCurrentPassword === '' ? t('adminAccount.validation.currentPasswordRequired', { ns: 'admin-account' }) : '';

@@ -22,7 +22,7 @@ export default function SegmentErrorPage({ error, reset }: Readonly<ErrorPagePro
   return (
     <div className="container py-5">
       <h1 className="h3 fw-bold mb-3">Something went wrong</h1>
-      <p className="text-muted mb-4">An unexpected error occurred while rendering this page segment.</p>
+      <p className="theme-text-muted mb-4">An unexpected error occurred while rendering this page segment.</p>
       <Button variant="primary" onClick={() => reset()}>
         Try again
       </Button>

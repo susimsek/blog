@@ -99,7 +99,7 @@ export default function AdminForgotPasswordPage() {
         <div className="col-12 col-lg-8 col-xl-7 mx-auto">
           <div className="post-card d-flex align-items-center post-summary-card admin-login-card">
             <div className="post-card-content flex-grow-1">
-              <div className="admin-login-eyebrow d-flex align-items-center gap-2 text-uppercase small fw-semibold text-muted mb-3">
+              <div className="admin-login-eyebrow d-flex align-items-center gap-2 text-uppercase small fw-semibold theme-text-muted mb-3">
                 <FontAwesomeIcon icon="lock" />
                 <span>{t('adminPasswordReset.request.eyebrow')}</span>
               </div>
@@ -174,7 +174,7 @@ export default function AdminForgotPasswordPage() {
                   </a>
                 </div>
 
-                <p className="small text-muted mb-0 mt-4">{t('adminPasswordReset.request.help')}</p>
+                <p className="small theme-text-muted mb-0 mt-4">{t('adminPasswordReset.request.help')}</p>
               </Form>
             </div>
           </div>

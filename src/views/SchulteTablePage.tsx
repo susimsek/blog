@@ -29,7 +29,7 @@ export default function SchulteTablePage({ contentByLocale }: Readonly<SchulteTa
     >
       <section className="schulte-page-section stack stack-24">
         <header className="schulte-page-hero">
-          <h1 className="page-header-title fw-bold mb-2">{t('games.schulte.title')}</h1>
+          <h1 className="page-header-title fw-bold">{t('games.schulte.title')}</h1>
           <div className="schulte-page-kicker-wrap">
             <Badge bg="danger" className="badge-red schulte-page-kicker">
               {t('games.schulte.badge')}
@@ -43,7 +43,8 @@ export default function SchulteTablePage({ contentByLocale }: Readonly<SchulteTa
           alt={t('games.schulte.meta.title')}
           width={1200}
           height={630}
-          className="schulte-page-preview mb-0"
+          className="schulte-page-preview"
+          noBottomMargin
           priority
         />
 

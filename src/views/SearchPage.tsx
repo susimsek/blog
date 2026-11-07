@@ -23,7 +23,7 @@ export default function SearchPage({ contentByLocale }: Readonly<SearchPageProps
       <div>
         <header className="page-header">
           <h1 className="page-header-title fw-bold">{t('search.title')}</h1>
-          <p className="page-header-subtitle text-muted fs-4">{t('search.subtitle', { query: routeQuery })}</p>
+          <p className="page-header-subtitle theme-text-muted fs-4">{t('search.subtitle', { query: routeQuery })}</p>
         </header>
         <PostList
           posts={posts}

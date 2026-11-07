@@ -81,7 +81,7 @@ export default function TopicPage({ contentByLocale }: Readonly<TopicPageProps>)
         </nav>
         <header className="page-header page-header-after-breadcrumb">
           <h1 className="page-header-title fw-bold">{topicTitle}</h1>
-          <p className="page-header-subtitle text-muted fs-4">{t('topic.subtitle', { topic: topic.name })}</p>
+          <p className="page-header-subtitle theme-text-muted fs-4">{t('topic.subtitle', { topic: topic.name })}</p>
         </header>
         <PostList posts={posts} topics={topics} noPostsFoundMessage={t('topic.no_posts', { topic: topic.name })} />
       </div>

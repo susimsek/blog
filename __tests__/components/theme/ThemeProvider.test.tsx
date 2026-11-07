@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import ThemeProvider from '@/components/theme/ThemeProvider';
 import { useAppDispatch, useAppSelector } from '@/config/store';
 
@@ -43,6 +43,8 @@ describe('ThemeProvider', () => {
         <div>Child Content</div>
       </ThemeProvider>,
     );
+
+    expect(screen.getByText('Child Content')).toBeInTheDocument();
   });
 
   it('reads theme state through the selector callback', () => {

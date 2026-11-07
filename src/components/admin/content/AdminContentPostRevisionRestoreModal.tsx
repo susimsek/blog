@@ -34,7 +34,7 @@ export default function AdminContentPostRevisionRestoreModal({
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <p className="small text-muted mb-3">
+        <p className="small theme-text-muted mb-3">
           {t('adminAccount.content.modals.post.revisions.restoreCopy', {
             ns: 'admin-account',
             revision: pendingPostRevisionRestore?.revisionNumber ?? 0,
@@ -42,15 +42,15 @@ export default function AdminContentPostRevisionRestoreModal({
         </p>
         {pendingPostRevisionRestore ? (
           <dl className="row gy-2 mb-0 small">
-            <dt className="col-sm-4 text-muted">
+            <dt className="col-sm-4 theme-text-muted">
               {t('adminAccount.content.modals.post.revisions.restoreLabels.title', { ns: 'admin-account' })}
             </dt>
             <dd className="col-sm-8 mb-0">{pendingPostRevisionRestore.title}</dd>
-            <dt className="col-sm-4 text-muted">
+            <dt className="col-sm-4 theme-text-muted">
               {t('adminAccount.content.modals.post.revisions.restoreLabels.createdAt', { ns: 'admin-account' })}
             </dt>
             <dd className="col-sm-8 mb-0">{formatDateTime(pendingPostRevisionRestore.createdAt)}</dd>
-            <dt className="col-sm-4 text-muted">
+            <dt className="col-sm-4 theme-text-muted">
               {t('adminAccount.content.modals.post.revisions.restoreLabels.status', { ns: 'admin-account' })}
             </dt>
             <dd className="col-sm-8 mb-0">

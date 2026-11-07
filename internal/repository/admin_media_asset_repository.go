@@ -26,6 +26,10 @@ const (
 	adminMediaLibrarySortName   = "NAME"
 	adminMediaLibrarySortSize   = "SIZE"
 	adminMediaLibrarySortUsage  = "USAGE"
+	mongoOperatorAddToSet       = "$addToSet"
+	mongoFieldThumbnail         = "$thumbnail"
+	mongoFieldPostIDs           = "$postIDs"
+	mongoFieldValue             = "$value"
 )
 
 type AdminMediaAssetRepository interface {
@@ -258,14 +262,14 @@ func (*adminMediaAssetMongoRepository) CountMediaAssetUsage(ctx context.Context,
 	cursor, err := postsCollection.Aggregate(
 		ctx,
 		mongo.Pipeline{
-			bson.D{{Key: "$match", Value: bson.M{"thumbnail": resolvedValue}}},
-			bson.D{{Key: "$group", Value: bson.M{
+			bson.D{{Key: mongoStageMatch, Value: bson.M{"thumbnail": resolvedValue}}},
+			bson.D{{Key: mongoStageGroup, Value: bson.M{
 				"_id":     nil,
-				"postIDs": bson.M{"$addToSet": "$id"},
+				"postIDs": bson.M{mongoOperatorAddToSet: "$id"},
 			}}},
-			bson.D{{Key: "$project", Value: bson.M{
+			bson.D{{Key: mongoStageProject, Value: bson.M{
 				"_id":        0,
-				"usageCount": bson.M{"$size": "$postIDs"},
+				"usageCount": bson.M{"$size": mongoFieldPostIDs},
 			}}},
 		},
 	)
@@ -431,21 +435,21 @@ func buildUploadedMediaLibraryPipeline(postsCollectionName, query string) mongo.
 	valueExpr := bson.M{"$concat": bson.A{"/api/media/", "$id"}}
 
 	return mongo.Pipeline{
-		bson.D{{Key: "$match", Value: match}},
+		bson.D{{Key: mongoStageMatch, Value: match}},
 		bson.D{{Key: "$lookup", Value: bson.M{
 			"from": postsCollectionName,
 			"let":  bson.M{"thumbnailValue": valueExpr},
 			"pipeline": bson.A{
-				bson.M{"$match": bson.M{
-					"$expr": bson.M{"$eq": bson.A{"$thumbnail", "$$thumbnailValue"}},
+				bson.M{mongoStageMatch: bson.M{
+					"$expr": bson.M{"$eq": bson.A{mongoFieldThumbnail, "$$thumbnailValue"}},
 				}},
-				bson.M{"$group": bson.M{
+				bson.M{mongoStageGroup: bson.M{
 					"_id":     nil,
-					"postIDs": bson.M{"$addToSet": "$id"},
+					"postIDs": bson.M{mongoOperatorAddToSet: "$id"},
 				}},
-				bson.M{"$project": bson.M{
+				bson.M{mongoStageProject: bson.M{
 					"_id":        0,
-					"usageCount": bson.M{"$size": "$postIDs"},
+					"usageCount": bson.M{"$size": mongoFieldPostIDs},
 				}},
 			},
 			"as": "usageMeta",
@@ -454,10 +458,10 @@ func buildUploadedMediaLibraryPipeline(postsCollectionName, query string) mongo.
 			"kind":       "UPLOADED",
 			"value":      valueExpr,
 			"previewUrl": valueExpr,
-			"usageCount": bson.M{"$ifNull": bson.A{bson.M{"$first": "$usageMeta.usageCount"}, 0}},
+			"usageCount": bson.M{"$ifNull": bson.A{bson.M{mongoFieldFirst: "$usageMeta.usageCount"}, 0}},
 			"sortName":   bson.M{"$toLower": "$name"},
 		}}},
-		bson.D{{Key: "$project", Value: bson.M{
+		bson.D{{Key: mongoStageProject, Value: bson.M{
 			"_id":         0,
 			"id":          "$id",
 			"kind":        1,
@@ -470,7 +474,7 @@ func buildUploadedMediaLibraryPipeline(postsCollectionName, query string) mongo.
 			"sizeBytes":   "$sizeBytes",
 			"usageCount":  1,
 			"createdAt":   "$createdAt",
-			"updatedAt":   "$updatedAt",
+			"updatedAt":   mongoFieldUpdatedAt,
 			"sortName":    1,
 		}}},
 	}
@@ -520,7 +524,7 @@ func buildReferencedMediaLibraryPipeline(query string) mongo.Pipeline {
 														"$split": bson.A{
 															bson.M{
 																"$arrayElemAt": bson.A{
-																	bson.M{"$split": bson.A{"$value", "/"}},
+																	bson.M{"$split": bson.A{mongoFieldValue, "/"}},
 																	-1,
 																},
 															},
@@ -546,26 +550,26 @@ func buildReferencedMediaLibraryPipeline(query string) mongo.Pipeline {
 	}
 
 	return mongo.Pipeline{
-		bson.D{{Key: "$match", Value: match}},
-		bson.D{{Key: "$group", Value: bson.M{
-			"_id":       "$thumbnail",
-			"value":     bson.M{"$first": "$thumbnail"},
+		bson.D{{Key: mongoStageMatch, Value: match}},
+		bson.D{{Key: mongoStageGroup, Value: bson.M{
+			"_id":       mongoFieldThumbnail,
+			"value":     bson.M{mongoFieldFirst: mongoFieldThumbnail},
 			"title":     bson.M{"$first": "$title"},
-			"updatedAt": bson.M{"$max": "$updatedAt"},
-			"postIDs":   bson.M{"$addToSet": "$id"},
+			"updatedAt": bson.M{"$max": mongoFieldUpdatedAt},
+			"postIDs":   bson.M{mongoOperatorAddToSet: "$id"},
 		}}},
 		bson.D{{Key: "$addFields", Value: bson.M{
-			"usageCount": bson.M{"$size": "$postIDs"},
-			"id":         bson.M{"$concat": bson.A{"ref:", "$value"}},
+			"usageCount": bson.M{"$size": mongoFieldPostIDs},
+			"id":         bson.M{"$concat": bson.A{"ref:", mongoFieldValue}},
 			"name":       referenceNameExpr,
-			"previewUrl": "$value",
+			"previewUrl": mongoFieldValue,
 			"kind":       "REFERENCE",
 			"sizeBytes":  0,
 			"width":      0,
 			"height":     0,
 			"sortName":   bson.M{"$toLower": referenceNameExpr},
 		}}},
-		bson.D{{Key: "$project", Value: bson.M{
+		bson.D{{Key: mongoStageProject, Value: bson.M{
 			"_id":         0,
 			"id":          1,
 			"kind":        1,
@@ -577,7 +581,7 @@ func buildReferencedMediaLibraryPipeline(query string) mongo.Pipeline {
 			"height":      1,
 			"sizeBytes":   1,
 			"usageCount":  1,
-			"createdAt":   "$updatedAt",
+			"createdAt":   mongoFieldUpdatedAt,
 			"updatedAt":   1,
 			"sortName":    1,
 		}}},

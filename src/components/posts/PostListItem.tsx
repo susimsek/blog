@@ -50,16 +50,16 @@ export default function PostListItem({ post }: Readonly<PostListItemProps>) {
             )}
             <h6 className="post-title mb-0">{title}</h6>
           </div>
-          <p className="post-date text-muted mb-1">
-            <span className="text-muted d-block mb-1">
+          <p className="post-date theme-text-muted mb-1">
+            <span className="theme-text-muted d-block mb-1">
               <FontAwesomeIcon icon="calendar-alt" className="me-2" />
               <DateDisplay date={publishedDate} />
             </span>
-            <span className="text-muted d-block">
+            <span className="theme-text-muted d-block">
               <FontAwesomeIcon icon="clock" className="me-2" />
               {formatReadingTime(readingTimeMin, t)}
             </span>
-            <span className="text-muted d-block mt-1">
+            <span className="theme-text-muted d-block mt-1">
               <FontAwesomeIcon icon={sourceIcon} className="me-2" />
               {sourceLabel}
             </span>

@@ -266,7 +266,7 @@ export default function AdminAccountNewsletterSection({
                   </div>
 
                   {newsletterDispatchTimestamp ? (
-                    <div className="small text-muted mt-3">
+                    <div className="small theme-text-muted mt-3">
                       {t('adminAccount.newsletter.operations.lastRun', {
                         ns: 'admin-account',
                         value: formatSessionDate(newsletterDispatchTimestamp),
@@ -286,7 +286,7 @@ export default function AdminAccountNewsletterSection({
                                 : t('adminAccount.newsletter.operations.result.completed', { ns: 'admin-account' })}
                             </span>
                           </div>
-                          <div className="small text-muted mt-2">
+                          <div className="small theme-text-muted mt-2">
                             {t('adminAccount.newsletter.operations.result.meta', {
                               ns: 'admin-account',
                               locale: result.locale.toUpperCase(),
@@ -308,7 +308,7 @@ export default function AdminAccountNewsletterSection({
                       <h4 className="admin-dashboard-panel-title mb-2">
                         {t('adminAccount.newsletter.summary.title', { ns: 'admin-account' })}
                       </h4>
-                      <p className="small text-muted mb-0">
+                      <p className="small theme-text-muted mb-0">
                         {t('adminAccount.newsletter.summary.copy', { ns: 'admin-account' })}
                       </p>
                     </div>
@@ -364,7 +364,7 @@ export default function AdminAccountNewsletterSection({
                   <h4 className="admin-dashboard-panel-title mb-2">
                     {t('adminAccount.newsletter.campaigns.title', { ns: 'admin-account' })}
                   </h4>
-                  <p className="small text-muted mb-3">
+                  <p className="small theme-text-muted mb-3">
                     {t('adminAccount.newsletter.campaigns.copy', { ns: 'admin-account' })}
                   </p>
 
@@ -396,7 +396,7 @@ export default function AdminAccountNewsletterSection({
                                       item.title
                                     )}
                                   </h4>
-                                  <div className="d-flex flex-wrap align-items-center gap-3 text-muted">
+                                  <div className="d-flex flex-wrap align-items-center gap-3 theme-text-muted">
                                     <span className="d-inline-flex align-items-center gap-2">
                                       {item.locale === 'en' || item.locale === 'tr' ? (
                                         <FlagIcon
@@ -407,7 +407,7 @@ export default function AdminAccountNewsletterSection({
                                           height={18}
                                         />
                                       ) : (
-                                        <FontAwesomeIcon icon="globe" className="text-muted" />
+                                        <FontAwesomeIcon icon="globe" className="theme-text-muted" />
                                       )}
                                       <span>{resolveNewsletterLocaleLabel(item.locale, item.locale)}</span>
                                     </span>
@@ -415,9 +415,9 @@ export default function AdminAccountNewsletterSection({
                                   </div>
                                 </div>
 
-                                <div className="post-summary-meta-stack mb-2">
+                                <div className="post-summary-meta-stack">
                                   <div className="post-summary-meta mb-0">
-                                    <span className="text-muted d-inline-flex align-items-center lh-1">
+                                    <span className="theme-text-muted d-inline-flex align-items-center lh-1">
                                       <FontAwesomeIcon icon="paper-plane" className="me-2" />
                                       <span className="post-summary-like-value">
                                         {t('adminAccount.newsletter.campaigns.metrics.sent', {
@@ -426,7 +426,7 @@ export default function AdminAccountNewsletterSection({
                                         })}
                                       </span>
                                     </span>
-                                    <span className="text-muted d-inline-flex align-items-center lh-1">
+                                    <span className="theme-text-muted d-inline-flex align-items-center lh-1">
                                       <FontAwesomeIcon icon="exclamation-triangle" className="me-2" />
                                       <span className="post-summary-like-value">
                                         {t('adminAccount.newsletter.campaigns.metrics.failed', {
@@ -438,7 +438,7 @@ export default function AdminAccountNewsletterSection({
                                   </div>
                                   {item.lastRunAt ? (
                                     <div className="post-summary-meta mb-0 admin-newsletter-campaign-last-run">
-                                      <span className="text-muted d-inline-flex align-items-center lh-1">
+                                      <span className="theme-text-muted d-inline-flex align-items-center lh-1">
                                         <FontAwesomeIcon icon="calendar-alt" className="me-2" />
                                         <span>
                                           {t('adminAccount.newsletter.campaigns.metrics.lastRunAt', {
@@ -466,47 +466,47 @@ export default function AdminAccountNewsletterSection({
                                   </div>
                                 ) : null}
                                 {item.summary ? (
-                                  <p className="post-summary-text small text-muted mb-2">{item.summary}</p>
+                                  <p className="post-summary-text small theme-text-muted mb-2">{item.summary}</p>
                                 ) : null}
                                 <div className="post-summary-cta d-flex flex-wrap gap-2">
-                                <Button
-                                  type="button"
-                                  variant="primary"
-                                  size="sm"
-                                  className="d-inline-flex align-items-center justify-content-center"
-                                  onClick={() => {
-                                    onOpenNewsletterTest(item);
-                                  }}
-                                >
-                                  <FontAwesomeIcon icon="envelope" className="me-2" />
-                                  {t('adminAccount.newsletter.campaigns.actions.sendTest', { ns: 'admin-account' })}
-                                </Button>
-                                {item.failedCount > 0 ? (
                                   <Button
                                     type="button"
-                                    variant="outline-secondary"
+                                    variant="primary"
                                     size="sm"
                                     className="d-inline-flex align-items-center justify-content-center"
                                     onClick={() => {
-                                      void onViewNewsletterFailures(item);
+                                      onOpenNewsletterTest(item);
                                     }}
                                   >
-                                    <FontAwesomeIcon icon="exclamation-triangle" className="me-2" />
-                                    {t('adminAccount.newsletter.campaigns.actions.viewFailures', {
-                                      ns: 'admin-account',
-                                    })}
+                                    <FontAwesomeIcon icon="envelope" className="me-2" />
+                                    {t('adminAccount.newsletter.campaigns.actions.sendTest', { ns: 'admin-account' })}
                                   </Button>
-                                ) : null}
-                                {item.link ? (
-                                  <Link
-                                    href={item.link}
-                                    className="btn btn-success btn-sm d-inline-flex align-items-center"
-                                  >
-                                    <FontAwesomeIcon icon="up-right-from-square" className="me-2" />
-                                    {t('adminAccount.newsletter.campaigns.actions.openPost', { ns: 'admin-account' })}
-                                  </Link>
-                                ) : null}
-                              </div>
+                                  {item.failedCount > 0 ? (
+                                    <Button
+                                      type="button"
+                                      variant="outline-secondary"
+                                      size="sm"
+                                      className="d-inline-flex align-items-center justify-content-center"
+                                      onClick={() => {
+                                        void onViewNewsletterFailures(item);
+                                      }}
+                                    >
+                                      <FontAwesomeIcon icon="exclamation-triangle" className="me-2" />
+                                      {t('adminAccount.newsletter.campaigns.actions.viewFailures', {
+                                        ns: 'admin-account',
+                                      })}
+                                    </Button>
+                                  ) : null}
+                                  {item.link ? (
+                                    <Link
+                                      href={item.link}
+                                      className="btn btn-success btn-sm d-inline-flex align-items-center"
+                                    >
+                                      <FontAwesomeIcon icon="up-right-from-square" className="me-2" />
+                                      {t('adminAccount.newsletter.campaigns.actions.openPost', { ns: 'admin-account' })}
+                                    </Link>
+                                  ) : null}
+                                </div>
                               </div>
                             </div>
                           );
@@ -627,7 +627,7 @@ export default function AdminAccountNewsletterSection({
                       <h4 className="admin-dashboard-panel-title mb-2">
                         {t('adminAccount.newsletter.subscribers.title', { ns: 'admin-account' })}
                       </h4>
-                      <p className="small text-muted mb-0">
+                      <p className="small theme-text-muted mb-0">
                         {t('adminAccount.newsletter.subscribers.copy', { ns: 'admin-account' })}
                       </p>
                     </div>
@@ -653,7 +653,7 @@ export default function AdminAccountNewsletterSection({
                             <div key={item.email} className="border rounded-3 p-3 w-100">
                               <div className="fw-bold fs-5 text-break">{item.email}</div>
                               <div className="mt-2 d-flex align-items-center flex-wrap gap-2">
-                                <span className="d-inline-flex align-items-center gap-2 text-muted">
+                                <span className="d-inline-flex align-items-center gap-2 theme-text-muted">
                                   {localeCode === 'en' || localeCode === 'tr' ? (
                                     <FlagIcon
                                       className="flex-shrink-0"
@@ -663,7 +663,7 @@ export default function AdminAccountNewsletterSection({
                                       height={18}
                                     />
                                   ) : (
-                                    <FontAwesomeIcon icon="globe" className="text-muted" />
+                                    <FontAwesomeIcon icon="globe" className="theme-text-muted" />
                                   )}
                                   <span>{localeLabel}</span>
                                 </span>
@@ -674,7 +674,7 @@ export default function AdminAccountNewsletterSection({
                                 </span>
                               </div>
                               {item.updatedAt ? (
-                                <div className="small mt-2 text-muted d-flex align-items-center flex-wrap">
+                                <div className="small mt-2 theme-text-muted d-flex align-items-center flex-wrap">
                                   <FontAwesomeIcon icon="calendar-alt" className="me-2" />
                                   {t('adminAccount.newsletter.list.updatedAt', {
                                     ns: 'admin-account',
@@ -816,7 +816,7 @@ export default function AdminAccountNewsletterSection({
           <Modal.Title>{t('adminAccount.newsletter.deleteConfirm.title', { ns: 'admin-account' })}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p className="small text-muted mb-0">
+          <p className="small theme-text-muted mb-0">
             {t('adminAccount.newsletter.deleteConfirm.copy', {
               ns: 'admin-account',
               email: pendingNewsletterDelete?.email ?? '',
@@ -866,7 +866,7 @@ export default function AdminAccountNewsletterSection({
           <Modal.Title>{t('adminAccount.newsletter.failures.title', { ns: 'admin-account' })}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div className="small text-muted mb-3">
+          <div className="small theme-text-muted mb-3">
             {t('adminAccount.newsletter.failures.copy', {
               ns: 'admin-account',
               title: selectedNewsletterCampaign?.title ?? '',
@@ -880,21 +880,21 @@ export default function AdminAccountNewsletterSection({
             emptyMessage: t('adminAccount.newsletter.failures.empty', { ns: 'admin-account' }),
             children: (
               <div className="d-grid gap-2">
-                <div className="small text-muted">
+                <div className="small theme-text-muted">
                   {t('adminAccount.newsletter.failures.total', { ns: 'admin-account', count: newsletterFailuresTotal })}
                 </div>
                 {newsletterCampaignFailures.map(item => (
                   <div key={`${item.itemKey}-${item.email}`} className="border rounded-3 p-3">
                     <div className="fw-semibold text-break">{item.email}</div>
                     {item.lastAttemptAt ? (
-                      <div className="small text-muted mt-2">
+                      <div className="small theme-text-muted mt-2">
                         {t('adminAccount.newsletter.failures.lastAttemptAt', {
                           ns: 'admin-account',
                           value: formatSessionDate(item.lastAttemptAt),
                         })}
                       </div>
                     ) : null}
-                    {item.lastError ? <div className="small text-muted mt-2">{item.lastError}</div> : null}
+                    {item.lastError ? <div className="small theme-text-muted mt-2">{item.lastError}</div> : null}
                   </div>
                 ))}
               </div>
@@ -918,7 +918,7 @@ export default function AdminAccountNewsletterSection({
           <Modal.Title>{t('adminAccount.newsletter.testSend.title', { ns: 'admin-account' })}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p className="small text-muted mb-3">
+          <p className="small theme-text-muted mb-3">
             {t('adminAccount.newsletter.testSend.copy', {
               ns: 'admin-account',
               title: pendingNewsletterTestCampaign?.title ?? '',

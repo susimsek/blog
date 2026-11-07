@@ -72,8 +72,8 @@ const (
 	adminAvatarImageRequiredMessage       = "avatar image is required"
 	adminAvatarBase64InvalidMessage       = "avatar must be a valid base64 image"
 	adminAvatarNotFoundMessage            = "avatar not found"
-	adminAvatarContentTypeJPEG            = "image/jpeg"
-	adminAvatarContentTypePNG             = "image/png"
+	adminImageContentTypeJPEG             = "image/jpeg"
+	adminImageContentTypePNG              = "image/png"
 	adminAvatarContentTypeWEBP            = "image/webp"
 )
 
