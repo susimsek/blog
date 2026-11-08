@@ -23,7 +23,6 @@ import {
   type AdminContentTopicItem,
 } from '@/lib/adminApi';
 import { buildAdminContentPostDetailRoute } from '@/lib/adminRoutes';
-import type { PostCategoryRef } from '@/types/posts';
 
 type AdminAccountTranslate = TFunction;
 type LocaleFilterValue = 'all' | 'en' | 'tr';
@@ -92,6 +91,53 @@ const resolveAdminContentThumbnailSrc = (value: string | null) => {
   }
   const normalizedPrefix = assetPrefix.endsWith('/') ? assetPrefix.slice(0, -1) : assetPrefix;
   return `${normalizedPrefix}${normalizedPath}`;
+};
+
+const getAdminContentPostDisplayData = (
+  group: AdminContentPostGroupItem,
+  t: AdminAccountTranslate,
+  categoriesByLocaleAndID: ReadonlyMap<string, AdminContentCategoryItem>,
+  topicsByLocaleAndID: ReadonlyMap<string, AdminContentTopicItem>,
+) => {
+  const item = group.preferred;
+  const localeCode = item.locale.toLowerCase();
+  const normalizedSource = item.source === 'medium' ? 'medium' : 'blog';
+  const normalizedCategoryName = item.categoryName?.trim().toLowerCase() ?? '';
+  const resolvedCategoryRecord = item.categoryId?.trim()
+    ? categoriesByLocaleAndID.get(`${localeCode}|${item.categoryId.toLowerCase()}`)
+    : null;
+
+  return {
+    item,
+    localeCode,
+    thumbnailSrc: resolveAdminContentThumbnailSrc(item.thumbnail),
+    resolvedSummary: item.summary?.trim() ?? '',
+    sourceLabel:
+      normalizedSource === 'medium'
+        ? t('common.searchSource.medium', { ns: 'common' })
+        : t('common.searchSource.blog', { ns: 'common' }),
+    sourceIcon: (normalizedSource === 'medium' ? ['fab', 'medium'] : 'book') as IconProp,
+    canEditPostContent: normalizedSource === 'blog',
+    shouldShowCategoryBadge:
+      normalizedCategoryName !== '' &&
+      normalizedCategoryName !== 'all category' &&
+      normalizedCategoryName !== 'all categories' &&
+      normalizedCategoryName !== 'tüm kategoriler',
+    resolvedPostCategory: resolvedCategoryRecord
+      ? {
+          id: resolvedCategoryRecord.id,
+          name: resolvedCategoryRecord.name,
+          color: resolvedCategoryRecord.color,
+          icon: resolvedCategoryRecord.icon ?? undefined,
+        }
+      : null,
+    resolvedTopicBadges:
+      item.topicIds.length > 0
+        ? item.topicIds
+            .map(topicID => topicsByLocaleAndID.get(`${localeCode}|${topicID.toLowerCase()}`))
+            .filter((topic): topic is AdminContentTopicItem => Boolean(topic))
+        : [],
+  };
 };
 
 export default function AdminContentPostsTab({
@@ -268,40 +314,17 @@ export default function AdminContentPostsTab({
           {!isLoading && total !== 0 && (
             <div className={`post-list-results post-list-results--${resolvedPostDensityMode}`}>
               {posts.map(group => {
-                const item = group.preferred;
-                const localeCode = item.locale.toLowerCase();
-                const thumbnailSrc = resolveAdminContentThumbnailSrc(item.thumbnail);
-                const resolvedSummary = item.summary?.trim() ?? '';
-                const normalizedSource = item.source === 'medium' ? 'medium' : 'blog';
-                const sourceLabel =
-                  normalizedSource === 'medium'
-                    ? t('common.searchSource.medium', { ns: 'common' })
-                    : t('common.searchSource.blog', { ns: 'common' });
-                const sourceIcon: IconProp = normalizedSource === 'medium' ? (['fab', 'medium'] as IconProp) : 'book';
-                const canEditPostContent = normalizedSource === 'blog';
-                const normalizedCategoryName = item.categoryName?.trim().toLowerCase() ?? '';
-                const shouldShowCategoryBadge =
-                  normalizedCategoryName !== '' &&
-                  normalizedCategoryName !== 'all category' &&
-                  normalizedCategoryName !== 'all categories' &&
-                  normalizedCategoryName !== 'tüm kategoriler';
-                const resolvedCategoryRecord = item.categoryId?.trim()
-                  ? categoriesByLocaleAndID.get(`${localeCode}|${item.categoryId.toLowerCase()}`)
-                  : null;
-                const resolvedPostCategory: PostCategoryRef | null = resolvedCategoryRecord
-                  ? {
-                      id: resolvedCategoryRecord.id,
-                      name: resolvedCategoryRecord.name,
-                      color: resolvedCategoryRecord.color,
-                      icon: resolvedCategoryRecord.icon ?? undefined,
-                    }
-                  : null;
-                const resolvedTopicBadges =
-                  item.topicIds.length > 0
-                    ? item.topicIds
-                        .map(topicID => topicsByLocaleAndID.get(`${localeCode}|${topicID.toLowerCase()}`))
-                        .filter((topic): topic is AdminContentTopicItem => Boolean(topic))
-                    : [];
+                const {
+                  item,
+                  thumbnailSrc,
+                  resolvedSummary,
+                  sourceLabel,
+                  sourceIcon,
+                  canEditPostContent,
+                  shouldShowCategoryBadge,
+                  resolvedPostCategory,
+                  resolvedTopicBadges,
+                } = getAdminContentPostDisplayData(group, t, categoriesByLocaleAndID, topicsByLocaleAndID);
 
                 return (
                   <div

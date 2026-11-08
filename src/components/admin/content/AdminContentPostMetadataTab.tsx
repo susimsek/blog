@@ -91,6 +91,146 @@ type AdminContentPostMetadataTabProps = {
   onOpenRestoreRevision: (revision: AdminContentPostRevisionItem) => void;
 };
 
+type PostRevisionHistoryProps = Pick<
+  AdminContentPostMetadataTabProps,
+  | 't'
+  | 'postRevisionsErrorMessage'
+  | 'isPostRevisionsLoading'
+  | 'postRevisions'
+  | 'postRevisionsTotal'
+  | 'resolvePostLifecycleBadgeVariant'
+  | 'formatDateTime'
+  | 'onOpenRestoreRevision'
+  | 'postRevisionsPage'
+  | 'totalPostRevisionPages'
+  | 'postRevisionsPageSize'
+  | 'onPostRevisionsPageChange'
+  | 'onPostRevisionsPageSizeChange'
+>;
+
+function PostRevisionHistory({
+  t,
+  postRevisionsErrorMessage,
+  isPostRevisionsLoading,
+  postRevisions,
+  postRevisionsTotal,
+  resolvePostLifecycleBadgeVariant,
+  formatDateTime,
+  onOpenRestoreRevision,
+  postRevisionsPage,
+  totalPostRevisionPages,
+  postRevisionsPageSize,
+  onPostRevisionsPageChange,
+  onPostRevisionsPageSizeChange,
+}: Readonly<PostRevisionHistoryProps>) {
+  return (
+    <Card className="mt-4">
+      <Card.Body className="p-3 p-md-4">
+        <div className="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
+          <div>
+            <h5 className="mb-1">{t('adminAccount.content.modals.post.revisions.title', { ns: 'admin-account' })}</h5>
+            <p className="small theme-text-muted mb-0">
+              {t('adminAccount.content.modals.post.revisions.copy', { ns: 'admin-account' })}
+            </p>
+          </div>
+        </div>
+
+        {postRevisionsErrorMessage ? (
+          <Alert variant="danger" className="mb-3">
+            {postRevisionsErrorMessage}
+          </Alert>
+        ) : null}
+
+        {isPostRevisionsLoading && (
+          <div className="d-flex align-items-center gap-2 theme-text-muted small py-2">
+            <Spinner animation="border" size="sm" />
+            <span>{t('adminAccount.content.modals.post.revisions.loading', { ns: 'admin-account' })}</span>
+          </div>
+        )}
+        {!isPostRevisionsLoading && postRevisions.length === 0 && (
+          <p className="small theme-text-muted mb-0">
+            {t('adminAccount.content.modals.post.revisions.empty', { ns: 'admin-account' })}
+          </p>
+        )}
+        {!isPostRevisionsLoading && postRevisions.length !== 0 && (
+          <div className="d-grid gap-3">
+            {postRevisions.map(revision => (
+              <div key={revision.id} className="border rounded-3 p-3">
+                <div className="d-flex flex-wrap align-items-start justify-content-between gap-3">
+                  <div className="d-grid gap-2">
+                    <div className="d-flex flex-wrap align-items-center gap-2">
+                      <Badge bg="dark">
+                        {t('adminAccount.content.modals.post.revisions.revisionBadge', {
+                          ns: 'admin-account',
+                          revision: revision.revisionNumber,
+                        })}
+                      </Badge>
+                      <Badge bg={resolvePostLifecycleBadgeVariant(revision.status)}>
+                        {t(`adminAccount.content.modals.post.lifecycle.statuses.${revision.status.toLowerCase()}`, {
+                          ns: 'admin-account',
+                        })}
+                      </Badge>
+                    </div>
+                    <div className="small theme-text-muted">
+                      {t('adminAccount.content.modals.post.revisions.createdAt', {
+                        ns: 'admin-account',
+                        value: formatDateTime(revision.createdAt),
+                      })}
+                    </div>
+                    <div className="fw-semibold">{revision.title}</div>
+                    {revision.summary ? <div className="small theme-text-muted">{revision.summary}</div> : null}
+                    <div className="d-flex flex-wrap gap-3 small theme-text-muted">
+                      <span>
+                        {t('adminAccount.content.modals.post.revisions.publishedDate', {
+                          ns: 'admin-account',
+                          value: revision.publishedDate,
+                        })}
+                      </span>
+                      {revision.updatedDate ? (
+                        <span>
+                          {t('adminAccount.content.modals.post.revisions.updatedDate', {
+                            ns: 'admin-account',
+                            value: revision.updatedDate,
+                          })}
+                        </span>
+                      ) : null}
+                      {revision.scheduledAt ? (
+                        <span>
+                          {t('adminAccount.content.modals.post.revisions.scheduledAt', {
+                            ns: 'admin-account',
+                            value: formatDateTime(revision.scheduledAt),
+                          })}
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                  <Button type="button" variant="outline-primary" onClick={() => onOpenRestoreRevision(revision)}>
+                    <FontAwesomeIcon icon="rotate-left" className="me-2" />
+                    {t('adminAccount.content.modals.post.revisions.restore', { ns: 'admin-account' })}
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card.Body>
+      {!isPostRevisionsLoading && postRevisionsTotal > 0 ? (
+        <Card.Footer className="bg-transparent border-top py-3">
+          <PaginationBar
+            className="border-0 rounded-0 px-2 px-md-3 py-0 bg-transparent shadow-none"
+            currentPage={postRevisionsPage}
+            totalPages={totalPostRevisionPages}
+            totalResults={postRevisionsTotal}
+            size={postRevisionsPageSize}
+            onPageChange={onPostRevisionsPageChange}
+            onSizeChange={onPostRevisionsPageSizeChange}
+          />
+        </Card.Footer>
+      ) : null}
+    </Card>
+  );
+}
+
 export default function AdminContentPostMetadataTab({
   t,
   routeLocale,
@@ -579,110 +719,21 @@ export default function AdminContentPostMetadataTab({
         </div>
       </Form.Group>
 
-      <Card className="mt-4">
-        <Card.Body className="p-3 p-md-4">
-          <div className="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
-            <div>
-              <h5 className="mb-1">{t('adminAccount.content.modals.post.revisions.title', { ns: 'admin-account' })}</h5>
-              <p className="small theme-text-muted mb-0">
-                {t('adminAccount.content.modals.post.revisions.copy', { ns: 'admin-account' })}
-              </p>
-            </div>
-          </div>
-
-          {postRevisionsErrorMessage ? (
-            <Alert variant="danger" className="mb-3">
-              {postRevisionsErrorMessage}
-            </Alert>
-          ) : null}
-
-          {isPostRevisionsLoading && (
-            <div className="d-flex align-items-center gap-2 theme-text-muted small py-2">
-              <Spinner animation="border" size="sm" />
-              <span>{t('adminAccount.content.modals.post.revisions.loading', { ns: 'admin-account' })}</span>
-            </div>
-          )}
-          {!isPostRevisionsLoading && postRevisions.length === 0 && (
-            <p className="small theme-text-muted mb-0">
-              {t('adminAccount.content.modals.post.revisions.empty', { ns: 'admin-account' })}
-            </p>
-          )}
-          {!isPostRevisionsLoading && postRevisions.length !== 0 && (
-            <div className="d-grid gap-3">
-              {postRevisions.map(revision => (
-                <div key={revision.id} className="border rounded-3 p-3">
-                  <div className="d-flex flex-wrap align-items-start justify-content-between gap-3">
-                    <div className="d-grid gap-2">
-                      <div className="d-flex flex-wrap align-items-center gap-2">
-                        <Badge bg="dark">
-                          {t('adminAccount.content.modals.post.revisions.revisionBadge', {
-                            ns: 'admin-account',
-                            revision: revision.revisionNumber,
-                          })}
-                        </Badge>
-                        <Badge bg={resolvePostLifecycleBadgeVariant(revision.status)}>
-                          {t(`adminAccount.content.modals.post.lifecycle.statuses.${revision.status.toLowerCase()}`, {
-                            ns: 'admin-account',
-                          })}
-                        </Badge>
-                      </div>
-                      <div className="small theme-text-muted">
-                        {t('adminAccount.content.modals.post.revisions.createdAt', {
-                          ns: 'admin-account',
-                          value: formatDateTime(revision.createdAt),
-                        })}
-                      </div>
-                      <div className="fw-semibold">{revision.title}</div>
-                      {revision.summary ? <div className="small theme-text-muted">{revision.summary}</div> : null}
-                      <div className="d-flex flex-wrap gap-3 small theme-text-muted">
-                        <span>
-                          {t('adminAccount.content.modals.post.revisions.publishedDate', {
-                            ns: 'admin-account',
-                            value: revision.publishedDate,
-                          })}
-                        </span>
-                        {revision.updatedDate ? (
-                          <span>
-                            {t('adminAccount.content.modals.post.revisions.updatedDate', {
-                              ns: 'admin-account',
-                              value: revision.updatedDate,
-                            })}
-                          </span>
-                        ) : null}
-                        {revision.scheduledAt ? (
-                          <span>
-                            {t('adminAccount.content.modals.post.revisions.scheduledAt', {
-                              ns: 'admin-account',
-                              value: formatDateTime(revision.scheduledAt),
-                            })}
-                          </span>
-                        ) : null}
-                      </div>
-                    </div>
-                    <Button type="button" variant="outline-primary" onClick={() => onOpenRestoreRevision(revision)}>
-                      <FontAwesomeIcon icon="rotate-left" className="me-2" />
-                      {t('adminAccount.content.modals.post.revisions.restore', { ns: 'admin-account' })}
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </Card.Body>
-        {!isPostRevisionsLoading && postRevisionsTotal > 0 ? (
-          <Card.Footer className="bg-transparent border-top py-3">
-            <PaginationBar
-              className="border-0 rounded-0 px-2 px-md-3 py-0 bg-transparent shadow-none"
-              currentPage={postRevisionsPage}
-              totalPages={totalPostRevisionPages}
-              totalResults={postRevisionsTotal}
-              size={postRevisionsPageSize}
-              onPageChange={onPostRevisionsPageChange}
-              onSizeChange={onPostRevisionsPageSizeChange}
-            />
-          </Card.Footer>
-        ) : null}
-      </Card>
+      <PostRevisionHistory
+        t={t}
+        postRevisionsErrorMessage={postRevisionsErrorMessage}
+        isPostRevisionsLoading={isPostRevisionsLoading}
+        postRevisions={postRevisions}
+        postRevisionsTotal={postRevisionsTotal}
+        resolvePostLifecycleBadgeVariant={resolvePostLifecycleBadgeVariant}
+        formatDateTime={formatDateTime}
+        onOpenRestoreRevision={onOpenRestoreRevision}
+        postRevisionsPage={postRevisionsPage}
+        totalPostRevisionPages={totalPostRevisionPages}
+        postRevisionsPageSize={postRevisionsPageSize}
+        onPostRevisionsPageChange={onPostRevisionsPageChange}
+        onPostRevisionsPageSizeChange={onPostRevisionsPageSizeChange}
+      />
     </div>
   );
 }

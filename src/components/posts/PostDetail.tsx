@@ -242,6 +242,69 @@ export const buildPostStructuredData = (post: Post, locale: string, blogLabel = 
   };
 };
 
+const usePostHashNavigation = (markdown: string, articleRef: React.RefObject<HTMLElement | null>) => {
+  React.useEffect(() => {
+    const hash = globalThis.window?.location.hash;
+    if (!hash) {
+      return;
+    }
+
+    let headingId = '';
+    try {
+      headingId = globalThis.decodeURIComponent(hash.slice(1));
+    } catch {
+      return;
+    }
+    if (!headingId) {
+      return;
+    }
+
+    const target = document.getElementById(headingId);
+    if (!target || (articleRef.current && !articleRef.current.contains(target))) {
+      return;
+    }
+
+    const frameId = globalThis.window.requestAnimationFrame(() => {
+      target.scrollIntoView({ behavior: 'auto', block: 'start' });
+    });
+
+    return () => {
+      globalThis.window.cancelAnimationFrame(frameId);
+    };
+  }, [articleRef, markdown]);
+};
+
+const usePostDetailRuntime = (locale: string, postID: string): PostDetailRuntimeState => {
+  const [runtimeState, setRuntimeState] = React.useState<PostDetailRuntimeState>({ status: 'loading' });
+
+  React.useEffect(() => {
+    let isMounted = true;
+    setRuntimeState({ status: 'loading' });
+
+    const loadRuntime = async () => {
+      const runtimePayload = await fetchPostRuntime(locale, postID);
+      if (!isMounted) {
+        return;
+      }
+
+      if (!runtimePayload) {
+        setRuntimeState({ status: 'failed' });
+        return;
+      }
+
+      setRuntimeState({ status: 'success', payload: runtimePayload });
+    };
+
+    void loadRuntime();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [locale, postID]);
+
+  return runtimeState;
+};
+
 export default function PostDetail({
   // NOSONAR
   post,
@@ -260,7 +323,7 @@ export default function PostDetail({
   const markdown = contentHtml ?? '';
   const hasToc = React.useMemo(() => hasSupportedMarkdownHeading(markdown), [markdown]);
   const hasSideRail = true;
-  const [runtimeState, setRuntimeState] = React.useState<PostDetailRuntimeState>({ status: 'loading' });
+  const runtimeState = usePostDetailRuntime(locale, post.id);
   const thumbnailSrc = resolvePostDetailThumbnailSrc(thumbnail);
   const blogLabel = t('common.searchSource.blog', { ns: 'common' });
   const structuredData = React.useMemo(
@@ -349,63 +412,7 @@ export default function PostDetail({
     [],
   );
 
-  React.useEffect(() => {
-    const hash = globalThis.window?.location.hash;
-    if (!hash) {
-      return;
-    }
-
-    let headingId = '';
-    try {
-      headingId = globalThis.decodeURIComponent(hash.slice(1));
-    } catch {
-      return;
-    }
-    if (!headingId) {
-      return;
-    }
-
-    const target = document.getElementById(headingId);
-    if (!target || (articleRef.current && !articleRef.current.contains(target))) {
-      return;
-    }
-
-    const frameId = globalThis.window.requestAnimationFrame(() => {
-      target.scrollIntoView({ behavior: 'auto', block: 'start' });
-    });
-
-    return () => {
-      globalThis.window.cancelAnimationFrame(frameId);
-    };
-  }, [markdown]);
-
-  React.useEffect(() => {
-    let isMounted = true;
-    setRuntimeState({ status: 'loading' });
-
-    const loadRuntime = async () => {
-      const runtimePayload = await fetchPostRuntime(locale, post.id);
-      if (!isMounted) {
-        return;
-      }
-
-      if (!runtimePayload) {
-        setRuntimeState({ status: 'failed' });
-        return;
-      }
-
-      setRuntimeState({
-        status: 'success',
-        payload: runtimePayload,
-      });
-    };
-
-    void loadRuntime();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [locale, post.id]);
+  usePostHashNavigation(markdown, articleRef);
 
   return (
     <>

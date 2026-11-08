@@ -9,6 +9,7 @@ import Modal from 'react-bootstrap/Modal';
 import Spinner from 'react-bootstrap/Spinner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from '@/components/common/Link';
+import { AdminCommentDetails, AdminCommentModerationActions } from '@/components/admin/AdminCommentDetails';
 import PaginationBar from '@/components/pagination/PaginationBar';
 import { buildAdminContentPostDetailRoute } from '@/lib/adminRoutes';
 import type { AdminCommentItem } from '@/lib/adminApi';
@@ -68,6 +69,154 @@ type AdminAccountCommentsSectionProps = {
   onCloseCommentDelete: () => void;
   onConfirmCommentDelete: () => void | Promise<void>;
 };
+
+type CommentBulkActionsProps = Pick<
+  AdminAccountCommentsSectionProps,
+  | 't'
+  | 'allVisibleCommentsSelected'
+  | 'hasSelectedComments'
+  | 'selectedCommentCount'
+  | 'isCommentsLoading'
+  | 'isBulkCommentActionPending'
+  | 'bulkCommentActionStatus'
+  | 'isBulkCommentDeleting'
+  | 'onToggleVisibleCommentsSelection'
+  | 'onClearSelectedComments'
+  | 'onBulkCommentStatusUpdate'
+  | 'onOpenBulkCommentDelete'
+>;
+
+function CommentBulkActions({
+  t,
+  allVisibleCommentsSelected,
+  hasSelectedComments,
+  selectedCommentCount,
+  isCommentsLoading,
+  isBulkCommentActionPending,
+  bulkCommentActionStatus,
+  isBulkCommentDeleting,
+  onToggleVisibleCommentsSelection,
+  onClearSelectedComments,
+  onBulkCommentStatusUpdate,
+  onOpenBulkCommentDelete,
+}: Readonly<CommentBulkActionsProps>) {
+  const renderPendingAction = (status: 'APPROVED' | 'REJECTED' | 'SPAM' | 'DELETE') => {
+    const isPending = status === 'DELETE' ? isBulkCommentDeleting : bulkCommentActionStatus === status;
+    if (!isPending) {
+      return null;
+    }
+
+    const label = status === 'DELETE' ? 'deleting' : 'updating';
+    return (
+      <span className="d-inline-flex align-items-center gap-2">
+        <Spinner
+          as="span"
+          animation="border"
+          size="sm"
+          className="me-2 flex-shrink-0 admin-action-spinner"
+          aria-hidden="true"
+        />
+        <span>{t(`adminAccount.comments.actions.${label}`, { ns: 'admin-account' })}</span>
+      </span>
+    );
+  };
+
+  return (
+    <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+      <div className="d-flex align-items-center gap-2 flex-wrap">
+        <Button
+          type="button"
+          size="sm"
+          variant={allVisibleCommentsSelected ? 'secondary' : 'outline-secondary'}
+          disabled={isCommentsLoading || isBulkCommentActionPending}
+          onClick={onToggleVisibleCommentsSelection}
+        >
+          <FontAwesomeIcon icon={allVisibleCommentsSelected ? 'check-circle' : 'circle'} className="me-2" />
+          {t('adminAccount.comments.bulk.selectAll', { ns: 'admin-account' })}
+        </Button>
+        {hasSelectedComments ? (
+          <>
+            <Badge bg="light" text="dark" pill>
+              {t('adminAccount.comments.bulk.selected', { ns: 'admin-account', count: selectedCommentCount })}
+            </Badge>
+            <Button
+              type="button"
+              size="sm"
+              variant="danger"
+              disabled={isBulkCommentActionPending}
+              onClick={onClearSelectedComments}
+            >
+              <FontAwesomeIcon icon="trash" className="me-2" />
+              {t('adminAccount.comments.bulk.clearSelection', { ns: 'admin-account' })}
+            </Button>
+          </>
+        ) : null}
+      </div>
+      {hasSelectedComments ? (
+        <div className="d-flex align-items-center gap-2 flex-wrap">
+          <Button
+            type="button"
+            size="sm"
+            variant="success"
+            disabled={isBulkCommentActionPending}
+            onClick={() => void onBulkCommentStatusUpdate('APPROVED')}
+          >
+            {renderPendingAction('APPROVED') ?? (
+              <>
+                <FontAwesomeIcon icon="check" className="me-2" />
+                {t('adminAccount.comments.actions.approve', { ns: 'admin-account' })}
+              </>
+            )}
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            className="admin-newsletter-action admin-newsletter-action--secondary"
+            disabled={isBulkCommentActionPending}
+            onClick={() => void onBulkCommentStatusUpdate('REJECTED')}
+          >
+            {renderPendingAction('REJECTED') ?? (
+              <>
+                <FontAwesomeIcon icon="times-circle" className="me-2" />
+                {t('adminAccount.comments.actions.reject', { ns: 'admin-account' })}
+              </>
+            )}
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="danger"
+            className="admin-newsletter-action admin-newsletter-action--danger"
+            disabled={isBulkCommentActionPending}
+            onClick={() => void onBulkCommentStatusUpdate('SPAM')}
+          >
+            {renderPendingAction('SPAM') ?? (
+              <>
+                <FontAwesomeIcon icon="shield-halved" className="me-2" />
+                {t('adminAccount.comments.actions.spam', { ns: 'admin-account' })}
+              </>
+            )}
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="danger"
+            disabled={isBulkCommentActionPending}
+            onClick={onOpenBulkCommentDelete}
+          >
+            {renderPendingAction('DELETE') ?? (
+              <>
+                <FontAwesomeIcon icon="trash" className="me-2" />
+                {t('adminAccount.comments.actions.delete', { ns: 'admin-account' })}
+              </>
+            )}
+          </Button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 export default function AdminAccountCommentsSection({
   t,
@@ -209,152 +358,20 @@ export default function AdminAccountCommentsSection({
         <div className="card theme-shadow-sm d-block">
           <div className="card-body p-3 w-100">
             {comments.length > 0 ? (
-              <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-                <div className="d-flex align-items-center gap-2 flex-wrap">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant={allVisibleCommentsSelected ? 'secondary' : 'outline-secondary'}
-                    disabled={isCommentsLoading || isBulkCommentActionPending}
-                    onClick={onToggleVisibleCommentsSelection}
-                  >
-                    <FontAwesomeIcon icon={allVisibleCommentsSelected ? 'check-circle' : 'circle'} className="me-2" />
-                    {t('adminAccount.comments.bulk.selectAll', { ns: 'admin-account' })}
-                  </Button>
-                  {hasSelectedComments ? (
-                    <>
-                      <Badge bg="light" text="dark" pill>
-                        {t('adminAccount.comments.bulk.selected', {
-                          ns: 'admin-account',
-                          count: selectedCommentCount,
-                        })}
-                      </Badge>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="danger"
-                        disabled={isBulkCommentActionPending}
-                        onClick={onClearSelectedComments}
-                      >
-                        <FontAwesomeIcon icon="trash" className="me-2" />
-                        {t('adminAccount.comments.bulk.clearSelection', { ns: 'admin-account' })}
-                      </Button>
-                    </>
-                  ) : null}
-                </div>
-                {hasSelectedComments ? (
-                  <div className="d-flex align-items-center gap-2 flex-wrap">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="success"
-                      disabled={isBulkCommentActionPending}
-                      onClick={() => {
-                        void onBulkCommentStatusUpdate('APPROVED');
-                      }}
-                    >
-                      {bulkCommentActionStatus === 'APPROVED' ? (
-                        <span className="d-inline-flex align-items-center gap-2">
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            className="me-2 flex-shrink-0 admin-action-spinner"
-                            aria-hidden="true"
-                          />
-                          <span>{t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}</span>
-                        </span>
-                      ) : (
-                        <>
-                          <FontAwesomeIcon icon="check" className="me-2" />
-                          {t('adminAccount.comments.actions.approve', { ns: 'admin-account' })}
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="secondary"
-                      className="admin-newsletter-action admin-newsletter-action--secondary"
-                      disabled={isBulkCommentActionPending}
-                      onClick={() => {
-                        void onBulkCommentStatusUpdate('REJECTED');
-                      }}
-                    >
-                      {bulkCommentActionStatus === 'REJECTED' ? (
-                        <span className="d-inline-flex align-items-center gap-2">
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            className="me-2 flex-shrink-0 admin-action-spinner"
-                            aria-hidden="true"
-                          />
-                          <span>{t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}</span>
-                        </span>
-                      ) : (
-                        <>
-                          <FontAwesomeIcon icon="times-circle" className="me-2" />
-                          {t('adminAccount.comments.actions.reject', { ns: 'admin-account' })}
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="danger"
-                      className="admin-newsletter-action admin-newsletter-action--danger"
-                      disabled={isBulkCommentActionPending}
-                      onClick={() => {
-                        void onBulkCommentStatusUpdate('SPAM');
-                      }}
-                    >
-                      {bulkCommentActionStatus === 'SPAM' ? (
-                        <span className="d-inline-flex align-items-center gap-2">
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            className="me-2 flex-shrink-0 admin-action-spinner"
-                            aria-hidden="true"
-                          />
-                          <span>{t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}</span>
-                        </span>
-                      ) : (
-                        <>
-                          <FontAwesomeIcon icon="shield-halved" className="me-2" />
-                          {t('adminAccount.comments.actions.spam', { ns: 'admin-account' })}
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="danger"
-                      disabled={isBulkCommentActionPending}
-                      onClick={onOpenBulkCommentDelete}
-                    >
-                      {isBulkCommentDeleting ? (
-                        <span className="d-inline-flex align-items-center gap-2">
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            className="me-2 flex-shrink-0 admin-action-spinner"
-                            aria-hidden="true"
-                          />
-                          <span>{t('adminAccount.comments.actions.deleting', { ns: 'admin-account' })}</span>
-                        </span>
-                      ) : (
-                        <>
-                          <FontAwesomeIcon icon="trash" className="me-2" />
-                          {t('adminAccount.comments.actions.delete', { ns: 'admin-account' })}
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                ) : null}
-              </div>
+              <CommentBulkActions
+                t={t}
+                allVisibleCommentsSelected={allVisibleCommentsSelected}
+                hasSelectedComments={hasSelectedComments}
+                selectedCommentCount={selectedCommentCount}
+                isCommentsLoading={isCommentsLoading}
+                isBulkCommentActionPending={isBulkCommentActionPending}
+                bulkCommentActionStatus={bulkCommentActionStatus}
+                isBulkCommentDeleting={isBulkCommentDeleting}
+                onToggleVisibleCommentsSelection={onToggleVisibleCommentsSelection}
+                onClearSelectedComments={onClearSelectedComments}
+                onBulkCommentStatusUpdate={onBulkCommentStatusUpdate}
+                onOpenBulkCommentDelete={onOpenBulkCommentDelete}
+              />
             ) : null}
             {renderAsyncSectionContent({
               isLoading: isCommentsLoading,
@@ -366,9 +383,6 @@ export default function AdminAccountCommentsSection({
                   {comments.map(item => {
                     const isActionPending = commentActionID === item.id;
                     const isDeletePending = deletingCommentID === item.id;
-                    const isApprovePending = isActionPending && commentActionStatus === 'APPROVED';
-                    const isRejectPending = isActionPending && commentActionStatus === 'REJECTED';
-                    const isSpamPending = isActionPending && commentActionStatus === 'SPAM';
                     const statusLabel = t(`adminAccount.comments.filters.statuses.${item.status.toLowerCase()}`, {
                       ns: 'admin-account',
                     });
@@ -392,43 +406,13 @@ export default function AdminAccountCommentsSection({
                               }}
                             />
                             <div className="d-grid gap-2">
-                              <div className="d-flex align-items-center gap-2 flex-wrap">
-                                <strong className="text-break">{item.authorName}</strong>
-                                <span className={`badge text-bg-${resolveCommentStatusVariant(item.status)}`}>
-                                  {statusLabel}
-                                </span>
-                                <span className="badge text-bg-light">
-                                  {item.parentId
-                                    ? t('adminAccount.comments.list.replyLabel', { ns: 'admin-account' })
-                                    : t('adminAccount.comments.list.rootLabel', { ns: 'admin-account' })}
-                                </span>
-                              </div>
-                              <div className="small theme-text-muted d-flex align-items-center gap-2 flex-wrap">
-                                <span className="d-inline-flex align-items-center gap-2">
-                                  <FontAwesomeIcon icon="envelope" className="theme-text-muted" />
-                                  <span>{item.authorEmail}</span>
-                                </span>
-                                <span className="d-inline-flex align-items-center gap-2">
-                                  <FontAwesomeIcon icon="calendar-alt" className="theme-text-muted" />
-                                  <span>
-                                    {t('adminAccount.comments.list.submittedAt', {
-                                      ns: 'admin-account',
-                                      value: formatSessionDate(item.createdAt),
-                                    })}
-                                  </span>
-                                </span>
-                                {item.updatedAt && item.updatedAt !== item.createdAt ? (
-                                  <span className="d-inline-flex align-items-center gap-2">
-                                    <FontAwesomeIcon icon="clock" className="theme-text-muted" />
-                                    <span>
-                                      {t('adminAccount.comments.list.updatedAt', {
-                                        ns: 'admin-account',
-                                        value: formatSessionDate(item.updatedAt),
-                                      })}
-                                    </span>
-                                  </span>
-                                ) : null}
-                              </div>
+                              <AdminCommentDetails
+                                t={t}
+                                item={item}
+                                statusLabel={statusLabel}
+                                statusVariant={resolveCommentStatusVariant(item.status)}
+                                formatDate={formatSessionDate}
+                              />
                             </div>
                           </div>
 
@@ -452,143 +436,16 @@ export default function AdminAccountCommentsSection({
                         </div>
                         <p className="mb-0 mt-2 text-break">{item.content}</p>
 
-                        <div className="row g-2 mt-3">
-                          <div className="col-12 col-md-auto">
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="success"
-                              className="w-100"
-                              disabled={
-                                isActionPending ||
-                                isDeletePending ||
-                                isBulkCommentActionPending ||
-                                item.status === 'APPROVED'
-                              }
-                              onClick={() => {
-                                void onCommentStatusUpdate(item.id, 'APPROVED');
-                              }}
-                            >
-                              {isApprovePending ? (
-                                <span className="d-inline-flex align-items-center gap-2">
-                                  <Spinner
-                                    as="span"
-                                    animation="border"
-                                    size="sm"
-                                    className="me-2 flex-shrink-0 admin-action-spinner"
-                                    aria-hidden="true"
-                                  />
-                                  <span>{t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}</span>
-                                </span>
-                              ) : (
-                                <>
-                                  <FontAwesomeIcon icon="check" className="me-2" />
-                                  {t('adminAccount.comments.actions.approve', { ns: 'admin-account' })}
-                                </>
-                              )}
-                            </Button>
-                          </div>
-                          <div className="col-12 col-md-auto">
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="secondary"
-                              className="w-100 admin-newsletter-action admin-newsletter-action--secondary"
-                              disabled={
-                                isActionPending ||
-                                isDeletePending ||
-                                isBulkCommentActionPending ||
-                                item.status === 'REJECTED'
-                              }
-                              onClick={() => {
-                                void onCommentStatusUpdate(item.id, 'REJECTED');
-                              }}
-                            >
-                              {isRejectPending ? (
-                                <span className="d-inline-flex align-items-center gap-2">
-                                  <Spinner
-                                    as="span"
-                                    animation="border"
-                                    size="sm"
-                                    className="me-2 flex-shrink-0 admin-action-spinner"
-                                    aria-hidden="true"
-                                  />
-                                  <span>{t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}</span>
-                                </span>
-                              ) : (
-                                <>
-                                  <FontAwesomeIcon icon="times-circle" className="me-2" />
-                                  {t('adminAccount.comments.actions.reject', { ns: 'admin-account' })}
-                                </>
-                              )}
-                            </Button>
-                          </div>
-                          <div className="col-12 col-md-auto">
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="danger"
-                              className="w-100 admin-newsletter-action admin-newsletter-action--danger"
-                              disabled={
-                                isActionPending ||
-                                isDeletePending ||
-                                isBulkCommentActionPending ||
-                                item.status === 'SPAM'
-                              }
-                              onClick={() => {
-                                void onCommentStatusUpdate(item.id, 'SPAM');
-                              }}
-                            >
-                              {isSpamPending ? (
-                                <span className="d-inline-flex align-items-center gap-2">
-                                  <Spinner
-                                    as="span"
-                                    animation="border"
-                                    size="sm"
-                                    className="me-2 flex-shrink-0 admin-action-spinner"
-                                    aria-hidden="true"
-                                  />
-                                  <span>{t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}</span>
-                                </span>
-                              ) : (
-                                <>
-                                  <FontAwesomeIcon icon="shield-halved" className="me-2" />
-                                  {t('adminAccount.comments.actions.spam', { ns: 'admin-account' })}
-                                </>
-                              )}
-                            </Button>
-                          </div>
-                          <div className="col-12 col-md-auto">
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="danger"
-                              className="w-100"
-                              disabled={isActionPending || isDeletePending || isBulkCommentActionPending}
-                              onClick={() => {
-                                onOpenCommentDelete(item);
-                              }}
-                            >
-                              {isDeletePending ? (
-                                <span className="d-inline-flex align-items-center gap-2">
-                                  <Spinner
-                                    as="span"
-                                    animation="border"
-                                    size="sm"
-                                    className="me-2 flex-shrink-0 admin-action-spinner"
-                                    aria-hidden="true"
-                                  />
-                                  <span>{t('adminAccount.comments.actions.deleting', { ns: 'admin-account' })}</span>
-                                </span>
-                              ) : (
-                                <>
-                                  <FontAwesomeIcon icon="trash" className="me-2" />
-                                  {t('adminAccount.comments.actions.delete', { ns: 'admin-account' })}
-                                </>
-                              )}
-                            </Button>
-                          </div>
-                        </div>
+                        <AdminCommentModerationActions
+                          t={t}
+                          status={item.status}
+                          actionStatus={commentActionStatus}
+                          isActionPending={isActionPending}
+                          isDeletePending={isDeletePending}
+                          isBulkActionPending={isBulkCommentActionPending}
+                          onStatusUpdate={status => onCommentStatusUpdate(item.id, status)}
+                          onDelete={() => onOpenCommentDelete(item)}
+                        />
                       </div>
                     );
                   })}

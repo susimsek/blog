@@ -106,14 +106,39 @@ describe('TopicsDropdown', () => {
     }
   });
 
-  test('filters topics based on search input', async () => {
+  test.each([
+    {
+      query: 'Vue',
+      expectedTopic: 'Vue.js',
+      caseName: 'filters topics based on search input',
+      startOnSecondPage: false,
+    },
+    {
+      query: 'Next',
+      expectedTopic: 'Next.js',
+      caseName: 'updates the topic list dynamically',
+      startOnSecondPage: false,
+    },
+    {
+      query: 'React',
+      expectedTopic: 'React',
+      caseName: 'resets pagination when topics are filtered',
+      startOnSecondPage: true,
+    },
+  ])('$caseName', async ({ query, expectedTopic, startOnSecondPage }) => {
     renderComponent();
     await click(screen.getByText('topic:topic.allTopics'));
+    if (startOnSecondPage) {
+      await click(screen.getByTestId('paginator-next'));
+    }
 
     const searchInput = screen.getByPlaceholderText('common.searchBar.placeholder');
-    await change(searchInput, 'Vue');
+    await change(searchInput, query);
 
-    expect(screen.getByText('Vue.js')).toBeInTheDocument();
+    expect(screen.getByText(expectedTopic)).toBeInTheDocument();
+    if (startOnSecondPage) {
+      expect(screen.getByTestId('paginator-current')).toHaveTextContent('1');
+    }
   });
 
   test('handles pagination correctly', async () => {
@@ -131,16 +156,6 @@ describe('TopicsDropdown', () => {
     expect(screen.getByText('React')).toBeInTheDocument();
   });
 
-  test('updates topic list dynamically when searching', async () => {
-    renderComponent();
-    await click(screen.getByText('topic:topic.allTopics'));
-
-    const searchInput = screen.getByPlaceholderText('common.searchBar.placeholder');
-    await change(searchInput, 'Next');
-
-    expect(screen.getByText('Next.js')).toBeInTheDocument();
-  });
-
   test('does not match topic by id', async () => {
     const topicsWithIdOnlyMatch: Topic[] = [...mockTopics, { id: 'rbac-auth', name: 'Authorization', color: 'gray' }];
     renderComponent([], topicsWithIdOnlyMatch);
@@ -151,16 +166,6 @@ describe('TopicsDropdown', () => {
 
     expect(screen.queryByText('Authorization')).not.toBeInTheDocument();
     expect(screen.getByText('topic:topic.noTopicFound')).toBeInTheDocument();
-  });
-
-  test('resets pagination when topics are filtered', async () => {
-    renderComponent();
-    await click(screen.getByText('topic:topic.allTopics'));
-
-    const searchInput = screen.getByPlaceholderText('common.searchBar.placeholder');
-    await change(searchInput, 'Vue');
-
-    expect(screen.getByText('Vue.js')).toBeInTheDocument();
   });
 
   test('displays a message when no topics are found', async () => {
