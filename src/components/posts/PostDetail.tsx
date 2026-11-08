@@ -310,6 +310,15 @@ const resolvePostCategoryHref = (category: Post['category']) => {
   return categoryID ? `/categories/${categoryID}` : null;
 };
 
+export const resolvePostUpdatedDateInfo = (updatedDate: Post['updatedDate'], publishedDate: string) => {
+  const normalizedUpdatedDate = typeof updatedDate === 'string' ? updatedDate.trim() : '';
+
+  return {
+    normalizedUpdatedDate,
+    hasUpdatedNotice: normalizedUpdatedDate.length > 0 && normalizedUpdatedDate !== publishedDate,
+  };
+};
+
 export default function PostDetail({
   // NOSONAR
   post,
@@ -320,8 +329,7 @@ export default function PostDetail({
   const { t } = useTranslation(['post', 'common']);
   const locale = useLocale();
   const { title, publishedDate, updatedDate, contentHtml, thumbnail, topics, readingTimeMin, category } = post;
-  const normalizedUpdatedDate = typeof updatedDate === 'string' ? updatedDate.trim() : '';
-  const hasUpdatedNotice = normalizedUpdatedDate.length > 0 && normalizedUpdatedDate !== publishedDate;
+  const { normalizedUpdatedDate, hasUpdatedNotice } = resolvePostUpdatedDateInfo(updatedDate, publishedDate);
   const articleRef = React.useRef<HTMLElement | null>(null);
   const copyTimeoutRef = React.useRef<ReturnType<typeof globalThis.setTimeout> | null>(null);
   const [isCopied, setIsCopied] = React.useState(false);

@@ -3,6 +3,7 @@ import {
   buildPostNavigationGridClassName,
   getFenceToken,
   hasSupportedMarkdownHeading,
+  resolvePostUpdatedDateInfo,
   resolvePostDetailThumbnailSrc,
   splitMarkdownIntro,
 } from '@/components/posts/PostDetail';
@@ -51,6 +52,21 @@ describe('PostDetail helpers', () => {
     expect(buildPostNavigationGridClassName(true, true)).toBe('post-navigation-grid');
     expect(buildPostNavigationGridClassName(false, true)).toContain('has-only-next');
     expect(buildPostNavigationGridClassName(true, false)).toContain('has-only-previous');
+  });
+
+  it('normalizes updated dates and detects whether an update notice is needed', () => {
+    expect(resolvePostUpdatedDateInfo(' 2025-01-05 ', '2025-01-01')).toEqual({
+      normalizedUpdatedDate: '2025-01-05',
+      hasUpdatedNotice: true,
+    });
+    expect(resolvePostUpdatedDateInfo(undefined, '2025-01-01')).toEqual({
+      normalizedUpdatedDate: '',
+      hasUpdatedNotice: false,
+    });
+    expect(resolvePostUpdatedDateInfo('2025-01-01', '2025-01-01')).toEqual({
+      normalizedUpdatedDate: '2025-01-01',
+      hasUpdatedNotice: false,
+    });
   });
 
   it('resolves post detail thumbnail sources safely', () => {
