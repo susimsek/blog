@@ -231,6 +231,128 @@ function PostRevisionHistory({
   );
 }
 
+type PostSeoPreviewProps = Pick<
+  AdminContentPostMetadataTabProps,
+  't' | 'postEditorSeoPreview' | 'postSeoPreviewTab' | 'onPostSeoPreviewTabChange' | 'imageLoader'
+>;
+
+function PostSeoPreview({
+  t,
+  postEditorSeoPreview,
+  postSeoPreviewTab,
+  onPostSeoPreviewTabChange,
+  imageLoader,
+}: Readonly<PostSeoPreviewProps>) {
+  if (!postEditorSeoPreview) {
+    return null;
+  }
+
+  return (
+    <div className="mb-4">
+      <div className="mb-3">
+        <h5 className="mb-1">{t('adminAccount.content.modals.post.seo.title', { ns: 'admin-account' })}</h5>
+        <p className="small theme-text-muted mb-0">
+          {t('adminAccount.content.modals.post.seo.copy', { ns: 'admin-account' })}
+        </p>
+      </div>
+      <Nav
+        variant="tabs"
+        activeKey={postSeoPreviewTab}
+        onSelect={nextKey => onPostSeoPreviewTabChange((nextKey as PostSeoPreviewTab) || 'openGraph')}
+        className="mb-3 admin-content-tabs"
+      >
+        <Nav.Item>
+          <Nav.Link eventKey="openGraph">
+            <span className="d-inline-flex align-items-center gap-2">
+              <FontAwesomeIcon icon="globe" />
+              <span>{t('adminAccount.content.modals.post.seo.openGraphTitle', { ns: 'admin-account' })}</span>
+            </span>
+          </Nav.Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Nav.Link eventKey="twitter">
+            <span className="d-inline-flex align-items-center gap-2">
+              <FontAwesomeIcon icon={['fab', 'x-twitter']} />
+              <span>{t('adminAccount.content.modals.post.seo.twitterTitle', { ns: 'admin-account' })}</span>
+            </span>
+          </Nav.Link>
+        </Nav.Item>
+      </Nav>
+      <div className="admin-content-seo-preview-wrap">
+        {postSeoPreviewTab === 'openGraph' ? (
+          <Card className="admin-content-seo-preview-card">
+            <Card.Body className="p-0">
+              <div className="admin-content-seo-image-frame">
+                {postEditorSeoPreview.previewImageSrc ? (
+                  <Image
+                    loader={imageLoader}
+                    src={postEditorSeoPreview.previewImageSrc}
+                    alt={postEditorSeoPreview.title}
+                    fill
+                    unoptimized
+                    sizes="(max-width: 991px) 100vw, 50vw"
+                    className="object-fit-cover"
+                  />
+                ) : (
+                  <div className="w-100 h-100 d-flex align-items-center justify-content-center theme-text-muted bg-body-tertiary">
+                    <FontAwesomeIcon icon="camera" />
+                  </div>
+                )}
+              </div>
+              <div className="p-3 p-lg-4">
+                <div className="admin-content-seo-card-domain mb-2">{postEditorSeoPreview.domainLabel}</div>
+                <div className="admin-content-seo-card-title">{postEditorSeoPreview.title}</div>
+                <div className="admin-content-seo-card-description">{postEditorSeoPreview.description}</div>
+              </div>
+            </Card.Body>
+          </Card>
+        ) : null}
+        {postSeoPreviewTab === 'twitter' ? (
+          <Card className="admin-content-seo-preview-card">
+            <Card.Body className="p-0">
+              <div className="admin-content-seo-image-frame admin-content-seo-image-frame--x">
+                {postEditorSeoPreview.previewImageSrc ? (
+                  <Image
+                    loader={imageLoader}
+                    src={postEditorSeoPreview.previewImageSrc}
+                    alt={postEditorSeoPreview.title}
+                    fill
+                    unoptimized
+                    sizes="(max-width: 991px) 100vw, 50vw"
+                    className="object-fit-cover"
+                  />
+                ) : (
+                  <div className="w-100 h-100 d-flex align-items-center justify-content-center theme-text-muted bg-body-tertiary">
+                    <FontAwesomeIcon icon="camera" />
+                  </div>
+                )}
+              </div>
+              <div className="p-3 p-lg-4">
+                <div className="admin-content-seo-card-title">{postEditorSeoPreview.title}</div>
+                <div className="admin-content-seo-card-description mb-3">{postEditorSeoPreview.description}</div>
+                <div className="small theme-text-muted admin-content-seo-card-meta">
+                  <span>
+                    {t('adminAccount.content.modals.post.seo.canonicalLabel', { ns: 'admin-account' })}:{' '}
+                    {postEditorSeoPreview.canonicalURL}
+                  </span>
+                  <span>
+                    {t('adminAccount.content.modals.post.seo.creatorLabel', { ns: 'admin-account' })}:{' '}
+                    {postEditorSeoPreview.creatorLabel}
+                  </span>
+                  <span>
+                    {t('adminAccount.content.modals.post.seo.authorLabel', { ns: 'admin-account' })}:{' '}
+                    {postEditorSeoPreview.authorLabel}
+                  </span>
+                </div>
+              </div>
+            </Card.Body>
+          </Card>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminContentPostMetadataTab({
   t,
   routeLocale,
@@ -327,110 +449,13 @@ export default function AdminContentPostMetadataTab({
         </div>
       </div>
 
-      {postEditorSeoPreview ? (
-        <div className="mb-4">
-          <div className="mb-3">
-            <h5 className="mb-1">{t('adminAccount.content.modals.post.seo.title', { ns: 'admin-account' })}</h5>
-            <p className="small theme-text-muted mb-0">
-              {t('adminAccount.content.modals.post.seo.copy', { ns: 'admin-account' })}
-            </p>
-          </div>
-          <Nav
-            variant="tabs"
-            activeKey={postSeoPreviewTab}
-            onSelect={nextKey => onPostSeoPreviewTabChange((nextKey as PostSeoPreviewTab) || 'openGraph')}
-            className="mb-3 admin-content-tabs"
-          >
-            <Nav.Item>
-              <Nav.Link eventKey="openGraph">
-                <span className="d-inline-flex align-items-center gap-2">
-                  <FontAwesomeIcon icon="globe" />
-                  <span>{t('adminAccount.content.modals.post.seo.openGraphTitle', { ns: 'admin-account' })}</span>
-                </span>
-              </Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link eventKey="twitter">
-                <span className="d-inline-flex align-items-center gap-2">
-                  <FontAwesomeIcon icon={['fab', 'x-twitter']} />
-                  <span>{t('adminAccount.content.modals.post.seo.twitterTitle', { ns: 'admin-account' })}</span>
-                </span>
-              </Nav.Link>
-            </Nav.Item>
-          </Nav>
-          <div className="admin-content-seo-preview-wrap">
-            {postSeoPreviewTab === 'openGraph' ? (
-              <Card className="admin-content-seo-preview-card">
-                <Card.Body className="p-0">
-                  <div className="admin-content-seo-image-frame">
-                    {postEditorSeoPreview.previewImageSrc ? (
-                      <Image
-                        loader={imageLoader}
-                        src={postEditorSeoPreview.previewImageSrc}
-                        alt={postEditorSeoPreview.title}
-                        fill
-                        unoptimized
-                        sizes="(max-width: 991px) 100vw, 50vw"
-                        className="object-fit-cover"
-                      />
-                    ) : (
-                      <div className="w-100 h-100 d-flex align-items-center justify-content-center theme-text-muted bg-body-tertiary">
-                        <FontAwesomeIcon icon="camera" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-3 p-lg-4">
-                    <div className="admin-content-seo-card-domain mb-2">{postEditorSeoPreview.domainLabel}</div>
-                    <div className="admin-content-seo-card-title">{postEditorSeoPreview.title}</div>
-                    <div className="admin-content-seo-card-description">{postEditorSeoPreview.description}</div>
-                  </div>
-                </Card.Body>
-              </Card>
-            ) : null}
-            {postSeoPreviewTab === 'twitter' ? (
-              <Card className="admin-content-seo-preview-card">
-                <Card.Body className="p-0">
-                  <div className="admin-content-seo-image-frame admin-content-seo-image-frame--x">
-                    {postEditorSeoPreview.previewImageSrc ? (
-                      <Image
-                        loader={imageLoader}
-                        src={postEditorSeoPreview.previewImageSrc}
-                        alt={postEditorSeoPreview.title}
-                        fill
-                        unoptimized
-                        sizes="(max-width: 991px) 100vw, 50vw"
-                        className="object-fit-cover"
-                      />
-                    ) : (
-                      <div className="w-100 h-100 d-flex align-items-center justify-content-center theme-text-muted bg-body-tertiary">
-                        <FontAwesomeIcon icon="camera" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-3 p-lg-4">
-                    <div className="admin-content-seo-card-title">{postEditorSeoPreview.title}</div>
-                    <div className="admin-content-seo-card-description mb-3">{postEditorSeoPreview.description}</div>
-                    <div className="small theme-text-muted admin-content-seo-card-meta">
-                      <span>
-                        {t('adminAccount.content.modals.post.seo.canonicalLabel', { ns: 'admin-account' })}:{' '}
-                        {postEditorSeoPreview.canonicalURL}
-                      </span>
-                      <span>
-                        {t('adminAccount.content.modals.post.seo.creatorLabel', { ns: 'admin-account' })}:{' '}
-                        {postEditorSeoPreview.creatorLabel}
-                      </span>
-                      <span>
-                        {t('adminAccount.content.modals.post.seo.authorLabel', { ns: 'admin-account' })}:{' '}
-                        {postEditorSeoPreview.authorLabel}
-                      </span>
-                    </div>
-                  </div>
-                </Card.Body>
-              </Card>
-            ) : null}
-          </div>
-        </div>
-      ) : null}
+      <PostSeoPreview
+        t={t}
+        postEditorSeoPreview={postEditorSeoPreview}
+        postSeoPreviewTab={postSeoPreviewTab}
+        onPostSeoPreviewTabChange={onPostSeoPreviewTabChange}
+        imageLoader={imageLoader}
+      />
 
       <Form.Group className="mb-3" controlId="admin-content-post-title">
         <Form.Label>{t('adminAccount.content.modals.post.metadataFields.title', { ns: 'admin-account' })}</Form.Label>

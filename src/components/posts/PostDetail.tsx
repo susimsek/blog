@@ -305,6 +305,11 @@ const usePostDetailRuntime = (locale: string, postID: string): PostDetailRuntime
   return runtimeState;
 };
 
+const resolvePostCategoryHref = (category: Post['category']) => {
+  const categoryID = typeof category?.id === 'string' ? category.id.trim().toLowerCase() : '';
+  return categoryID ? `/categories/${categoryID}` : null;
+};
+
 export default function PostDetail({
   // NOSONAR
   post,
@@ -356,10 +361,7 @@ export default function PostDetail({
   );
 
   const postUrl = React.useMemo(() => buildLocalizedAbsoluteUrl(locale, `posts/${post.id}`), [locale, post.id]);
-  const categoryHref = React.useMemo(() => {
-    const rawID = typeof category?.id === 'string' ? category.id.trim().toLowerCase() : '';
-    return rawID ? `/categories/${rawID}` : null;
-  }, [category]);
+  const categoryHref = React.useMemo(() => resolvePostCategoryHref(category), [category]);
 
   const xShareUrl = React.useMemo(() => {
     const params = new URLSearchParams({
