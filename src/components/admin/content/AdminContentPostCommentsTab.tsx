@@ -128,6 +128,295 @@ function PostCommentCard({
   );
 }
 
+type PostCommentBulkActionsProps = Pick<
+  AdminContentPostCommentsTabProps,
+  | 't'
+  | 'postComments'
+  | 'allVisiblePostCommentsSelected'
+  | 'isPostCommentsLoading'
+  | 'isBulkPostCommentActionPending'
+  | 'hasSelectedPostComments'
+  | 'selectedPostCommentIDs'
+  | 'onToggleVisiblePostCommentsSelection'
+  | 'onClearSelectedPostCommentIDs'
+  | 'bulkPostCommentActionStatus'
+  | 'isBulkPostCommentDeleting'
+  | 'onBulkApprove'
+  | 'onBulkReject'
+  | 'onBulkSpam'
+  | 'onOpenBulkDelete'
+>;
+
+function PostCommentBulkActions({
+  t,
+  postComments,
+  allVisiblePostCommentsSelected,
+  isPostCommentsLoading,
+  isBulkPostCommentActionPending,
+  hasSelectedPostComments,
+  selectedPostCommentIDs,
+  onToggleVisiblePostCommentsSelection,
+  onClearSelectedPostCommentIDs,
+  bulkPostCommentActionStatus,
+  isBulkPostCommentDeleting,
+  onBulkApprove,
+  onBulkReject,
+  onBulkSpam,
+  onOpenBulkDelete,
+}: Readonly<PostCommentBulkActionsProps>) {
+  if (postComments.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+      <div className="d-flex align-items-center gap-2 flex-wrap">
+        <Button
+          type="button"
+          size="sm"
+          variant={allVisiblePostCommentsSelected ? 'secondary' : 'outline-secondary'}
+          disabled={isPostCommentsLoading || isBulkPostCommentActionPending}
+          onClick={onToggleVisiblePostCommentsSelection}
+        >
+          <FontAwesomeIcon icon={allVisiblePostCommentsSelected ? 'check-circle' : 'circle'} className="me-2" />
+          {t('adminAccount.comments.bulk.selectAll', { ns: 'admin-account' })}
+        </Button>
+        {hasSelectedPostComments ? (
+          <>
+            <Badge bg="light" text="dark" pill>
+              {t('adminAccount.comments.bulk.selected', {
+                ns: 'admin-account',
+                count: selectedPostCommentIDs.length,
+              })}
+            </Badge>
+            <Button
+              type="button"
+              size="sm"
+              variant="danger"
+              disabled={isBulkPostCommentActionPending}
+              onClick={onClearSelectedPostCommentIDs}
+            >
+              <FontAwesomeIcon icon="trash" className="me-2" />
+              {t('adminAccount.comments.bulk.clearSelection', { ns: 'admin-account' })}
+            </Button>
+          </>
+        ) : null}
+      </div>
+      {hasSelectedPostComments ? (
+        <div className="d-flex align-items-center gap-2 flex-wrap">
+          <Button
+            type="button"
+            size="sm"
+            variant="success"
+            disabled={isBulkPostCommentActionPending}
+            onClick={onBulkApprove}
+          >
+            {bulkPostCommentActionStatus === 'APPROVED' ? (
+              <span className="d-inline-flex align-items-center gap-2">
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  className="me-2 flex-shrink-0 admin-action-spinner"
+                  aria-hidden="true"
+                />
+                <span>{t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}</span>
+              </span>
+            ) : (
+              <>
+                <FontAwesomeIcon icon="check" className="me-2" />
+                {t('adminAccount.comments.actions.approve', { ns: 'admin-account' })}
+              </>
+            )}
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            className="admin-newsletter-action admin-newsletter-action--secondary"
+            disabled={isBulkPostCommentActionPending}
+            onClick={onBulkReject}
+          >
+            {bulkPostCommentActionStatus === 'REJECTED' ? (
+              <span className="d-inline-flex align-items-center gap-2">
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  className="me-2 flex-shrink-0 admin-action-spinner"
+                  aria-hidden="true"
+                />
+                <span>{t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}</span>
+              </span>
+            ) : (
+              <>
+                <FontAwesomeIcon icon="times-circle" className="me-2" />
+                {t('adminAccount.comments.actions.reject', { ns: 'admin-account' })}
+              </>
+            )}
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="danger"
+            className="admin-newsletter-action admin-newsletter-action--danger"
+            disabled={isBulkPostCommentActionPending}
+            onClick={onBulkSpam}
+          >
+            {bulkPostCommentActionStatus === 'SPAM' ? (
+              <span className="d-inline-flex align-items-center gap-2">
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  className="me-2 flex-shrink-0 admin-action-spinner"
+                  aria-hidden="true"
+                />
+                <span>{t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}</span>
+              </span>
+            ) : (
+              <>
+                <FontAwesomeIcon icon="shield-halved" className="me-2" />
+                {t('adminAccount.comments.actions.spam', { ns: 'admin-account' })}
+              </>
+            )}
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="danger"
+            disabled={isBulkPostCommentActionPending}
+            onClick={onOpenBulkDelete}
+          >
+            {isBulkPostCommentDeleting ? (
+              <span className="d-inline-flex align-items-center gap-2">
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  className="me-2 flex-shrink-0 admin-action-spinner"
+                  aria-hidden="true"
+                />
+                <span>{t('adminAccount.comments.actions.deleting', { ns: 'admin-account' })}</span>
+              </span>
+            ) : (
+              <>
+                <FontAwesomeIcon icon="trash" className="me-2" />
+                {t('adminAccount.comments.actions.delete', { ns: 'admin-account' })}
+              </>
+            )}
+          </Button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+type PostCommentListStateProps = Pick<
+  AdminContentPostCommentsTabProps,
+  | 't'
+  | 'formatDate'
+  | 'postCommentsTotal'
+  | 'postComments'
+  | 'isPostCommentsLoading'
+  | 'isBulkPostCommentActionPending'
+  | 'selectedPostCommentIDs'
+  | 'postCommentActionID'
+  | 'postCommentActionStatus'
+  | 'deletingPostCommentID'
+  | 'onTogglePostCommentSelection'
+  | 'resolveCommentStatusVariant'
+  | 'onUpdatePostCommentStatus'
+  | 'onOpenDeletePostComment'
+>;
+
+function PostCommentListState(props: Readonly<PostCommentListStateProps>) {
+  const { t, postCommentsTotal, postComments, isPostCommentsLoading } = props;
+
+  if (isPostCommentsLoading) {
+    return (
+      <AdminLoadingState
+        className="admin-loading-stack"
+        ariaLabel={t('adminAccount.comments.loading', { ns: 'admin-account' })}
+      />
+    );
+  }
+  if (postCommentsTotal === 0) {
+    return (
+      <p className="small theme-text-muted mb-0">
+        {t('adminAccount.content.modals.post.comments.empty', { ns: 'admin-account' })}
+      </p>
+    );
+  }
+
+  return (
+    <div className="d-grid gap-3">
+      {postComments.map(item => (
+        <PostCommentCard key={item.id} item={item} {...props} />
+      ))}
+    </div>
+  );
+}
+
+type PostCommentPaginationProps = Pick<
+  AdminContentPostCommentsTabProps,
+  | 'isPostCommentsLoading'
+  | 'postCommentsTotal'
+  | 'postCommentsPage'
+  | 'totalPostCommentPages'
+  | 'postCommentsPageSize'
+  | 'onPostCommentsPageChange'
+  | 'onPostCommentsPageSizeChange'
+>;
+
+function PostCommentPagination({
+  isPostCommentsLoading,
+  postCommentsTotal,
+  postCommentsPage,
+  totalPostCommentPages,
+  postCommentsPageSize,
+  onPostCommentsPageChange,
+  onPostCommentsPageSizeChange,
+}: Readonly<PostCommentPaginationProps>) {
+  if (isPostCommentsLoading || postCommentsTotal === 0) {
+    return null;
+  }
+
+  return (
+    <div className="card-footer bg-transparent py-3 px-3 px-md-4 border-top">
+      <PaginationBar
+        className="border-0 rounded-0 px-2 px-md-3 py-0 bg-transparent shadow-none"
+        currentPage={postCommentsPage}
+        totalPages={totalPostCommentPages}
+        totalResults={postCommentsTotal}
+        size={postCommentsPageSize}
+        onPageChange={onPostCommentsPageChange}
+        onSizeChange={onPostCommentsPageSizeChange}
+      />
+    </div>
+  );
+}
+
+function PostCommentFeedback({
+  postCommentsErrorMessage: errorMessage,
+  postCommentsSuccessMessage: successMessage,
+}: Readonly<Pick<AdminContentPostCommentsTabProps, 'postCommentsErrorMessage' | 'postCommentsSuccessMessage'>>) {
+  return (
+    <>
+      {errorMessage ? (
+        <Alert variant="danger" className="mb-3 px-3 py-2 lh-base">
+          {errorMessage}
+        </Alert>
+      ) : null}
+      {successMessage ? (
+        <Alert variant="success" className="mb-3 px-3 py-2 lh-base">
+          {successMessage}
+        </Alert>
+      ) : null}
+    </>
+  );
+}
+
 export default function AdminContentPostCommentsTab({
   t,
   formatDate,
@@ -240,208 +529,56 @@ export default function AdminContentPostCommentsTab({
         </div>
       </Form.Group>
 
-      {postCommentsErrorMessage ? (
-        <Alert variant="danger" className="mb-3 px-3 py-2 lh-base">
-          {postCommentsErrorMessage}
-        </Alert>
-      ) : null}
-      {postCommentsSuccessMessage ? (
-        <Alert variant="success" className="mb-3 px-3 py-2 lh-base">
-          {postCommentsSuccessMessage}
-        </Alert>
-      ) : null}
+      <PostCommentFeedback
+        postCommentsErrorMessage={postCommentsErrorMessage}
+        postCommentsSuccessMessage={postCommentsSuccessMessage}
+      />
 
       <div className="card theme-shadow-sm d-block">
         <div className="card-body p-3 w-100">
-          {postComments.length > 0 ? (
-            <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-              <div className="d-flex align-items-center gap-2 flex-wrap">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={allVisiblePostCommentsSelected ? 'secondary' : 'outline-secondary'}
-                  disabled={isPostCommentsLoading || isBulkPostCommentActionPending}
-                  onClick={onToggleVisiblePostCommentsSelection}
-                >
-                  <FontAwesomeIcon icon={allVisiblePostCommentsSelected ? 'check-circle' : 'circle'} className="me-2" />
-                  {t('adminAccount.comments.bulk.selectAll', { ns: 'admin-account' })}
-                </Button>
-                {hasSelectedPostComments ? (
-                  <>
-                    <Badge bg="light" text="dark" pill>
-                      {t('adminAccount.comments.bulk.selected', {
-                        ns: 'admin-account',
-                        count: selectedPostCommentIDs.length,
-                      })}
-                    </Badge>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="danger"
-                      disabled={isBulkPostCommentActionPending}
-                      onClick={onClearSelectedPostCommentIDs}
-                    >
-                      <FontAwesomeIcon icon="trash" className="me-2" />
-                      {t('adminAccount.comments.bulk.clearSelection', { ns: 'admin-account' })}
-                    </Button>
-                  </>
-                ) : null}
-              </div>
-              {hasSelectedPostComments ? (
-                <div className="d-flex align-items-center gap-2 flex-wrap">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="success"
-                    disabled={isBulkPostCommentActionPending}
-                    onClick={onBulkApprove}
-                  >
-                    {bulkPostCommentActionStatus === 'APPROVED' ? (
-                      <span className="d-inline-flex align-items-center gap-2">
-                        <Spinner
-                          as="span"
-                          animation="border"
-                          size="sm"
-                          className="me-2 flex-shrink-0 admin-action-spinner"
-                          aria-hidden="true"
-                        />
-                        <span>{t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}</span>
-                      </span>
-                    ) : (
-                      <>
-                        <FontAwesomeIcon icon="check" className="me-2" />
-                        {t('adminAccount.comments.actions.approve', { ns: 'admin-account' })}
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="secondary"
-                    className="admin-newsletter-action admin-newsletter-action--secondary"
-                    disabled={isBulkPostCommentActionPending}
-                    onClick={onBulkReject}
-                  >
-                    {bulkPostCommentActionStatus === 'REJECTED' ? (
-                      <span className="d-inline-flex align-items-center gap-2">
-                        <Spinner
-                          as="span"
-                          animation="border"
-                          size="sm"
-                          className="me-2 flex-shrink-0 admin-action-spinner"
-                          aria-hidden="true"
-                        />
-                        <span>{t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}</span>
-                      </span>
-                    ) : (
-                      <>
-                        <FontAwesomeIcon icon="times-circle" className="me-2" />
-                        {t('adminAccount.comments.actions.reject', { ns: 'admin-account' })}
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="danger"
-                    className="admin-newsletter-action admin-newsletter-action--danger"
-                    disabled={isBulkPostCommentActionPending}
-                    onClick={onBulkSpam}
-                  >
-                    {bulkPostCommentActionStatus === 'SPAM' ? (
-                      <span className="d-inline-flex align-items-center gap-2">
-                        <Spinner
-                          as="span"
-                          animation="border"
-                          size="sm"
-                          className="me-2 flex-shrink-0 admin-action-spinner"
-                          aria-hidden="true"
-                        />
-                        <span>{t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}</span>
-                      </span>
-                    ) : (
-                      <>
-                        <FontAwesomeIcon icon="shield-halved" className="me-2" />
-                        {t('adminAccount.comments.actions.spam', { ns: 'admin-account' })}
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="danger"
-                    disabled={isBulkPostCommentActionPending}
-                    onClick={onOpenBulkDelete}
-                  >
-                    {isBulkPostCommentDeleting ? (
-                      <span className="d-inline-flex align-items-center gap-2">
-                        <Spinner
-                          as="span"
-                          animation="border"
-                          size="sm"
-                          className="me-2 flex-shrink-0 admin-action-spinner"
-                          aria-hidden="true"
-                        />
-                        <span>{t('adminAccount.comments.actions.deleting', { ns: 'admin-account' })}</span>
-                      </span>
-                    ) : (
-                      <>
-                        <FontAwesomeIcon icon="trash" className="me-2" />
-                        {t('adminAccount.comments.actions.delete', { ns: 'admin-account' })}
-                      </>
-                    )}
-                  </Button>
-                </div>
-              ) : null}
-            </div>
-          ) : null}
-
-          {isPostCommentsLoading && (
-            <AdminLoadingState
-              className="admin-loading-stack"
-              ariaLabel={t('adminAccount.comments.loading', { ns: 'admin-account' })}
-            />
-          )}
-          {!isPostCommentsLoading && postCommentsTotal === 0 && (
-            <p className="small theme-text-muted mb-0">
-              {t('adminAccount.content.modals.post.comments.empty', { ns: 'admin-account' })}
-            </p>
-          )}
-          {!isPostCommentsLoading && postCommentsTotal !== 0 && (
-            <div className="d-grid gap-3">
-              {postComments.map(item => (
-                <PostCommentCard
-                  key={item.id}
-                  item={item}
-                  t={t}
-                  formatDate={formatDate}
-                  isBulkPostCommentActionPending={isBulkPostCommentActionPending}
-                  selectedPostCommentIDs={selectedPostCommentIDs}
-                  postCommentActionID={postCommentActionID}
-                  postCommentActionStatus={postCommentActionStatus}
-                  deletingPostCommentID={deletingPostCommentID}
-                  onTogglePostCommentSelection={onTogglePostCommentSelection}
-                  resolveCommentStatusVariant={resolveCommentStatusVariant}
-                  onUpdatePostCommentStatus={onUpdatePostCommentStatus}
-                  onOpenDeletePostComment={onOpenDeletePostComment}
-                />
-              ))}
-            </div>
-          )}
+          <PostCommentBulkActions
+            t={t}
+            postComments={postComments}
+            allVisiblePostCommentsSelected={allVisiblePostCommentsSelected}
+            isPostCommentsLoading={isPostCommentsLoading}
+            isBulkPostCommentActionPending={isBulkPostCommentActionPending}
+            hasSelectedPostComments={hasSelectedPostComments}
+            selectedPostCommentIDs={selectedPostCommentIDs}
+            onToggleVisiblePostCommentsSelection={onToggleVisiblePostCommentsSelection}
+            onClearSelectedPostCommentIDs={onClearSelectedPostCommentIDs}
+            bulkPostCommentActionStatus={bulkPostCommentActionStatus}
+            isBulkPostCommentDeleting={isBulkPostCommentDeleting}
+            onBulkApprove={onBulkApprove}
+            onBulkReject={onBulkReject}
+            onBulkSpam={onBulkSpam}
+            onOpenBulkDelete={onOpenBulkDelete}
+          />
+          <PostCommentListState
+            t={t}
+            formatDate={formatDate}
+            postCommentsTotal={postCommentsTotal}
+            postComments={postComments}
+            isPostCommentsLoading={isPostCommentsLoading}
+            isBulkPostCommentActionPending={isBulkPostCommentActionPending}
+            selectedPostCommentIDs={selectedPostCommentIDs}
+            postCommentActionID={postCommentActionID}
+            postCommentActionStatus={postCommentActionStatus}
+            deletingPostCommentID={deletingPostCommentID}
+            onTogglePostCommentSelection={onTogglePostCommentSelection}
+            resolveCommentStatusVariant={resolveCommentStatusVariant}
+            onUpdatePostCommentStatus={onUpdatePostCommentStatus}
+            onOpenDeletePostComment={onOpenDeletePostComment}
+          />
         </div>
-        {!isPostCommentsLoading && postCommentsTotal > 0 ? (
-          <div className="card-footer bg-transparent py-3 px-3 px-md-4 border-top">
-            <PaginationBar
-              className="border-0 rounded-0 px-2 px-md-3 py-0 bg-transparent shadow-none"
-              currentPage={postCommentsPage}
-              totalPages={totalPostCommentPages}
-              totalResults={postCommentsTotal}
-              size={postCommentsPageSize}
-              onPageChange={onPostCommentsPageChange}
-              onSizeChange={onPostCommentsPageSizeChange}
-            />
-          </div>
-        ) : null}
+        <PostCommentPagination
+          isPostCommentsLoading={isPostCommentsLoading}
+          postCommentsTotal={postCommentsTotal}
+          postCommentsPage={postCommentsPage}
+          totalPostCommentPages={totalPostCommentPages}
+          postCommentsPageSize={postCommentsPageSize}
+          onPostCommentsPageChange={onPostCommentsPageChange}
+          onPostCommentsPageSizeChange={onPostCommentsPageSizeChange}
+        />
       </div>
     </div>
   );
